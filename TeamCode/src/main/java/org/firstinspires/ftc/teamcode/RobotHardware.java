@@ -33,10 +33,10 @@ import static android.os.SystemClock.sleep;
  */
 public class RobotHardware {
     /* Public OpMode members. */
-    public DcMotorEx leftDrive = null;
-    public DcMotorEx rightDrive = null;
-    public DcMotorEx leftShooter = null;
-    public DcMotorEx rightShooter = null;
+    public DcMotorEx leftBack = null;
+    public DcMotorEx rightBack = null;
+    public DcMotorEx leftFront = null;
+    public DcMotorEx rightFront = null;
 
     public CRServo rampBottom = null;
     public CRServo rampMiddle = null;
@@ -92,16 +92,41 @@ public class RobotHardware {
     //}
 
     /* Initialize standard Hardware interfaces */
-    public void init(HardwareMap ahwMap) {
+    public void init(HardwareMap ahwMap, int wheelType) {
         // Save reference to Hardware map
         hwMap = ahwMap;
 
         // Define and Initialize Motors
-        leftDrive = hwMap.get(DcMotorEx.class, "Motor_0");
-        rightDrive = hwMap.get(DcMotorEx.class, "Motor_1");
-        leftShooter = hwMap.get(DcMotorEx.class, "Motor_2");
-        rightShooter = hwMap.get(DcMotorEx.class, "Motor_3");
-
+        leftBack = hwMap.get(DcMotorEx.class, "Motor_0");
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setPower(0);      
+        leftBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        leftBack.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        rightBack = hwMap.get(DcMotorEx.class, "Motor_1");
+        rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightBack.setPower(0);
+        rightBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        rightBack.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER); 
+        double Back_Motors_F = 32767 / maxDriveVelocity, Back_Motors_P = 0.1 * Back_Motors_F, Back_Motors_I = 0.1 * Back_Motors_P;
+        leftBack.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
+        rightBack.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
+        
+        if(wheelType == 2){
+        leftFront = hwMap.get(DcMotorEx.class, "Motor_2");
+        leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftFront.setPower(0);
+        leftFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        rightFront = hwMap.get(DcMotorEx.class, "Motor_3");
+        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setPower(0); 
+        rightFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        double Front_Motors_F = 32767 / maxShootVelocity, Front_Motors_P = 0.1 * Front_Motors_F, Front_Motors_I = 100 * Front_Motors_P;
+        leftFront.setVelocityPIDFCoefficients(Front_Motors_P, Front_Motors_I, 0, Front_Motors_F);
+        rightFront.setVelocityPIDFCoefficients(Front_Motors_P, Front_Motors_I, 0, Front_Motors_F);
+        }
+        
         // Define and initialize ALL installed servos.
         rampBottom = hwMap.get(CRServo.class, "Servo_0");
         rampMiddle = hwMap.get(CRServo.class, "Servo_1");
@@ -143,46 +168,10 @@ public class RobotHardware {
 
 
 
-        // make sure the imu gyro is calibrated before continuing.
 
 
-        // Set all motors to zero power
-        leftDrive.setPower(0);
-        rightDrive.setPower(0);
-        leftShooter.setPower(0);
-        rightShooter.setPower(0);
 
 
-        leftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightDrive.setDirection(DcMotorSimple.Direction.FORWARD);
-
-        leftShooter.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        // Set all motors to run without encoders.
-        // May want to use RUN_USING_ENCODERS if encoders are installed.
-        leftDrive.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        rightDrive.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        leftShooter.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        rightShooter.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-
-        leftDrive.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        rightDrive.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        leftShooter.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        rightShooter.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-
-
-        leftShooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightShooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-
-        //PIDF Caliration
-        double Shooter_Motors_F = 32767 / maxShootVelocity, Shooter_Motors_P = 0.1 * Shooter_Motors_F, Shooter_Motors_I = 100 * Shooter_Motors_P;
-        leftShooter.setVelocityPIDFCoefficients(Shooter_Motors_P, Shooter_Motors_I, 0, Shooter_Motors_F);
-        rightShooter.setVelocityPIDFCoefficients(Shooter_Motors_P, Shooter_Motors_I, 0, Shooter_Motors_F);
-
-        double Drive_Motors_F = 32767 / maxDriveVelocity, Drive_Motors_P = 0.1 * Drive_Motors_F, Drive_Motors_I = 0.1 * Drive_Motors_P;
-        leftDrive.setVelocityPIDFCoefficients(Drive_Motors_P, Drive_Motors_I, 0, Drive_Motors_F);
-        rightDrive.setVelocityPIDFCoefficients(Drive_Motors_P, Drive_Motors_I, 0, Drive_Motors_F);
 
         while (!gyro.isGyroCalibrated())
         {
