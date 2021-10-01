@@ -187,20 +187,18 @@ public class MecanumDrive extends OpMode {
             }
         }
         telemetry.update();
-        // Setup a variable for each drive wheel to save power level for telemetry
-        double leftPower;
-        double rightPower;
+double r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
+double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
+double rightX = gamepad1.right_stick_x;
+final double v1 = r * Math.cos(robotAngle) + rightX;
+final double v2 = r * Math.sin(robotAngle) - rightX;
+final double v3 = r * Math.sin(robotAngle) + rightX;
+final double v4 = r * Math.cos(robotAngle) - rightX;
 
-        // Choose to drive using either Tank Mode, or POV Mode
-        // Comment out the method that's not used.  The default below is POV.
-
-        // POV Mode uses left stick to go forward, and right stick to turn.
-        // - This uses basic math to combine motions and is easier to drive straight.
-        double drive = -gamepad1.left_stick_y;
-        double turn = gamepad1.right_stick_x;
-        leftPower = Range.clip(drive + turn, -1.0, 1.0);
-        rightPower = Range.clip(drive - turn, -1.0, 1.0);
-
+leftFront.setPower(v1);
+rightFront.setPower(v2);
+leftRear.setPower(v3)
+rightRear.setPower(v4);
         if (robot.voltageSensor.getVoltage() < robot.reallyLowBattery && Status != 2) {
             if (Status != 1) audio.play("RawRes:ss_siren");
             Status = 2;
