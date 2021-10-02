@@ -2,15 +2,10 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.LED;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -86,10 +81,10 @@ public class RobotHardware {
     public double driveVelocity = maxDriveVelocity;
     public double lowBattery = 10.5;
     public double reallyLowBattery = 9.5;
-    public double circumferenceMM = 280;
+    //public double circumferenceMM = 280;
     public double circumferenceIN = 11;
     public final double driveTickPerInch = driveTPR/circumferenceIN;
-    public final double driveTickPerMillimeter = driveTPR/circumferenceMM;
+    //public final double driveTickPerMillimeter = driveTPR/circumferenceMM;
     //public final double armRatio = 6;
         /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
          * the following 4 detectable objects
@@ -123,17 +118,17 @@ public class RobotHardware {
          * and paste it in to your code on the next line, between the double quotes.
          */
         public static final String VUFORIA_KEY =
-         "AdImucn/////AAABmS8HHciHwUqGnUCvWpNXwjWCuQC7is1XkgwGqfbHrFJZ2aUjFR69v8HR+Jqn8Ckdsi3Y2oak9H0dwlRxirfntkWVXpSag+5fuJwvx1rd4PqIpJeiZeaJJp1apcv3crUJt6Ka7o7dqHit1VLQr4ynYG5qng0Ft1TiGIrncgnZFF5IVcvcF4DPKXjF8hLIeHzB2/gylS5pKREbj+HtQUo84tr4t5tAeBVS/Q01xJJDLF3DlTX3RXbLkaMd3QVOtO6zjCNkNG8Qj6KJRv4HHT06Q+mGVCJ1hbvM/P4V4TQVsWomxi3+f4Hf6cnWSqLOSTdLag/rIYWhjZRGuzQ5d61GQgrnFevubyQmaywN1v3RyJci"
+         "AdImucn/////AAABmS8HHciHwUqGnUCvWpNXwjWCuQC7is1XkgwGqfbHrFJZ2aUjFR69v8HR+Jqn8Ckdsi3Y2oak9H0dwlRxirfntkWVXpSag+5fuJwvx1rd4PqIpJeiZeaJJp1apcv3crUJt6Ka7o7dqHit1VLQr4ynYG5qng0Ft1TiGIrncgnZFF5IVcvcF4DPKXjF8hLIeHzB2/gylS5pKREbj+HtQUo84tr4t5tAeBVS/Q01xJJDLF3DlTX3RXbLkaMd3QVOtO6zjCNkNG8Qj6KJRv4HHT06Q+mGVCJ1hbvM/P4V4TQVsWomxi3+f4Hf6cnWSqLOSTdLag/rIYWhjZRGuzQ5d61GQgrnFevubyQmaywN1v3RyJci";
             
 
         /**
-         * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
+         * {link #vuforia} is the variable we will use to store our instance of the Vuforia
          * localization engine.
          */
         public VuforiaLocalizer vuforia;
 
         /**
-         * {@link #tfod} is the variable we will use to store our instance of the TensorFlow Object
+         * {link #tfod} is the variable we will use to store our instance of the TensorFlow Object
          * Detection engine.
          */
         public TFObjectDetector tfod;
