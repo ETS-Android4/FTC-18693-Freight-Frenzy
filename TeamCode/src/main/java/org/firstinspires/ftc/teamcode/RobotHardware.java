@@ -163,14 +163,14 @@ public class RobotHardware {
         // Define and Initialize Motors
         leftBack = hwMap.get(DcMotorEx.class, "Motor_0");
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftBack.setPower(0);      
-        leftBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        leftBack.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        leftBack.setVelocity(0);
+        //leftBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        //leftBack.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         rightBack = hwMap.get(DcMotorEx.class, "Motor_1");
         rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightBack.setPower(0);
-        rightBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        rightBack.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER); 
+        rightBack.setVelocity(0);
+        //rightBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+       //rightBack.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         double Back_Motors_F = 32767 / maxDriveVelocity, Back_Motors_P = 0.1 * Back_Motors_F, Back_Motors_I = 0.1 * Back_Motors_P;
         leftBack.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
         rightBack.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
@@ -178,14 +178,14 @@ public class RobotHardware {
         if(wheelType == 2){
         leftFront = hwMap.get(DcMotorEx.class, "Motor_2");
         leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftFront.setPower(0);
-        leftFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setVelocity(0);
+        //leftFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        //leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         rightFront = hwMap.get(DcMotorEx.class, "Motor_3");
         rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightFront.setPower(0); 
-        rightFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        rightFront.setVelocity(0);
+        //rightFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        //rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         double Front_Motors_F = 32767 / maxDriveVelocity, Front_Motors_P = 0.1 * Front_Motors_F, Front_Motors_I = 0.1 * Front_Motors_P;
         leftFront.setVelocityPIDFCoefficients(Front_Motors_P, Front_Motors_I, 0, Front_Motors_F);
         rightFront.setVelocityPIDFCoefficients(Front_Motors_P, Front_Motors_I, 0, Front_Motors_F);
@@ -239,10 +239,7 @@ public class RobotHardware {
 
 
 
-        while (!gyro.isGyroCalibrated())
-        {
-            sleep(50);
-        }
+        //while (!gyro.isGyroCalibrated()) sleep(50)
     }
     public void initVuforia() {
         /*

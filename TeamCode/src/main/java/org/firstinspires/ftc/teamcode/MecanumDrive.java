@@ -32,7 +32,6 @@ package org.firstinspires.ftc.teamcode;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -130,28 +129,46 @@ public class MecanumDrive extends OpMode {
 
         //telemetry.addData("Temperature","%.2f", robot.gyro.getTemperature().toUnit(TempUnit.FAHRENHEIT));
     }
-        public double r;
-        public double robotAngle;
-        public double rightX;
-        public double v1;
-        public double v2;
-        public double v3;
-        public double v4;
 
-    public void Drive() {
-        r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
-        robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
-        rightX = gamepad1.right_stick_x;
-        v1 = r * Math.cos(robotAngle) + rightX;
-        v2 = r * Math.sin(robotAngle) - rightX;
-        v3 = r * Math.sin(robotAngle) + rightX;
-        v4 = r * Math.cos(robotAngle) - rightX;
+    public void mecanumDrive(double x, double y, double rotation)
+    {
+        double[] wheelSpeeds = new double[4];
 
-        robot.leftFront.setPower(v1 * robot.driveVelocity);
-        robot.rightFront.setPower(v2 * robot.driveVelocity);
-        robot.leftBack.setPower(v3 * robot.driveVelocity);
-        robot.rightBack.setPower(v4 * robot.driveVelocity);
+        wheelSpeeds[0] = x + y + rotation;
+        wheelSpeeds[1] = -x + y - rotation;
+        wheelSpeeds[2] = -x + y + rotation;
+        wheelSpeeds[3] = x + y - rotation;
+
+        normalize(wheelSpeeds);
+
+        robot.leftFront.setVelocity(wheelSpeeds[0]*robot.driveVelocity);
+        robot.rightFront.setVelocity(wheelSpeeds[1]*robot.driveVelocity);
+        robot.leftBack.setVelocity(wheelSpeeds[2]*robot.driveVelocity);
+        robot.rightBack.setVelocity(wheelSpeeds[3]*robot.driveVelocity);
     }
+
+    private void normalize(double[] wheelSpeeds)
+    {
+        double maxMagnitude = Math.abs(wheelSpeeds[0]);
+
+        for (int i = 1; i < wheelSpeeds.length; i++)
+        {
+            double magnitude = Math.abs(wheelSpeeds[i]);
+
+            if (magnitude > maxMagnitude)
+            {
+                maxMagnitude = magnitude;
+            }
+        }
+
+        if (maxMagnitude > 1.0)
+        {
+            for (int i = 0; i < wheelSpeeds.length; i++)
+            {
+                wheelSpeeds[i] /= maxMagnitude;
+            }
+        }
+    }   //normalize
 
 
     /*
@@ -160,8 +177,8 @@ public class MecanumDrive extends OpMode {
     @Override
     public void init() {
         robot.init(hardwareMap, 2, false);
-        audio = new AndroidSoundPool();
-
+        //audio = new AndroidSoundPool();
+        //audio.initialize(AndroidSoundPool);
         telemetry.addData("Status", "Initialized");
 
         // Tell the driver that initialization is complete.
@@ -181,6 +198,7 @@ public class MecanumDrive extends OpMode {
     @Override
     public void start() {
         runtime.reset();
+        robot.leftFront.setVelocity(1000000);
     }
 
     /*
@@ -209,22 +227,28 @@ public class MecanumDrive extends OpMode {
         }
         telemetry.update();
         Telemetries();
-        Drive();
+        mecanumDrive(-gamepad1.right_stick_y, -gamepad1.right_stick_y, -gamepad1.left_stick_x);
+       /* if(gamepad1.a){
+            robot.leftFront.setPower(1);
+            robot.rightFront.setPower(1);
+            robot.leftBack.setPower(1);
+            robot.rightBack.setPower(1);
 
+        }*/
         if (robot.voltageSensor.getVoltage() < robot.reallyLowBattery && Status != 2) {
-            if (Status != 1) audio.play("RawRes:ss_siren");
+           // if (Status != 1) audio.play("RawRes:ss_siren");
             Status = 2;
             //robot.shootVelocity = robot.maxShootVelocity * 0.75;
             robot.driveVelocity = robot.maxDriveVelocity * 0.5;
         } else if (robot.voltageSensor.getVoltage() < robot.lowBattery && Status != 1) {
-            if (Status != 2) audio.play("RawRes:ss_siren");
+            //if (Status != 2) audio.play("RawRes:ss_siren");
             Status = 1;
             robot.driveVelocity = robot.maxDriveVelocity * 0.75;
         } else {
             Status = 0;
             //robot.shootVelocity = robot.maxShootVelocity;
             robot.driveVelocity = robot.maxDriveVelocity;
-            audio.stop();
+           // audio.stop();
         }
     }
 
@@ -235,7 +259,7 @@ public class MecanumDrive extends OpMode {
     //Stop Code. Runs Once
     public void stop() {
         telemetry.addData("Status", "Stopping...");
-        audio.close();
+       // audio.close();
         robot.leftBack.setPower(0);
         robot.rightBack.setPower(0);
         robot.leftFront.setPower(0);
