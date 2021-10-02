@@ -44,15 +44,17 @@ public class RobotHardware {
     public DcMotorEx leftFront = null;
     public DcMotorEx rightFront = null;
 
-    public CRServo rampBottom = null;
+    /*public CRServo rampBottom = null;
     public CRServo rampMiddle = null;
     public CRServo rampTop = null;
     public CRServo clawArm = null;
     public CRServo clawHand = null;
-
-    public TouchSensor touchBottom = null;
+*/
+   /* public TouchSensor touchBottom = null;
     public TouchSensor touchTop = null;
-    public LED redLight = null;
+    */
+    
+   /* public LED redLight = null;
     public LED blueLight = null;
     public LED greenLight = null;
     public LED spareLight1 = null;
@@ -60,9 +62,9 @@ public class RobotHardware {
     public LED spareLight3 = null;
     public LED spareLight4 = null;
     public LED spareLight5 = null;
+*/
 
-
-    public ColorSensor color1 = null;
+    public ColorSensor color = null;
     public Rev2mDistanceSensor distanceLeft = null;
     public Rev2mDistanceSensor distanceRight = null;
 
@@ -71,23 +73,24 @@ public class RobotHardware {
     public VoltageSensor voltageSensor = null;
 
 
-    public double shootTPR = 28;
+    //public double shootTPR = 28;
     public double driveTPR = 288;
-    public double shootRPS = 16;
+    //public double shootRPS = 16;
     public double driveRPS = 2;
-    public final double maxServoPower = 1;
-    public final double maxShootVelocity = shootTPR*shootRPS;
+    //public final double maxServoPower = 1;
+    //public final double maxShootVelocity = shootTPR*shootRPS;
     public final double maxDriveVelocity = driveTPR*driveRPS;
-    public double servoPower = maxServoPower;
-    public double shootVelocity = maxShootVelocity;
+    //public double servoPower = maxServoPower;
+
+    //public double shootVelocity = maxShootVelocity;
     public double driveVelocity = maxDriveVelocity;
     public double lowBattery = 10.5;
     public double reallyLowBattery = 9.5;
     public double circumferenceMM = 280;
     public double circumferenceIN = 11;
     public final double driveTickPerInch = driveTPR/circumferenceIN;
-    public final double driveMilimeterPerTick = driveTPR/circumferenceMM;
-    public final double armRatio = 6;
+    public final double driveTickPerMillimeter = driveTPR/circumferenceMM;
+    //public final double armRatio = 6;
         /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
          * the following 4 detectable objects
          *  0: Ball,
@@ -185,24 +188,24 @@ public class RobotHardware {
         rightFront.setPower(0); 
         rightFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        double Front_Motors_F = 32767 / maxShootVelocity, Front_Motors_P = 0.1 * Front_Motors_F, Front_Motors_I = 100 * Front_Motors_P;
+        double Front_Motors_F = 32767 / maxDriveVelocity, Front_Motors_P = 0.1 * Front_Motors_F, Front_Motors_I = 0.1 * Front_Motors_P;
         leftFront.setVelocityPIDFCoefficients(Front_Motors_P, Front_Motors_I, 0, Front_Motors_F);
         rightFront.setVelocityPIDFCoefficients(Front_Motors_P, Front_Motors_I, 0, Front_Motors_F);
         }
         
         // Define and initialize ALL installed servos.
-        rampBottom = hwMap.get(CRServo.class, "Servo_0");
+       /* rampBottom = hwMap.get(CRServo.class, "Servo_0");
         rampMiddle = hwMap.get(CRServo.class, "Servo_1");
         rampTop = hwMap.get(CRServo.class, "Servo_2");
         clawArm = hwMap.get(CRServo.class, "Servo_3");
         clawHand = hwMap.get(CRServo.class, "Servo_4");
-
+        */
         // Define and initialize ALL installed touch sensors.
-        touchBottom = hwMap.get(TouchSensor.class, "Touch_0");
+       /* touchBottom = hwMap.get(TouchSensor.class, "Touch_0");
         touchTop = hwMap.get(TouchSensor.class, "Touch_1");
-
+        */
         // Define and initialize ALL installed lights.
-        redLight = hwMap.get(LED.class, "Light_0");
+       /* redLight = hwMap.get(LED.class, "Light_0");
         blueLight = hwMap.get(LED.class, "Light_1");
         greenLight = hwMap.get(LED.class, "Light_2");
         spareLight1 = hwMap.get(LED.class, "Light_3");
@@ -210,8 +213,10 @@ public class RobotHardware {
         spareLight3 = hwMap.get(LED.class, "Light_5");
         spareLight4 = hwMap.get(LED.class, "Light_6");
         spareLight5 = hwMap.get(LED.class, "Light_7");
+
+        */
         // Define and initialize ALL installed distance/light sensors.
-        color1 = hwMap.get(ColorSensor.class, "Color_0");
+        color = hwMap.get(ColorSensor.class, "Color_0");
         distanceLeft = hwMap.get(Rev2mDistanceSensor.class, "Distance_1");
         distanceRight = hwMap.get(Rev2mDistanceSensor.class, "Distance_2");
 

@@ -62,14 +62,13 @@ import java.util.List;
 @TeleOp(name = "Mecanum Drive")
 @Disabled
 public class MecanumDrive extends OpMode {
-    // Declare OpMode members.
-    RobotHardware robot = new RobotHardware();
-    private ElapsedTime runtime = new ElapsedTime();
     public double Status = 5;
     public boolean mutantGamepad = false;
     public String detectedColor;
     public AndroidSoundPool audio;
-
+    // Declare OpMode members.
+    RobotHardware robot = new RobotHardware();
+    private ElapsedTime runtime = new ElapsedTime();
 
     public String detectColor() {
         int colorHSV;
@@ -78,7 +77,7 @@ public class MecanumDrive extends OpMode {
         float val;
         // Convert RGB values to HSV color model.
         // See https://en.wikipedia.org/wiki/HSL_and_HSV for details on HSV color model.
-        colorHSV = Color.argb(robot.color1.alpha(), robot.color1.red(), robot.color1.green(), robot.color1.blue());
+        colorHSV = Color.argb(robot.color.alpha(), robot.color.red(), robot.color.green(), robot.color.blue());
         // Get hue.
         hue = JavaUtil.colorToHue(colorHSV);
         //telemetry.addData("Hue", hue);
@@ -123,14 +122,29 @@ public class MecanumDrive extends OpMode {
         } else {
             telemetry.addData("Status", "Running");
         }
-        telemetry.addData("Drive Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftBack.getVelocity() / robot.driveVelocity * 100, robot.rightBack.getVelocity() / robot.driveVelocity * 100);
-        telemetry.addData("Shooter Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.shootVelocity * 100, robot.rightFront.getVelocity() / robot.shootVelocity * 100);
-        telemetry.addData("Ramp Power", "Bottom (%.2f%%), Middle (%.2f%%), Top (%.2f%%)", robot.rampBottom.getPower() / robot.servoPower * 100, robot.rampMiddle.getPower() / robot.servoPower * 100, robot.rampTop.getPower() / robot.servoPower * 100);
-        telemetry.addData("Claw Power", "Arm (%.2f), Hand (%.2f)", robot.clawArm.getPower() * 100, robot.clawHand.getPower() * 100);
+        telemetry.addData("Back Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftBack.getVelocity() / robot.driveVelocity * 100, robot.rightBack.getVelocity() / robot.driveVelocity * 100);
+        telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
+        //telemetry.addData("Ramp Power", "Bottom (%.2f%%), Middle (%.2f%%), Top (%.2f%%)", robot.rampBottom.getPower() / robot.servoPower * 100, robot.rampMiddle.getPower() / robot.servoPower * 100, robot.rampTop.getPower() / robot.servoPower * 100);
+        //telemetry.addData("Claw Power", "Arm (%.2f), Hand (%.2f)", robot.clawArm.getPower() * 100, robot.clawHand.getPower() * 100);
         telemetry.addData("Distance", "left %.2f, right %.2f", robot.distanceLeft.getDistance(DistanceUnit.METER), robot.distanceRight.getDistance(DistanceUnit.METER));
         telemetry.addData("Color Detected", detectColor());
 
         //telemetry.addData("Temperature","%.2f", robot.gyro.getTemperature().toUnit(TempUnit.FARENHEIT));
+    }
+
+    public void Drive() {
+        double r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
+        double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
+        double rightX = gamepad1.right_stick_x;
+        double v1 = r * Math.cos(robotAngle) + rightX;
+        double v2 = r * Math.sin(robotAngle) - rightX;
+        double v3 = r * Math.sin(robotAngle) + rightX;
+        double v4 = r * Math.cos(robotAngle) - rightX;
+
+        robot.leftFront.setPower(v1 * robot.driveVelocity);
+        robot.rightFront.setPower(v2 * robot.driveVelocity);
+        robot.leftBack.setPower(v3 * robot.driveVelocity);
+        robot.rightBack.setPower(v4 * robot.driveVelocity);
     }
 
 
@@ -187,22 +201,13 @@ public class MecanumDrive extends OpMode {
             }
         }
         telemetry.update();
-double r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
-double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
-double rightX = gamepad1.right_stick_x;
-final double v1 = r * Math.cos(robotAngle) + rightX;
-final double v2 = r * Math.sin(robotAngle) - rightX;
-final double v3 = r * Math.sin(robotAngle) + rightX;
-final double v4 = r * Math.cos(robotAngle) - rightX;
+        Telemetries();
+        Drive();
 
-leftFront.setPower(v1);
-rightFront.setPower(v2);
-leftRear.setPower(v3)
-rightRear.setPower(v4);
         if (robot.voltageSensor.getVoltage() < robot.reallyLowBattery && Status != 2) {
             if (Status != 1) audio.play("RawRes:ss_siren");
             Status = 2;
-            robot.shootVelocity = robot.maxShootVelocity * 0.75;
+            //robot.shootVelocity = robot.maxShootVelocity * 0.75;
             robot.driveVelocity = robot.maxDriveVelocity * 0.5;
         } else if (robot.voltageSensor.getVoltage() < robot.lowBattery && Status != 1) {
             if (Status != 2) audio.play("RawRes:ss_siren");
@@ -210,7 +215,7 @@ rightRear.setPower(v4);
             robot.driveVelocity = robot.maxDriveVelocity * 0.75;
         } else {
             Status = 0;
-            robot.shootVelocity = robot.maxShootVelocity;
+            //robot.shootVelocity = robot.maxShootVelocity;
             robot.driveVelocity = robot.maxDriveVelocity;
             audio.stop();
         }
@@ -229,7 +234,7 @@ rightRear.setPower(v4);
         robot.leftFront.setPower(0);
         robot.rightFront.setPower(0);
         telemetry.addData("Status", "Stopped");
-        robot.greenLight.enableLight(false);
+        //robot.greenLight.enableLight(false);
         telemetry.update();
     }
 }
