@@ -123,7 +123,8 @@ public class RobotHardware {
          * and paste it in to your code on the next line, between the double quotes.
          */
         public static final String VUFORIA_KEY =
-                " -- YOUR NEW VUFORIA KEY GOES HERE  --- ";
+         "AdImucn/////AAABmS8HHciHwUqGnUCvWpNXwjWCuQC7is1XkgwGqfbHrFJZ2aUjFR69v8HR+Jqn8Ckdsi3Y2oak9H0dwlRxirfntkWVXpSag+5fuJwvx1rd4PqIpJeiZeaJJp1apcv3crUJt6Ka7o7dqHit1VLQr4ynYG5qng0Ft1TiGIrncgnZFF5IVcvcF4DPKXjF8hLIeHzB2/gylS5pKREbj+HtQUo84tr4t5tAeBVS/Q01xJJDLF3DlTX3RXbLkaMd3QVOtO6zjCNkNG8Qj6KJRv4HHT06Q+mGVCJ1hbvM/P4V4TQVsWomxi3+f4Hf6cnWSqLOSTdLag/rIYWhjZRGuzQ5d61GQgrnFevubyQmaywN1v3RyJci"
+            
 
         /**
          * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
