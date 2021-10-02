@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -71,8 +72,8 @@ public class MecanumDrive extends OpMode {
     public String detectColor() {
         int colorHSV;
         float hue;
-        float sat;
-        float val;
+        //float sat;
+        //float val;
         // Convert RGB values to HSV color model.
         // See https://en.wikipedia.org/wiki/HSL_and_HSV for details on HSV color model.
         colorHSV = Color.argb(robot.color.alpha(), robot.color.red(), robot.color.green(), robot.color.blue());
@@ -80,10 +81,10 @@ public class MecanumDrive extends OpMode {
         hue = JavaUtil.colorToHue(colorHSV);
         //telemetry.addData("Hue", hue);
         // Get saturation.
-        sat = JavaUtil.colorToSaturation(colorHSV);
+        //sat = JavaUtil.colorToSaturation(colorHSV);
         //telemetry.addData("Saturation", sat);
         // Get value.
-        val = JavaUtil.colorToValue(colorHSV);
+        //val = JavaUtil.colorToValue(colorHSV);
         //telemetry.addData("Value", val);
         // Use hue to determine if it's red, green, blue, etc..
         if (hue < 30) {
@@ -127,7 +128,7 @@ public class MecanumDrive extends OpMode {
         telemetry.addData("Distance", "left %.2f, right %.2f", robot.distanceLeft.getDistance(DistanceUnit.METER), robot.distanceRight.getDistance(DistanceUnit.METER));
         telemetry.addData("Color Detected", detectColor());
 
-        //telemetry.addData("Temperature","%.2f", robot.gyro.getTemperature().toUnit(TempUnit.FARENHEIT));
+        //telemetry.addData("Temperature","%.2f", robot.gyro.getTemperature().toUnit(TempUnit.FAHRENHEIT));
     }
 
     public void Drive() {
@@ -178,6 +179,7 @@ public class MecanumDrive extends OpMode {
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
      */
+    @SuppressLint("DefaultLocale")
     @Override
     public void loop() {
         if (robot.tfod != null) {
