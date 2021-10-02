@@ -59,7 +59,7 @@ import java.util.List;
  */
 
 @TeleOp(name = "Mecanum Drive")
-@Disabled
+//@Disabled
 public class MecanumDrive extends OpMode {
     public double Status = 5;
     public boolean mutantGamepad = false;
@@ -130,15 +130,22 @@ public class MecanumDrive extends OpMode {
 
         //telemetry.addData("Temperature","%.2f", robot.gyro.getTemperature().toUnit(TempUnit.FAHRENHEIT));
     }
+        public double r;
+        public double robotAngle;
+        public double rightX;
+        public double v1;
+        public double v2;
+        public double v3;
+        public double v4;
 
     public void Drive() {
-        double r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
-        double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
-        double rightX = gamepad1.right_stick_x;
-        double v1 = r * Math.cos(robotAngle) + rightX;
-        double v2 = r * Math.sin(robotAngle) - rightX;
-        double v3 = r * Math.sin(robotAngle) + rightX;
-        double v4 = r * Math.cos(robotAngle) - rightX;
+        r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
+        robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
+        rightX = gamepad1.right_stick_x;
+        v1 = r * Math.cos(robotAngle) + rightX;
+        v2 = r * Math.sin(robotAngle) - rightX;
+        v3 = r * Math.sin(robotAngle) + rightX;
+        v4 = r * Math.cos(robotAngle) - rightX;
 
         robot.leftFront.setPower(v1 * robot.driveVelocity);
         robot.rightFront.setPower(v2 * robot.driveVelocity);
@@ -152,7 +159,7 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void init() {
-        robot.init(hardwareMap, 2);
+        robot.init(hardwareMap, 2, false);
         audio = new AndroidSoundPool();
 
         telemetry.addData("Status", "Initialized");

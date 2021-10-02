@@ -71,7 +71,7 @@ public class RobotHardware {
     //public double shootTPR = 28;
     public double driveTPR = 288;
     //public double shootRPS = 16;
-    public double driveRPS = 2;
+    public double driveRPS = 100;
     //public final double maxServoPower = 1;
     //public final double maxShootVelocity = shootTPR*shootRPS;
     public final double maxDriveVelocity = driveTPR*driveRPS;
@@ -142,11 +142,13 @@ public class RobotHardware {
     //}
 
     /* Initialize standard Hardware interfaces */
-    public void init(HardwareMap ahwMap, int wheelType) {
+    public void init(HardwareMap ahwMap, int wheelType, boolean enableCamera) {
         // Save reference to Hardware map
         hwMap = ahwMap;
-        initVuforia();
-        initTfod();
+        if(enableCamera) {
+            initVuforia();
+            initTfod();
+        }
         if (tfod != null) {
             tfod.activate();
 
