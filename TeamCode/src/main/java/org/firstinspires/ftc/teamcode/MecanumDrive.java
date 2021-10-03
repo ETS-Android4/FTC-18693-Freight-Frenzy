@@ -122,7 +122,7 @@ public class MecanumDrive extends OpMode {
         } else {
             telemetry.addData("Status", "Running");
         }
-        telemetry.addData("Back Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftBack.getVelocity() / robot.driveVelocity * 100, robot.rightBack.getVelocity() / robot.driveVelocity * 100);
+        telemetry.addData("Back Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
         //telemetry.addData("Ramp Power", "Bottom (%.2f%%), Middle (%.2f%%), Top (%.2f%%)", robot.rampBottom.getPower() / robot.servoPower * 100, robot.rampMiddle.getPower() / robot.servoPower * 100, robot.rampTop.getPower() / robot.servoPower * 100);
         //telemetry.addData("Claw Power", "Arm (%.2f), Hand (%.2f)", robot.clawArm.getPower() * 100, robot.clawHand.getPower() * 100);
@@ -143,8 +143,21 @@ public class MecanumDrive extends OpMode {
 
         robot.leftFront.setPower(v1 * robot.driveVelocity);
         robot.rightFront.setPower(v2 * robot.driveVelocity);
-        robot.leftBack.setPower(v3 * robot.driveVelocity);
-        robot.rightBack.setPower(v4 * robot.driveVelocity);
+        robot.leftRear.setPower(v3 * robot.driveVelocity);
+        robot.rightRear.setPower(v4 * robot.driveVelocity);
+    }
+    public double m1, m2, m3, m4;
+    public void Drive2(double x, double y, double r){
+        m1 = y+x;
+        m2 = y-x;
+        m3 = y+x;
+        m4 = y-x;
+        m1 = m1+r;
+        m2 = m2-r;
+        m3 = m3+r;
+        m4 = m4-r;
+        robot.leftFront.setVelocity(m1*robot.driveVelocity);
+
     }
 
 
@@ -202,7 +215,7 @@ public class MecanumDrive extends OpMode {
         }
         telemetry.update();
         Telemetries();
-        Drive();
+        Drive2(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad2.right_stick_x);
 
         if (robot.voltageSensor.getVoltage() < robot.reallyLowBattery && Status != 2) {
             if (Status != 1) audio.play("RawRes:ss_siren");
@@ -229,8 +242,8 @@ public class MecanumDrive extends OpMode {
     public void stop() {
         telemetry.addData("Status", "Stopping...");
         audio.close();
-        robot.leftBack.setPower(0);
-        robot.rightBack.setPower(0);
+        robot.leftRear.setPower(0);
+        robot.rightRear.setPower(0);
         robot.leftFront.setPower(0);
         robot.rightFront.setPower(0);
         telemetry.addData("Status", "Stopped");

@@ -39,8 +39,8 @@ import static android.os.SystemClock.sleep;
  */
 public class RobotHardware {
     /* Public OpMode members. */
-    public DcMotorEx leftBack = null;
-    public DcMotorEx rightBack = null;
+    public DcMotorEx leftRear = null;
+    public DcMotorEx rightRear = null;
     public DcMotorEx leftFront = null;
     public DcMotorEx rightFront = null;
 
@@ -123,7 +123,7 @@ public class RobotHardware {
          * and paste it in to your code on the next line, between the double quotes.
          */
         public static final String VUFORIA_KEY =
-         "AdImucn/////AAABmS8HHciHwUqGnUCvWpNXwjWCuQC7is1XkgwGqfbHrFJZ2aUjFR69v8HR+Jqn8Ckdsi3Y2oak9H0dwlRxirfntkWVXpSag+5fuJwvx1rd4PqIpJeiZeaJJp1apcv3crUJt6Ka7o7dqHit1VLQr4ynYG5qng0Ft1TiGIrncgnZFF5IVcvcF4DPKXjF8hLIeHzB2/gylS5pKREbj+HtQUo84tr4t5tAeBVS/Q01xJJDLF3DlTX3RXbLkaMd3QVOtO6zjCNkNG8Qj6KJRv4HHT06Q+mGVCJ1hbvM/P4V4TQVsWomxi3+f4Hf6cnWSqLOSTdLag/rIYWhjZRGuzQ5d61GQgrnFevubyQmaywN1v3RyJci"
+         "AdImucn/////AAABmS8HHciHwUqGnUCvWpNXwjWCuQC7is1XkgwGqfbHrFJZ2aUjFR69v8HR+Jqn8Ckdsi3Y2oak9H0dwlRxirfntkWVXpSag+5fuJwvx1rd4PqIpJeiZeaJJp1apcv3crUJt6Ka7o7dqHit1VLQr4ynYG5qng0Ft1TiGIrncgnZFF5IVcvcF4DPKXjF8hLIeHzB2/gylS5pKREbj+HtQUo84tr4t5tAeBVS/Q01xJJDLF3DlTX3RXbLkaMd3QVOtO6zjCNkNG8Qj6KJRv4HHT06Q+mGVCJ1hbvM/P4V4TQVsWomxi3+f4Hf6cnWSqLOSTdLag/rIYWhjZRGuzQ5d61GQgrnFevubyQmaywN1v3RyJci";
             
 
         /**
@@ -164,19 +164,19 @@ public class RobotHardware {
             tfod.setZoom(2.5, 16.0/9.0);
         }
         // Define and Initialize Motors
-        leftBack = hwMap.get(DcMotorEx.class, "Motor_0");
-        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftBack.setPower(0);      
-        leftBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        leftBack.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        rightBack = hwMap.get(DcMotorEx.class, "Motor_1");
-        rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightBack.setPower(0);
-        rightBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        rightBack.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER); 
+        leftRear = hwMap.get(DcMotorEx.class, "Motor_0");
+        leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftRear.setPower(0);
+        leftRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        rightRear = hwMap.get(DcMotorEx.class, "Motor_1");
+        rightRear.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightRear.setPower(0);
+        rightRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         double Back_Motors_F = 32767 / maxDriveVelocity, Back_Motors_P = 0.1 * Back_Motors_F, Back_Motors_I = 0.1 * Back_Motors_P;
-        leftBack.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
-        rightBack.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
+        leftRear.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
+        rightRear.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
         
         if(wheelType == 2){
         leftFront = hwMap.get(DcMotorEx.class, "Motor_2");
