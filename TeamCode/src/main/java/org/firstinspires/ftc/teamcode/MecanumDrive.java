@@ -132,7 +132,7 @@ public class MecanumDrive extends OpMode {
         //telemetry.addData("Temperature","%.2f", robot.gyro.getTemperature().toUnit(TempUnit.FARENHEIT));
     }
 
-    public void Drive() {
+/*    public void Drive() {
         double r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
         double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
         double rightX = gamepad1.right_stick_x;
@@ -146,18 +146,18 @@ public class MecanumDrive extends OpMode {
         robot.leftRear.setPower(v3 * robot.driveVelocity);
         robot.rightRear.setPower(v4 * robot.driveVelocity);
     }
-    public double m1, m2, m3, m4;
-    public void Drive2(double x, double y, double r){
-        m1 = y+x;
-        m2 = y-x;
-        m3 = y+x;
-        m4 = y-x;
-        m1 = m1+r;
-        m2 = m2-r;
-        m3 = m3+r;
-        m4 = m4-r;
-        robot.leftFront.setVelocity(m1*robot.driveVelocity);
+    */
 
+    public double m1, m2, m3, m4;
+    public void Drive(double x, double y, double r){
+        m1 = y+x+r;
+        m2 = y-x-r;
+        m3 = y+x+r;
+        m4 = y-x-r;
+        robot.leftFront.setVelocity(m1*robot.driveVelocity);
+        robot.rightFront.setVelocity(m2*robot.driveVelocity);
+        robot.leftRear.setVelocity(m3*robot.driveVelocity);
+        robot.rightRear.setVelocity(m2*robot.driveVelocity);
     }
 
 
@@ -215,7 +215,7 @@ public class MecanumDrive extends OpMode {
         }
         telemetry.update();
         Telemetries();
-        Drive2(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad2.right_stick_x);
+        Drive(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad2.right_stick_x);
 
         if (robot.voltageSensor.getVoltage() < robot.reallyLowBattery && Status != 2) {
             if (Status != 1) audio.play("RawRes:ss_siren");
