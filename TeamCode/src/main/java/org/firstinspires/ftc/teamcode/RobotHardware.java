@@ -147,25 +147,27 @@ public class RobotHardware {
     //}
 
     /* Initialize standard Hardware interfaces */
-    public void init(HardwareMap ahwMap, int wheelType) {
+    public void init(HardwareMap ahwMap, int wheelType, boolean enableCamera) {
         // Save reference to Hardware map
         hwMap = ahwMap;
-        initVuforia();
-        initTfod();
-        if (tfod != null) {
-            tfod.activate();
+        if(enableCamera) {
+            initVuforia();
+            initTfod();
+            if (tfod != null) {
+                tfod.activate();
 
-            // The TensorFlow software will scale the input images from the camera to a lower resolution.
-            // This can result in lower detection accuracy at longer distances (> 55cm or 22").
-            // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
-            // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
-            // should be set to the value of the images used to create the TensorFlow Object Detection model
-            // (typically 16/9).
-            tfod.setZoom(2.5, 16.0/9.0);
+                // The TensorFlow software will scale the input images from the camera to a lower resolution.
+                // This can result in lower detection accuracy at longer distances (> 55cm or 22").
+                // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
+                // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
+                // should be set to the value of the images used to create the TensorFlow Object Detection model
+                // (typically 16/9).
+                tfod.setZoom(2.5, 16.0 / 9.0);
+            }
         }
         // Define and Initialize Motors
         leftRear = hwMap.get(DcMotorEx.class, "Motor_0");
-        leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftRear.setDirection(DcMotorSimple.Direction.FORWARD);
         leftRear.setPower(0);
         leftRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -185,7 +187,7 @@ public class RobotHardware {
         leftFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         rightFront = hwMap.get(DcMotorEx.class, "Motor_3");
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
         rightFront.setPower(0); 
         rightFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
