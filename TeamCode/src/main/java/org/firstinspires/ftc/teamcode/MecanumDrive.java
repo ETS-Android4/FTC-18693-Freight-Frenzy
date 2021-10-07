@@ -60,7 +60,7 @@ import java.util.List;
  */
 
 @TeleOp(name = "Mecanum Drive")
-@Disabled
+//@Disabled
 public class MecanumDrive extends OpMode {
     public double Status = 5;
     public boolean mutantGamepad = false;
