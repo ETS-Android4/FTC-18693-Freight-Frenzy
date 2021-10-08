@@ -215,7 +215,14 @@ public class MecanumDrive extends OpMode {
         }
         telemetry.update();
         Telemetries();
-        Drive(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad2.right_stick_x);
+        if(gamepad1.a){
+            robot.leftFront.setVelocity(robot.driveVelocity);
+            robot.rightFront.setVelocity(robot.driveVelocity);
+            robot.leftRear.setVelocity(robot.driveVelocity);
+            robot.rightRear.setVelocity(robot.driveVelocity);
+        }else {
+            Drive(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad2.right_stick_x);
+        }
 
         if (robot.voltageSensor.getVoltage() < robot.reallyLowBattery && Status != 2) {
             if (Status != 1) audio.play("RawRes:ss_siren");
