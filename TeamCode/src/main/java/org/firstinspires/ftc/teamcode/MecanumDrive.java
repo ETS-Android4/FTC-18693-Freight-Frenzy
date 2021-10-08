@@ -60,7 +60,7 @@ import java.util.List;
  */
 
 @TeleOp(name = "Mecanum Drive")
-@Disabled
+//@Disabled
 public class MecanumDrive extends OpMode {
     public double Status = 5;
     public boolean mutantGamepad = false;
@@ -122,8 +122,8 @@ public class MecanumDrive extends OpMode {
         } else {
             telemetry.addData("Status", "Running");
         }
-        telemetry.addData("Back Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
+        telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
         //telemetry.addData("Ramp Power", "Bottom (%.2f%%), Middle (%.2f%%), Top (%.2f%%)", robot.rampBottom.getPower() / robot.servoPower * 100, robot.rampMiddle.getPower() / robot.servoPower * 100, robot.rampTop.getPower() / robot.servoPower * 100);
         //telemetry.addData("Claw Power", "Arm (%.2f), Hand (%.2f)", robot.clawArm.getPower() * 100, robot.clawHand.getPower() * 100);
         telemetry.addData("Distance", "left %.2f, right %.2f", robot.distanceLeft.getDistance(DistanceUnit.METER), robot.distanceRight.getDistance(DistanceUnit.METER));
@@ -166,7 +166,7 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void init() {
-        robot.init(hardwareMap, 2);
+        robot.init(hardwareMap, 2, false);
         audio = new AndroidSoundPool();
 
         telemetry.addData("Status", "Initialized");
