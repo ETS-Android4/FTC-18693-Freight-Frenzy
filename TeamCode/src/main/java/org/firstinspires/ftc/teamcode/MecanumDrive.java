@@ -150,14 +150,14 @@ public class MecanumDrive extends OpMode {
 
     public double m1, m2, m3, m4;
     public void Drive(double x, double y, double r){
-        m1 = y+x+r;
-        m2 = y-x-r;
-        m3 = y+x+r;
-        m4 = y-x-r;
+        m1 = y+x+r*1;
+        m2 = y-x-r*1;
+        m3 = y-x+r*1;
+        m4 = y+x-r*1;
         robot.leftFront.setVelocity(m1*robot.driveVelocity);
         robot.rightFront.setVelocity(m2*robot.driveVelocity);
         robot.leftRear.setVelocity(m3*robot.driveVelocity);
-        robot.rightRear.setVelocity(m2*robot.driveVelocity);
+        robot.rightRear.setVelocity(m4*robot.driveVelocity);
     }
 
 
@@ -216,12 +216,12 @@ public class MecanumDrive extends OpMode {
         telemetry.update();
         Telemetries();
         if(gamepad1.a){
-            robot.leftFront.setVelocity(robot.driveVelocity);
-            robot.rightFront.setVelocity(robot.driveVelocity);
-            robot.leftRear.setVelocity(robot.driveVelocity);
-            robot.rightRear.setVelocity(robot.driveVelocity);
+            robot.leftFront.setVelocity(robot.driveVelocity*2);
+            robot.rightFront.setVelocity(robot.driveVelocity*2);
+            robot.leftRear.setVelocity(robot.driveVelocity*2);
+            robot.rightRear.setVelocity(robot.driveVelocity*2);
         }else {
-            Drive(-gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad2.right_stick_x);
+            Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
         }
 
         if (robot.voltageSensor.getVoltage() < robot.reallyLowBattery && Status != 2) {
