@@ -150,10 +150,11 @@ public class MecanumDrive extends OpMode {
 
     public double m1, m2, m3, m4;
     public void Drive(double x, double y, double r){
-        m1 = y+x+r*1;
-        m2 = y-x-r*1;
-        m3 = y-x+r*1;
-        m4 = y+x-r*1;
+        r = r*1;
+        m1 = y+x+r;
+        m2 = y-x-r;
+        m3 = y-x+r;
+        m4 = y+x-r;
         robot.leftFront.setVelocity(m1*robot.driveVelocity);
         robot.rightFront.setVelocity(m2*robot.driveVelocity);
         robot.leftRear.setVelocity(m3*robot.driveVelocity);
