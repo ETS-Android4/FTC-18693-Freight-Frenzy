@@ -33,18 +33,14 @@ import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.android.AndroidSoundPool;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.Hardware.CameraHardware;
 import org.firstinspires.ftc.teamcode.Hardware.RobotHardware;
-
-import java.util.List;
 
 
 /**
@@ -175,7 +171,7 @@ public class MecanumDrive extends OpMode {
     @Override
     public void init() {
         robot.init(hardwareMap, 2);
-        camera.init(hardwareMap, 0.5f);
+        camera.init(hardwareMap, 0.5f, 2.5);
         audio = new AndroidSoundPool();
 
         telemetry.addData("Status", "Initialized");

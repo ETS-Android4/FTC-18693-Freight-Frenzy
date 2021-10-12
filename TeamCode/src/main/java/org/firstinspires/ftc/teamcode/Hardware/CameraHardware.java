@@ -8,7 +8,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CameraHardware {
@@ -44,9 +43,10 @@ public class CameraHardware {
      */
     public TFObjectDetector tfod;
     public List<String> objects;
+    public List<Float> position;
     HardwareMap hwMap = null;
 
-    public void init(HardwareMap ahwMap, float confidence) {
+    public void init(HardwareMap ahwMap, float confidence, double magnification) {
         // Save reference to Hardware map
         hwMap = ahwMap;
         initVuforia();
@@ -60,7 +60,7 @@ public class CameraHardware {
             // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
             // should be set to the value of the images used to create the TensorFlow Object Detection model
             // (typically 16/9).
-            tfod.setZoom(2.5, 16.0 / 9.0);
+            tfod.setZoom(magnification, 16.0 / 9.0);
 
         }
     }
@@ -113,8 +113,31 @@ public class CameraHardware {
                     //recognition.getRight(), recognition.getBottom());
                     i++;
                 }
+                return objects;
             }
         }
-        return objects;
+        return null;
+    }
+    public List<Float> getPosition(String object){
+        position.clear();
+        if (tfod != null) {
+            // getUpdatedRecognitions() will return null if no new information is available since
+            // the last time that call was made.
+            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+            if (updatedRecognitions != null) {
+                //telemetry.addData("# Object Detected", updatedRecognitions.size());
+                // step through the list of recognitions and display boundary info.
+                int i = 0;
+                for (Recognition recognition : updatedRecognitions) {
+                    if (recognition.getLabel().equals(object)){
+                        position.add(recognition.getRight());
+                        position.add(recognition.getBottom());
+                        return position;
+                    }
+                    i++;
+                }
+            }
+        }
+        return null;
     }
 }
