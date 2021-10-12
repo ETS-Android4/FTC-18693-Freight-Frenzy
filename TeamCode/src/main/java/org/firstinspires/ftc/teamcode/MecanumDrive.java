@@ -45,6 +45,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
 import java.util.List;
 
+
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
  * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
@@ -66,6 +67,9 @@ public class MecanumDrive extends OpMode {
     public boolean mutantGamepad = false;
     public String detectedColor;
     public AndroidSoundPool audio;
+    public double steeringMultiplier = 1;
+    public double steeringAdjusted = 0;
+    public double m1, m2, m3, m4;
     // Declare OpMode members.
     RobotHardware robot = new RobotHardware();
     private ElapsedTime runtime = new ElapsedTime();
@@ -112,26 +116,6 @@ public class MecanumDrive extends OpMode {
         }
     }
 
-    public void Telemetries() {
-        if (Status == 2) {
-            telemetry.addData("Status", "Danger! Really Low Voltage");
-        } else if (Status == 1) {
-            telemetry.addData("Status", "WARNING! Low Voltage");
-        } else if (mutantGamepad) {
-            telemetry.addData("Status", "Running, Mutant Gamepad Enabled");
-        } else {
-            telemetry.addData("Status", "Running");
-        }
-        telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
-        telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
-        //telemetry.addData("Ramp Power", "Bottom (%.2f%%), Middle (%.2f%%), Top (%.2f%%)", robot.rampBottom.getPower() / robot.servoPower * 100, robot.rampMiddle.getPower() / robot.servoPower * 100, robot.rampTop.getPower() / robot.servoPower * 100);
-        //telemetry.addData("Claw Power", "Arm (%.2f), Hand (%.2f)", robot.clawArm.getPower() * 100, robot.clawHand.getPower() * 100);
-        telemetry.addData("Distance", "left %.2f, right %.2f", robot.distanceLeft.getDistance(DistanceUnit.METER), robot.distanceRight.getDistance(DistanceUnit.METER));
-        telemetry.addData("Color Detected", detectColor());
-
-        //telemetry.addData("Temperature","%.2f", robot.gyro.getTemperature().toUnit(TempUnit.FARENHEIT));
-    }
-
 /*    public void Drive() {
         double r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
         double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
@@ -148,17 +132,37 @@ public class MecanumDrive extends OpMode {
     }
     */
 
-    public double m1, m2, m3, m4;
-    public void Drive(double x, double y, double r){
-        r = r*1;
-        m1 = y+x+r;
-        m2 = y-x-r;
-        m3 = y-x+r;
-        m4 = y+x-r;
-        robot.leftFront.setVelocity(m1*robot.driveVelocity);
-        robot.rightFront.setVelocity(m2*robot.driveVelocity);
-        robot.leftRear.setVelocity(m3*robot.driveVelocity);
-        robot.rightRear.setVelocity(m4*robot.driveVelocity);
+    public void Telemetries() {
+        if (Status == 2) {
+            telemetry.addData("Status", "Danger! Really Low Voltage");
+        } else if (Status == 1) {
+            telemetry.addData("Status", "WARNING! Low Voltage");
+        } else if (mutantGamepad) {
+            telemetry.addData("Status", "Running, Mutant Gamepad Enabled");
+        } else {
+            telemetry.addData("Status", "Running");
+        }
+        telemetry.addData("Steering Sensitivity","%d%%", steeringMultiplier*100);
+        telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
+        telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
+        //telemetry.addData("Ramp Power", "Bottom (%.2f%%), Middle (%.2f%%), Top (%.2f%%)", robot.rampBottom.getPower() / robot.servoPower * 100, robot.rampMiddle.getPower() / robot.servoPower * 100, robot.rampTop.getPower() / robot.servoPower * 100);
+        //telemetry.addData("Claw Power", "Arm (%.2f), Hand (%.2f)", robot.clawArm.getPower() * 100, robot.clawHand.getPower() * 100);
+        telemetry.addData("Distance", "left %.2f, right %.2f", robot.distanceLeft.getDistance(DistanceUnit.METER), robot.distanceRight.getDistance(DistanceUnit.METER));
+        telemetry.addData("Color Detected", detectColor());
+
+        //telemetry.addData("Temperature","%.2f", robot.gyro.getTemperature().toUnit(TempUnit.FARENHEIT));
+    }
+
+    public void Drive(double x, double y, double r) {
+        r = r * steeringMultiplier;
+        m1 = Range.clip(y + x + r, -1, 1);
+        m2 = Range.clip(y - x - r, -1, 1);
+        m3 = Range.clip(y - x + r, -1, 1);
+        m4 = Range.clip(y + x - r, -1, 1);
+        robot.leftFront.setVelocity(m1 * robot.driveVelocity);
+        robot.rightFront.setVelocity(m2 * robot.driveVelocity);
+        robot.leftRear.setVelocity(m3 * robot.driveVelocity);
+        robot.rightRear.setVelocity(m4 * robot.driveVelocity);
     }
 
 
@@ -215,15 +219,21 @@ public class MecanumDrive extends OpMode {
         }
         telemetry.update();
         Telemetries();
-        if(gamepad1.a){
-            robot.leftFront.setVelocity(robot.driveVelocity*2);
-            robot.rightFront.setVelocity(robot.driveVelocity*2);
-            robot.leftRear.setVelocity(robot.driveVelocity*2);
-            robot.rightRear.setVelocity(robot.driveVelocity*2);
-        }else {
+        if (gamepad1.a) {
+            robot.leftFront.setVelocity(robot.driveVelocity * 2);
+            robot.rightFront.setVelocity(robot.driveVelocity * 2);
+            robot.leftRear.setVelocity(robot.driveVelocity * 2);
+            robot.rightRear.setVelocity(robot.driveVelocity * 2);
+        } else {
             Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
         }
-
+        if (gamepad1.back && steeringAdjusted < runtime.milliseconds()) {
+            steeringMultiplier -= 10;
+            steeringAdjusted = runtime.seconds()+1;
+        } else if (gamepad1.start && steeringAdjusted < runtime.seconds()) {
+            steeringMultiplier += 10;
+            steeringAdjusted = runtime.milliseconds()+100;
+        }
         if (robot.voltageSensor.getVoltage() < robot.reallyLowBattery && Status != 2) {
             if (Status != 1) audio.play("RawRes:ss_siren");
             Status = 2;
