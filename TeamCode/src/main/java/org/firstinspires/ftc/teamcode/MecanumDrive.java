@@ -157,7 +157,7 @@ public class MecanumDrive extends OpMode {
     }
 
     public void Drive(double x, double y, double r) {
-        r = r * steeringMultiplier;
+        r *= steeringMultiplier;
         m1 = Range.clip(y + x + r, -1, 1);
         m2 = Range.clip(y - x - r, -1, 1);
         m3 = Range.clip(y - x + r, -1, 1);
