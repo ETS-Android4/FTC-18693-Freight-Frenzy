@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Hardware;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
@@ -102,41 +102,6 @@ public class RobotHardware {
          *  FreightFrenzy_BC.tflite  0: Ball,  1: Cube
          *  FreightFrenzy_DM.tflite  0: Duck,  1: Marker
          */
-        public static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
-        public static final String[] LABELS = {
-                "Ball",
-                "Cube",
-                "Duck",
-                "Marker"
-        };
-
-        /*
-         * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
-         * 'parameters.vuforiaLicenseKey' is initialized is for illustration only, and will not function.
-         * A Vuforia 'Development' license key, can be obtained free of charge from the Vuforia developer
-         * web site at https://developer.vuforia.com/license-manager.
-         *
-         * Vuforia license keys are always 380 characters long, and look as if they contain mostly
-         * random data. As an example, here is a example of a fragment of a valid key:
-         *      ... yIgIzTqZ4mWjk9wd3cZO9T1axEqzuhxoGlfOOI2dRzKS4T0hQ8kT ...
-         * Once you've obtained a license key, copy the string from the Vuforia web site
-         * and paste it in to your code on the next line, between the double quotes.
-         */
-        public static final String VUFORIA_KEY =
-         "AdImucn/////AAABmS8HHciHwUqGnUCvWpNXwjWCuQC7is1XkgwGqfbHrFJZ2aUjFR69v8HR+Jqn8Ckdsi3Y2oak9H0dwlRxirfntkWVXpSag+5fuJwvx1rd4PqIpJeiZeaJJp1apcv3crUJt6Ka7o7dqHit1VLQr4ynYG5qng0Ft1TiGIrncgnZFF5IVcvcF4DPKXjF8hLIeHzB2/gylS5pKREbj+HtQUo84tr4t5tAeBVS/Q01xJJDLF3DlTX3RXbLkaMd3QVOtO6zjCNkNG8Qj6KJRv4HHT06Q+mGVCJ1hbvM/P4V4TQVsWomxi3+f4Hf6cnWSqLOSTdLag/rIYWhjZRGuzQ5d61GQgrnFevubyQmaywN1v3RyJci";
-            
-
-        /**
-         * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
-         * localization engine.
-         */
-        public VuforiaLocalizer vuforia;
-
-        /**
-         * {@link #tfod} is the variable we will use to store our instance of the TensorFlow Object
-         * Detection engine.
-         */
-        public TFObjectDetector tfod;
 
     /* local OpMode members. */
     HardwareMap hwMap = null;
@@ -147,24 +112,9 @@ public class RobotHardware {
     //}
 
     /* Initialize standard Hardware interfaces */
-    public void init(HardwareMap ahwMap, int wheelType, boolean enableCamera) {
+    public void init(HardwareMap ahwMap, int wheelType) {
         // Save reference to Hardware map
         hwMap = ahwMap;
-        if(enableCamera) {
-            initVuforia();
-            initTfod();
-            if (tfod != null) {
-                tfod.activate();
-
-                // The TensorFlow software will scale the input images from the camera to a lower resolution.
-                // This can result in lower detection accuracy at longer distances (> 55cm or 22").
-                // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
-                // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
-                // should be set to the value of the images used to create the TensorFlow Object Detection model
-                // (typically 16/9).
-                tfod.setZoom(2.5, 16.0 / 9.0);
-            }
-        }
         // Define and Initialize Motors
         leftRear = hwMap.get(DcMotorEx.class, "Motor_0");
         leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -248,33 +198,5 @@ public class RobotHardware {
         {
             sleep(50);
         }
-    }
-    public void initVuforia() {
-        /*
-         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
-         */
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = hwMap.get(WebcamName.class, "Webcam 1");
-
-        //  Instantiate the Vuforia engine
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
-        // Loading trackables is not necessary for the TensorFlow Object Detection engine.
-    }
-
-    /**
-     * Initialize the TensorFlow Object Detection engine.
-     */
-    public void initTfod() {
-        int tfodMonitorViewId = hwMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hwMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.5f;
-        tfodParameters.isModelTensorFlow2 = true;
-        tfodParameters.inputSize = 320;
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
     }
 }

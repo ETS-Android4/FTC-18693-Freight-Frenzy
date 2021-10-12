@@ -31,10 +31,8 @@ package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Color;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -42,6 +40,7 @@ import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.android.AndroidSoundPool;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.teamcode.Hardware.RobotHardware;
 
 import java.util.List;
 
@@ -171,7 +170,7 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void init() {
-        robot.init(hardwareMap, 2, false);
+        robot.init(hardwareMap, 2);
         audio = new AndroidSoundPool();
 
         telemetry.addData("Status", "Initialized");
@@ -199,24 +198,6 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void loop() {
-        if (robot.tfod != null) {
-            // getUpdatedRecognitions() will return null if no new information is available since
-            // the last time that call was made.
-            List<Recognition> updatedRecognitions = robot.tfod.getUpdatedRecognitions();
-            if (updatedRecognitions != null) {
-                telemetry.addData("# Object Detected", updatedRecognitions.size());
-                // step through the list of recognitions and display boundary info.
-                int i = 0;
-                for (Recognition recognition : updatedRecognitions) {
-                    telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                    telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                            recognition.getLeft(), recognition.getTop());
-                    telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                            recognition.getRight(), recognition.getBottom());
-                    i++;
-                }
-            }
-        }
         telemetry.update();
         Telemetries();
         if (gamepad1.a) {
