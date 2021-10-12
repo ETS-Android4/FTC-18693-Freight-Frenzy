@@ -33,6 +33,7 @@ import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -40,6 +41,7 @@ import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.android.AndroidSoundPool;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.teamcode.Hardware.CameraHardware;
 import org.firstinspires.ftc.teamcode.Hardware.RobotHardware;
 
 import java.util.List;
@@ -71,6 +73,7 @@ public class MecanumDrive extends OpMode {
     public double m1, m2, m3, m4;
     // Declare OpMode members.
     RobotHardware robot = new RobotHardware();
+    CameraHardware camera = new CameraHardware();
     private ElapsedTime runtime = new ElapsedTime();
 
     public String detectColor() {
@@ -141,6 +144,7 @@ public class MecanumDrive extends OpMode {
         } else {
             telemetry.addData("Status", "Running");
         }
+        telemetry.addData("Detected Objects: ", camera.getObjects().toString());
         telemetry.addData("Steering Sensitivity","%d%%", steeringMultiplier*100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
@@ -171,6 +175,7 @@ public class MecanumDrive extends OpMode {
     @Override
     public void init() {
         robot.init(hardwareMap, 2);
+        camera.init(hardwareMap, 0.5f);
         audio = new AndroidSoundPool();
 
         telemetry.addData("Status", "Initialized");
