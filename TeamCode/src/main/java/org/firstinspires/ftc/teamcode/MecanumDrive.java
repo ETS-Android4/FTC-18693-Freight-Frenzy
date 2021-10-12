@@ -140,8 +140,12 @@ public class MecanumDrive extends OpMode {
         } else {
             telemetry.addData("Status", "Running");
         }
-        telemetry.addData("Detected Objects: ", camera.getObjects().toString());
-        telemetry.addData("Steering Sensitivity","%d%%", steeringMultiplier*100);
+        if (camera.getObjects() != null) {
+            telemetry.addData("Detected Object: ", camera.getObjects().get(1));
+            telemetry.addData("Object X", camera.getPosition(camera.getObjects().get(1)).get(1));
+            telemetry.addData("Object Y", camera.getPosition(camera.getObjects().get(1)).get(2));
+        }
+        telemetry.addData("Steering Sensitivity", "%d%%", steeringMultiplier * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
         //telemetry.addData("Ramp Power", "Bottom (%.2f%%), Middle (%.2f%%), Top (%.2f%%)", robot.rampBottom.getPower() / robot.servoPower * 100, robot.rampMiddle.getPower() / robot.servoPower * 100, robot.rampTop.getPower() / robot.servoPower * 100);
@@ -202,19 +206,17 @@ public class MecanumDrive extends OpMode {
         telemetry.update();
         Telemetries();
         if (gamepad1.a) {
-            robot.leftFront.setVelocity(robot.driveVelocity * 2);
-            robot.rightFront.setVelocity(robot.driveVelocity * 2);
-            robot.leftRear.setVelocity(robot.driveVelocity * 2);
-            robot.rightRear.setVelocity(robot.driveVelocity * 2);
+
         } else {
             Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
         }
+
         if (gamepad1.back && steeringAdjusted < runtime.milliseconds()) {
             steeringMultiplier -= 10;
-            steeringAdjusted = runtime.seconds()+1;
+            steeringAdjusted = runtime.seconds() + 1;
         } else if (gamepad1.start && steeringAdjusted < runtime.seconds()) {
             steeringMultiplier += 10;
-            steeringAdjusted = runtime.milliseconds()+100;
+            steeringAdjusted = runtime.milliseconds() + 100;
         }
         if (robot.voltageSensor.getVoltage() < robot.reallyLowBattery && Status != 2) {
             if (Status != 1) audio.play("RawRes:ss_siren");
