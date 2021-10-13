@@ -141,7 +141,7 @@ public class CameraHardware {
                         position2.y = recognition.getBottom();
                         position2.z = recognition.estimateAngleToObject(AngleUnit.DEGREES);
                         position2.unit = DistanceUnit.INCH;
-                //        position2.acquisitionTime = getRuntime;
+                //        position2.acquisitionTime = getRuntime();
                         return position;
                     }
                     i++;
