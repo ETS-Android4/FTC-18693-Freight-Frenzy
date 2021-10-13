@@ -142,7 +142,7 @@ public class MecanumDrive extends OpMode {
         }
         if (camera.getObjects() != null) {
             telemetry.addData("Detected Object: ", camera.getObjects().get(1));
-            telemetry.addData("Object Position:","X (%.01f) Y (%.01f)", camera.getPosition(camera.getObjects().get(1)).get(1), camera.getPosition(camera.getObjects().get(1)).get(2));
+            telemetry.addData("Object Position:","X (%.01f) Y (%.01f)", camera.getPosition(camera.getObjects().get(1)).x, camera.getPosition(camera.getObjects().get(1)).y);
         }
         telemetry.addData("Steering Sensitivity", "%d%%", steeringMultiplier * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);

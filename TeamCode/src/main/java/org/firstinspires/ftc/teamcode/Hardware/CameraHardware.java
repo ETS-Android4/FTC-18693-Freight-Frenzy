@@ -122,7 +122,7 @@ public class CameraHardware {
         }
         return null;
     }
-    public List<Float> getPosition(String object){
+    public Position getPosition(String object){
         position.clear();
         position2 = null;
         if (tfod != null) {
@@ -139,10 +139,10 @@ public class CameraHardware {
                         position.add(recognition.getBottom());
                         position2.x = recognition.getRight();
                         position2.y = recognition.getBottom();
-                        position2.z = recognition.estimateAngleToObject(AngleUnit.DEGREES);
+                        //position2.z = recognition.estimateAngleToObject(AngleUnit.DEGREES);
                         position2.unit = DistanceUnit.INCH;
                 //        position2.acquisitionTime = getRuntime();
-                        return position;
+                        return position2;
                     }
                     i++;
                 }
