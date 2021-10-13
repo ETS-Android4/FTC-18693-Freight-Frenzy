@@ -4,6 +4,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -42,8 +45,9 @@ public class CameraHardware {
      * Detection engine.
      */
     public TFObjectDetector tfod;
-    public List<String> objects;
+    public List<String> objects = null;
     public List<Float> position;
+    public Position position2 = null;
     HardwareMap hwMap = null;
 
     public void init(HardwareMap ahwMap, float confidence, double magnification) {
@@ -120,6 +124,7 @@ public class CameraHardware {
     }
     public List<Float> getPosition(String object){
         position.clear();
+        position2 = null;
         if (tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since
             // the last time that call was made.
@@ -132,6 +137,11 @@ public class CameraHardware {
                     if (recognition.getLabel().equals(object)){
                         position.add(recognition.getRight());
                         position.add(recognition.getBottom());
+                        position2.x = recognition.getRight();
+                        position2.y = recognition.getBottom();
+                        position2.z = recognition.estimateAngleToObject(AngleUnit.DEGREES);
+                        position2.unit = DistanceUnit.INCH;
+                //        position2.acquisitionTime = getRuntime;
                         return position;
                     }
                     i++;
