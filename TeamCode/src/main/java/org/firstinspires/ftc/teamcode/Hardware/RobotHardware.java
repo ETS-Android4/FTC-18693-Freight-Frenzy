@@ -68,8 +68,7 @@ public class RobotHardware {
     public Rev2mDistanceSensor distanceLeft = null;
     public Rev2mDistanceSensor distanceRight = null;
 
-    public BNO055IMU gyro = null;
-    public BNO055IMU.Parameters parameters = null;
+
     public VoltageSensor voltageSensor = null;
 
 
@@ -174,29 +173,7 @@ public class RobotHardware {
         distanceRight = hwMap.get(Rev2mDistanceSensor.class, "Distance_2");
 
         // Define and initialize ALL internal sensors.
-        gyro = hwMap.get(BNO055IMU.class, "imu");
         voltageSensor = hwMap.get(VoltageSensor.class, "Control Hub");
 
-
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-
-        parameters.mode                = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled      = false;
-        parameters.temperatureUnit      = BNO055IMU.TempUnit.FARENHEIT;
-        gyro.initialize(parameters);
-
-
-
-
-
-
-
-
-        while (!gyro.isGyroCalibrated())
-        {
-            sleep(50);
-        }
     }
 }

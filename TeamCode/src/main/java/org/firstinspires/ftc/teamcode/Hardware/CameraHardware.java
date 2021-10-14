@@ -45,7 +45,7 @@ public class CameraHardware {
      * Detection engine.
      */
     public TFObjectDetector tfod;
-    public List<String> objects = null;
+    public List<String> objects;
     public List<Float> position;
     public Position position2 = null;
     HardwareMap hwMap = null;
@@ -99,7 +99,6 @@ public class CameraHardware {
     }
 
     public List<String> getObjects() {
-        objects.clear();
         if (tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since
             // the last time that call was made.
@@ -119,6 +118,7 @@ public class CameraHardware {
                 }
                 return objects;
             }
+            objects.clear();
         }
         return null;
     }

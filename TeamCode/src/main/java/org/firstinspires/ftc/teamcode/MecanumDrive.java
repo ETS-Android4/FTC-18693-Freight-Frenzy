@@ -33,13 +33,16 @@ import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.android.AndroidSoundPool;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Hardware.CameraHardware;
+import org.firstinspires.ftc.teamcode.Hardware.GyroHardware;
 import org.firstinspires.ftc.teamcode.Hardware.RobotHardware;
 
 
@@ -62,14 +65,16 @@ import org.firstinspires.ftc.teamcode.Hardware.RobotHardware;
 public class MecanumDrive extends OpMode {
     public double Status = 5;
     public boolean mutantGamepad = false;
+    public boolean worldDrive = false;
     public String detectedColor;
     public AndroidSoundPool audio;
     public double steeringMultiplier = 1;
     public double steeringAdjusted = 0;
-    public double m1, m2, m3, m4;
+    public double m1, m2, m3, m4, directionMultiplier;
     // Declare OpMode members.
     RobotHardware robot = new RobotHardware();
     CameraHardware camera = new CameraHardware();
+    GyroHardware gyro = new GyroHardware();
     private ElapsedTime runtime = new ElapsedTime();
 
     public String detectColor() {
@@ -141,10 +146,14 @@ public class MecanumDrive extends OpMode {
             telemetry.addData("Status", "Running");
         }
         if (camera.getObjects() != null) {
-            telemetry.addData("Detected Object: ", camera.getObjects().get(1));
-            telemetry.addData("Object Position:","X (%.01f) Y (%.01f)", camera.getPosition(camera.getObjects().get(1)).x, camera.getPosition(camera.getObjects().get(1)).y);
+            telemetry.addData("Detected Object", camera.getObjects().get(1));
+            telemetry.addData("Object Position", "X (%.01f) Y (%.01f)", camera.getPosition(camera.getObjects().get(1)).x, camera.getPosition(camera.getObjects().get(1)).y);
         }
-        telemetry.addData("Steering Sensitivity", "%d%%", steeringMultiplier * 100);
+
+
+        if (gyro.gyro.isGyroCalibrated())
+            telemetry.addData("Orientation", "%.0f°", gyro.getOrientation().thirdAngle);
+        telemetry.addData("Steering Sensitivity", "%.0f%%", steeringMultiplier * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
         //telemetry.addData("Ramp Power", "Bottom (%.2f%%), Middle (%.2f%%), Top (%.2f%%)", robot.rampBottom.getPower() / robot.servoPower * 100, robot.rampMiddle.getPower() / robot.servoPower * 100, robot.rampTop.getPower() / robot.servoPower * 100);
@@ -156,11 +165,29 @@ public class MecanumDrive extends OpMode {
     }
 
     public void Drive(double x, double y, double r) {
-        r *= steeringMultiplier;
-        m1 = Range.clip(y + x + r, -1, 1);
-        m2 = Range.clip(y - x - r, -1, 1);
-        m3 = Range.clip(y - x + r, -1, 1);
-        m4 = Range.clip(y + x - r, -1, 1);
+        //   r *= steeringMultiplier;
+        m1 = Range.clip(y + x + r * steeringMultiplier, -1, 1);
+        m2 = Range.clip(y - x - r * steeringMultiplier, -1, 1);
+        m3 = Range.clip(y - x + r * steeringMultiplier, -1, 1);
+        m4 = Range.clip(y + x - r * steeringMultiplier, -1, 1);
+        robot.leftFront.setVelocity(m1 * robot.driveVelocity);
+        robot.rightFront.setVelocity(m2 * robot.driveVelocity);
+        robot.leftRear.setVelocity(m3 * robot.driveVelocity);
+        robot.rightRear.setVelocity(m4 * robot.driveVelocity);
+    }
+
+    public void WorldDrive(double x, double y, double r, Orientation gyro) {
+        directionMultiplier = gyro.thirdAngle / 180;
+        if(directionMultiplier != 0) {
+            m1 = directionMultiplier;
+            m2 = directionMultiplier * y - x;
+            m3 = directionMultiplier;
+            m4 = directionMultiplier * y + x;
+        }
+        m1 = Range.clip(m1 + r * steeringMultiplier, -1, 1);
+        m2 = Range.clip(m2 - r * steeringMultiplier, -1, 1);
+        m3 = Range.clip(m3 + r * steeringMultiplier, -1, 1);
+        m4 = Range.clip(m4 - r * steeringMultiplier, -1, 1);
         robot.leftFront.setVelocity(m1 * robot.driveVelocity);
         robot.rightFront.setVelocity(m2 * robot.driveVelocity);
         robot.leftRear.setVelocity(m3 * robot.driveVelocity);
@@ -173,8 +200,10 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void init() {
+        //   telemetry.addData("Status", "Initializing");
         robot.init(hardwareMap, 2);
-        camera.init(hardwareMap, 0.5f, 2.5);
+        //camera.init(hardwareMap, 0.5f, 2.5);
+        gyro.init(hardwareMap);
         audio = new AndroidSoundPool();
 
         telemetry.addData("Status", "Initialized");
@@ -206,15 +235,19 @@ public class MecanumDrive extends OpMode {
         Telemetries();
         if (gamepad1.a) {
 
-        } else {
+        } else if(worldDrive){
+            WorldDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, gyro.gyro.getAngularOrientation());
+        }else {
             Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
         }
 
         if (gamepad1.back && steeringAdjusted < runtime.milliseconds()) {
-            steeringMultiplier -= 10;
-            steeringAdjusted = runtime.seconds() + 1;
-        } else if (gamepad1.start && steeringAdjusted < runtime.seconds()) {
-            steeringMultiplier += 10;
+            steeringMultiplier -= 0.1;
+            steeringMultiplier = Range.clip(steeringMultiplier, 0, 2);
+            steeringAdjusted = runtime.milliseconds() + 1;
+        } else if (gamepad1.start && steeringAdjusted < runtime.milliseconds()) {
+            steeringMultiplier += 0.1;
+            steeringMultiplier = Range.clip(steeringMultiplier, 0, 2);
             steeringAdjusted = runtime.milliseconds() + 100;
         }
         if (robot.voltageSensor.getVoltage() < robot.reallyLowBattery && Status != 2) {
