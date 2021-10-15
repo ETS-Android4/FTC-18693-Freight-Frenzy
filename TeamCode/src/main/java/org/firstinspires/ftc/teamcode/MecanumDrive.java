@@ -33,7 +33,6 @@ import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -63,6 +62,7 @@ import org.firstinspires.ftc.teamcode.Hardware.RobotHardware;
 @TeleOp(name = "Mecanum Drive")
 //@Disabled
 public class MecanumDrive extends OpMode {
+    private final ElapsedTime runtime = new ElapsedTime();
     public double Status = 5;
     public boolean mutantGamepad = false;
     public boolean worldDrive = false;
@@ -75,7 +75,6 @@ public class MecanumDrive extends OpMode {
     RobotHardware robot = new RobotHardware();
     CameraHardware camera = new CameraHardware();
     GyroHardware gyro = new GyroHardware();
-    private ElapsedTime runtime = new ElapsedTime();
 
     public String detectColor() {
         int colorHSV;
@@ -161,7 +160,7 @@ public class MecanumDrive extends OpMode {
         telemetry.addData("Distance", "left %.2f, right %.2f", robot.distanceLeft.getDistance(DistanceUnit.METER), robot.distanceRight.getDistance(DistanceUnit.METER));
         telemetry.addData("Color Detected", detectColor());
 
-        //telemetry.addData("Temperature","%.2f", robot.gyro.getTemperature().toUnit(TempUnit.FARENHEIT));
+        telemetry.addData("Temperature", "%.0f", gyro.getTemp());
     }
 
     public void Drive(double x, double y, double r) {
@@ -178,7 +177,7 @@ public class MecanumDrive extends OpMode {
 
     public void WorldDrive(double x, double y, double r, Orientation gyro) {
         directionMultiplier = gyro.thirdAngle / 180;
-        if(directionMultiplier != 0) {
+        if (directionMultiplier != 0) {
             m1 = directionMultiplier;
             m2 = directionMultiplier * y - x;
             m3 = directionMultiplier;
@@ -235,9 +234,9 @@ public class MecanumDrive extends OpMode {
         Telemetries();
         if (gamepad1.a) {
 
-        } else if(worldDrive){
+        } else if (worldDrive) {
             WorldDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, gyro.gyro.getAngularOrientation());
-        }else {
+        } else {
             Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
         }
 
@@ -279,8 +278,9 @@ public class MecanumDrive extends OpMode {
         robot.rightRear.setPower(0);
         robot.leftFront.setPower(0);
         robot.rightFront.setPower(0);
+        camera.tfod.shutdown();
         telemetry.addData("Status", "Stopped");
         //robot.greenLight.enableLight(false);
-        telemetry.update();
+
     }
 }

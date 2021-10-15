@@ -1,24 +1,11 @@
 package org.firstinspires.ftc.teamcode.Hardware;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.LED;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
-
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-
-import static android.os.SystemClock.sleep;
 
 
 /**
@@ -78,7 +65,7 @@ public class RobotHardware {
     public double driveRPS = 2.1;
     //public final double maxServoPower = 1;
     //public final double maxShootVelocity = shootTPR*shootRPS;
-    public final double maxDriveVelocity = driveTPR*driveRPS;
+    public final double maxDriveVelocity = driveTPR * driveRPS;
     //public double servoPower = maxServoPower;
 
     //public double shootVelocity = maxShootVelocity;
@@ -86,22 +73,21 @@ public class RobotHardware {
     public double lowBattery = 10.5;
     public double reallyLowBattery = 9.5;
     public double circumferenceMM = 280;
+    public final double driveTickPerMillimeter = driveTPR / circumferenceMM;
     public double circumferenceIN = 11;
-    public final double driveTickPerInch = driveTPR/circumferenceIN;
-    public final double driveTickPerMillimeter = driveTPR/circumferenceMM;
+    public final double driveTickPerInch = driveTPR / circumferenceIN;
     //public final double armRatio = 6;
-        /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
-         * the following 4 detectable objects
-         *  0: Ball,
-         *  1: Cube,
-         *  2: Duck,
-         *  3: Marker (duck location tape marker)
-         *
-         *  Two additional model assets are available which only contain a subset of the objects:
-         *  FreightFrenzy_BC.tflite  0: Ball,  1: Cube
-         *  FreightFrenzy_DM.tflite  0: Duck,  1: Marker
-         */
-
+    /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
+     * the following 4 detectable objects
+     *  0: Ball,
+     *  1: Cube,
+     *  2: Duck,
+     *  3: Marker (duck location tape marker)
+     *
+     *  Two additional model assets are available which only contain a subset of the objects:
+     *  FreightFrenzy_BC.tflite  0: Ball,  1: Cube
+     *  FreightFrenzy_DM.tflite  0: Duck,  1: Marker
+     */
     /* local OpMode members. */
     HardwareMap hwMap = null;
 
@@ -128,23 +114,23 @@ public class RobotHardware {
         double Back_Motors_F = 32767 / maxDriveVelocity, Back_Motors_P = 0.1 * Back_Motors_F, Back_Motors_I = 0.01 * Back_Motors_P;
         leftRear.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
         rightRear.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
-        
-        if(wheelType == 2){
-        leftFront = hwMap.get(DcMotorEx.class, "Motor_2");
-        leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftFront.setPower(0);
-        leftFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        rightFront = hwMap.get(DcMotorEx.class, "Motor_3");
-        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightFront.setPower(0); 
-        rightFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        double Front_Motors_F = 32767 / maxDriveVelocity, Front_Motors_P = 0.1 * Front_Motors_F, Front_Motors_I = 0.01 * Front_Motors_P;
-        leftFront.setVelocityPIDFCoefficients(Front_Motors_P, Front_Motors_I, 0, Front_Motors_F);
-        rightFront.setVelocityPIDFCoefficients(Front_Motors_P, Front_Motors_I, 0, Front_Motors_F);
+
+        if (wheelType == 2) {
+            leftFront = hwMap.get(DcMotorEx.class, "Motor_2");
+            leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
+            leftFront.setPower(0);
+            leftFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+            leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            rightFront = hwMap.get(DcMotorEx.class, "Motor_3");
+            rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
+            rightFront.setPower(0);
+            rightFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+            rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            double Front_Motors_F = 32767 / maxDriveVelocity, Front_Motors_P = 0.1 * Front_Motors_F, Front_Motors_I = 0.01 * Front_Motors_P;
+            leftFront.setVelocityPIDFCoefficients(Front_Motors_P, Front_Motors_I, 0, Front_Motors_F);
+            rightFront.setVelocityPIDFCoefficients(Front_Motors_P, Front_Motors_I, 0, Front_Motors_F);
         }
-        
+
         // Define and initialize ALL installed servos.
        /* rampBottom = hwMap.get(CRServo.class, "Servo_0");
         rampMiddle = hwMap.get(CRServo.class, "Servo_1");

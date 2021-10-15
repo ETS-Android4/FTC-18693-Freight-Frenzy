@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -21,6 +20,7 @@ public class CameraHardware {
             "Duck",
             "Marker"
     };
+
     /*
      * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
      * 'parameters.vuforiaLicenseKey' is initialized is for illustration only, and will not function.
@@ -107,6 +107,7 @@ public class CameraHardware {
                 //telemetry.addData("# Object Detected", updatedRecognitions.size());
                 // step through the list of recognitions and display boundary info.
                 int i = 0;
+                objects.clear();
                 for (Recognition recognition : updatedRecognitions) {
                     objects.add(recognition.getLabel());
                     //telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
@@ -117,12 +118,14 @@ public class CameraHardware {
                     i++;
                 }
                 return objects;
+            } else {
+                return objects;
             }
-            objects.clear();
         }
         return null;
     }
-    public Position getPosition(String object){
+
+    public Position getPosition(String object) {
         position.clear();
         position2 = null;
         if (tfod != null) {
@@ -134,14 +137,14 @@ public class CameraHardware {
                 // step through the list of recognitions and display boundary info.
                 int i = 0;
                 for (Recognition recognition : updatedRecognitions) {
-                    if (recognition.getLabel().equals(object)){
+                    if (recognition.getLabel().equals(object)) {
                         position.add(recognition.getRight());
                         position.add(recognition.getBottom());
                         position2.x = recognition.getRight();
                         position2.y = recognition.getBottom();
                         //position2.z = recognition.estimateAngleToObject(AngleUnit.DEGREES);
                         position2.unit = DistanceUnit.INCH;
-                //        position2.acquisitionTime = getRuntime();
+                        //        position2.acquisitionTime = getRuntime();
                         return position2;
                     }
                     i++;
