@@ -1,10 +1,14 @@
 package org.firstinspires.ftc.teamcode.Hardware;
 
+
+import static android.os.SystemClock.sleep;
+
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 
@@ -31,25 +35,11 @@ public class RobotHardware {
     public DcMotorEx leftFront = null;
     public DcMotorEx rightFront = null;
 
-    /*public CRServo rampBottom = null;
-    public CRServo rampMiddle = null;
-    public CRServo rampTop = null;
-    public CRServo clawArm = null;
-    public CRServo clawHand = null;
-*/
-   /* public TouchSensor touchBottom = null;
-    public TouchSensor touchTop = null;
-    */
-    
-   /* public LED redLight = null;
-    public LED blueLight = null;
-    public LED greenLight = null;
-    public LED spareLight1 = null;
-    public LED spareLight2 = null;
-    public LED spareLight3 = null;
-    public LED spareLight4 = null;
-    public LED spareLight5 = null;
-*/
+    public LED light1 = null;
+    public LED light2 = null;
+    public LED light3 = null;
+    public LED light4 = null;
+
 
     public ColorSensor color = null;
     public Rev2mDistanceSensor distanceLeft = null;
@@ -59,16 +49,9 @@ public class RobotHardware {
     public VoltageSensor voltageSensor = null;
 
 
-    //public double shootTPR = 28;
     public double driveTPR = 288;
-    //public double shootRPS = 16;
     public double driveRPS = 2.1;
-    //public final double maxServoPower = 1;
-    //public final double maxShootVelocity = shootTPR*shootRPS;
     public final double maxDriveVelocity = driveTPR * driveRPS;
-    //public double servoPower = maxServoPower;
-
-    //public double shootVelocity = maxShootVelocity;
     public double driveVelocity = maxDriveVelocity;
     public double lowBattery = 10.5;
     public double reallyLowBattery = 9.5;
@@ -76,7 +59,6 @@ public class RobotHardware {
     public final double driveTickPerMillimeter = driveTPR / circumferenceMM;
     public double circumferenceIN = 11;
     public final double driveTickPerInch = driveTPR / circumferenceIN;
-    //public final double armRatio = 6;
     /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
      * the following 4 detectable objects
      *  0: Ball,
@@ -91,10 +73,6 @@ public class RobotHardware {
     /* local OpMode members. */
     HardwareMap hwMap = null;
 
-    /* Constructor */
-    //public RobotHardware() {
-
-    //}
 
     /* Initialize standard Hardware interfaces */
     public void init(HardwareMap ahwMap, int wheelType) {
@@ -131,28 +109,16 @@ public class RobotHardware {
             rightFront.setVelocityPIDFCoefficients(Front_Motors_P, Front_Motors_I, 0, Front_Motors_F);
         }
 
-        // Define and initialize ALL installed servos.
-       /* rampBottom = hwMap.get(CRServo.class, "Servo_0");
-        rampMiddle = hwMap.get(CRServo.class, "Servo_1");
-        rampTop = hwMap.get(CRServo.class, "Servo_2");
-        clawArm = hwMap.get(CRServo.class, "Servo_3");
-        clawHand = hwMap.get(CRServo.class, "Servo_4");
-        */
-        // Define and initialize ALL installed touch sensors.
-       /* touchBottom = hwMap.get(TouchSensor.class, "Touch_0");
-        touchTop = hwMap.get(TouchSensor.class, "Touch_1");
-        */
-        // Define and initialize ALL installed lights.
-       /* redLight = hwMap.get(LED.class, "Light_0");
-        blueLight = hwMap.get(LED.class, "Light_1");
-        greenLight = hwMap.get(LED.class, "Light_2");
-        spareLight1 = hwMap.get(LED.class, "Light_3");
-        spareLight2 = hwMap.get(LED.class, "Light_4");
-        spareLight3 = hwMap.get(LED.class, "Light_5");
-        spareLight4 = hwMap.get(LED.class, "Light_6");
-        spareLight5 = hwMap.get(LED.class, "Light_7");
 
-        */
+        // touchBottom = hwMap.get(TouchSensor.class, "Touch_0");
+        // touchTop = hwMap.get(TouchSensor.class, "Touch_1");
+        // Define and initialize ALL installed lights.
+        light1 = hwMap.get(LED.class, "Light_0");
+        light2 = hwMap.get(LED.class, "Light_1");
+        light3 = hwMap.get(LED.class, "Light_2");
+        light4 = hwMap.get(LED.class, "Light_3");
+
+
         // Define and initialize ALL installed distance/light sensors.
         color = hwMap.get(ColorSensor.class, "Color_0");
         distanceLeft = hwMap.get(Rev2mDistanceSensor.class, "Distance_1");
@@ -160,6 +126,17 @@ public class RobotHardware {
 
         // Define and initialize ALL internal sensors.
         voltageSensor = hwMap.get(VoltageSensor.class, "Control Hub");
+        if (driveTickPerInch != 0 || driveTickPerMillimeter != 0) {
+            light1.enable(true);
+            light2.enable(true);
+            light3.enable(true);
+            light4.enable(true);
+            sleep(50);
+            light1.enable(false);
+            light2.enable(false);
+            light3.enable(false);
+            light4.enable(false);
 
+        }
     }
 }

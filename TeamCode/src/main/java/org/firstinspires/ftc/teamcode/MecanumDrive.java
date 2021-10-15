@@ -79,8 +79,8 @@ public class MecanumDrive extends OpMode {
     public String detectColor() {
         int colorHSV;
         float hue;
-        float sat;
-        float val;
+        //float sat;
+        //float val;
         // Convert RGB values to HSV color model.
         // See https://en.wikipedia.org/wiki/HSL_and_HSV for details on HSV color model.
         colorHSV = Color.argb(robot.color.alpha(), robot.color.red(), robot.color.green(), robot.color.blue());
@@ -88,10 +88,10 @@ public class MecanumDrive extends OpMode {
         hue = JavaUtil.colorToHue(colorHSV);
         //telemetry.addData("Hue", hue);
         // Get saturation.
-        sat = JavaUtil.colorToSaturation(colorHSV);
+        //sat = JavaUtil.colorToSaturation(colorHSV);
         //telemetry.addData("Saturation", sat);
         // Get value.
-        val = JavaUtil.colorToValue(colorHSV);
+        //val = JavaUtil.colorToValue(colorHSV);
         //telemetry.addData("Value", val);
         // Use hue to determine if it's red, green, blue, etc..
         if (hue < 30) {
@@ -118,22 +118,6 @@ public class MecanumDrive extends OpMode {
         }
     }
 
-/*    public void Drive() {
-        double r = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
-        double robotAngle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
-        double rightX = gamepad1.right_stick_x;
-        double v1 = r * Math.cos(robotAngle) + rightX;
-        double v2 = r * Math.sin(robotAngle) - rightX;
-        double v3 = r * Math.sin(robotAngle) + rightX;
-        double v4 = r * Math.cos(robotAngle) - rightX;
-
-        robot.leftFront.setPower(v1 * robot.driveVelocity);
-        robot.rightFront.setPower(v2 * robot.driveVelocity);
-        robot.leftRear.setPower(v3 * robot.driveVelocity);
-        robot.rightRear.setPower(v4 * robot.driveVelocity);
-    }
-    */
-
     public void Telemetries() {
         if (Status == 2) {
             telemetry.addData("Status", "Danger! Really Low Voltage");
@@ -150,25 +134,25 @@ public class MecanumDrive extends OpMode {
         }
 
 
-        if (gyro.gyro.isGyroCalibrated())
-            telemetry.addData("Orientation", "%.0f°", gyro.getOrientation().thirdAngle);
+        if (gyro.gyro.isGyroCalibrated()) {
+            telemetry.addData("Intrinsic Orientation", "%.0f°", gyro.getOrientation().thirdAngle);
+            telemetry.addData("Extrinsic Orientation", "%.0f°", gyro.getOrientation2().thirdAngle);
+        }
         telemetry.addData("Steering Sensitivity", "%.0f%%", steeringMultiplier * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
-        //telemetry.addData("Ramp Power", "Bottom (%.2f%%), Middle (%.2f%%), Top (%.2f%%)", robot.rampBottom.getPower() / robot.servoPower * 100, robot.rampMiddle.getPower() / robot.servoPower * 100, robot.rampTop.getPower() / robot.servoPower * 100);
-        //telemetry.addData("Claw Power", "Arm (%.2f), Hand (%.2f)", robot.clawArm.getPower() * 100, robot.clawHand.getPower() * 100);
         telemetry.addData("Distance", "left %.2f, right %.2f", robot.distanceLeft.getDistance(DistanceUnit.METER), robot.distanceRight.getDistance(DistanceUnit.METER));
         telemetry.addData("Color Detected", detectColor());
 
         telemetry.addData("Temperature", "%.0f", gyro.getTemp());
     }
 
-    public void Drive(double x, double y, double r) {
+    public void Drive(double x, double y, double z) {
         //   r *= steeringMultiplier;
-        m1 = Range.clip(y + x + r * steeringMultiplier, -1, 1);
-        m2 = Range.clip(y - x - r * steeringMultiplier, -1, 1);
-        m3 = Range.clip(y - x + r * steeringMultiplier, -1, 1);
-        m4 = Range.clip(y + x - r * steeringMultiplier, -1, 1);
+        m1 = Range.clip(y + x + z * steeringMultiplier, -1, 1);
+        m2 = Range.clip(y - x - z * steeringMultiplier, -1, 1);
+        m3 = Range.clip(y - x + z * steeringMultiplier, -1, 1);
+        m4 = Range.clip(y + x - z * steeringMultiplier, -1, 1);
         robot.leftFront.setVelocity(m1 * robot.driveVelocity);
         robot.rightFront.setVelocity(m2 * robot.driveVelocity);
         robot.leftRear.setVelocity(m3 * robot.driveVelocity);
@@ -233,7 +217,7 @@ public class MecanumDrive extends OpMode {
         telemetry.update();
         Telemetries();
         if (gamepad1.a) {
-
+            camera.getPosition(camera.getObjects().get(1));
         } else if (worldDrive) {
             WorldDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, gyro.gyro.getAngularOrientation());
         } else {

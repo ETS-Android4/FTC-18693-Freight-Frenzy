@@ -36,12 +36,12 @@ public class CameraHardware {
     public static final String VUFORIA_KEY =
             "AdImucn/////AAABmS8HHciHwUqGnUCvWpNXwjWCuQC7is1XkgwGqfbHrFJZ2aUjFR69v8HR+Jqn8Ckdsi3Y2oak9H0dwlRxirfntkWVXpSag+5fuJwvx1rd4PqIpJeiZeaJJp1apcv3crUJt6Ka7o7dqHit1VLQr4ynYG5qng0Ft1TiGIrncgnZFF5IVcvcF4DPKXjF8hLIeHzB2/gylS5pKREbj+HtQUo84tr4t5tAeBVS/Q01xJJDLF3DlTX3RXbLkaMd3QVOtO6zjCNkNG8Qj6KJRv4HHT06Q+mGVCJ1hbvM/P4V4TQVsWomxi3+f4Hf6cnWSqLOSTdLag/rIYWhjZRGuzQ5d61GQgrnFevubyQmaywN1v3RyJci";
     /**
-     * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
+     * vuforia is the variable we will use to store our instance of the Vuforia
      * localization engine.
      */
     public VuforiaLocalizer vuforia;
     /**
-     * {@link #tfod} is the variable we will use to store our instance of the TensorFlow Object
+     * tfod is the variable we will use to store our instance of the TensorFlow Object
      * Detection engine.
      */
     public TFObjectDetector tfod;
@@ -104,23 +104,12 @@ public class CameraHardware {
             // the last time that call was made.
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
             if (updatedRecognitions != null) {
-                //telemetry.addData("# Object Detected", updatedRecognitions.size());
-                // step through the list of recognitions and display boundary info.
-                int i = 0;
                 objects.clear();
                 for (Recognition recognition : updatedRecognitions) {
                     objects.add(recognition.getLabel());
-                    //telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                    //telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                    //recognition.getLeft(), recognition.getTop());
-                    // telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                    //recognition.getRight(), recognition.getBottom());
-                    i++;
                 }
-                return objects;
-            } else {
-                return objects;
             }
+            return objects;
         }
         return null;
     }
@@ -133,9 +122,6 @@ public class CameraHardware {
             // the last time that call was made.
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
             if (updatedRecognitions != null) {
-                //telemetry.addData("# Object Detected", updatedRecognitions.size());
-                // step through the list of recognitions and display boundary info.
-                int i = 0;
                 for (Recognition recognition : updatedRecognitions) {
                     if (recognition.getLabel().equals(object)) {
                         position.add(recognition.getRight());
@@ -147,7 +133,6 @@ public class CameraHardware {
                         //        position2.acquisitionTime = getRuntime();
                         return position2;
                     }
-                    i++;
                 }
             }
         }
