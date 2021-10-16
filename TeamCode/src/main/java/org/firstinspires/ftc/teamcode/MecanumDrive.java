@@ -70,7 +70,7 @@ public class MecanumDrive extends OpMode {
     public AndroidSoundPool audio;
     public double steeringMultiplier = 1;
     public double steeringAdjusted = 0;
-    public double m1, m2, m3, m4, directionMultiplier;
+    public double m1, m2, m3, m4, g;
     // Declare OpMode members.
     RobotHardware robot = new RobotHardware();
     CameraHardware camera = new CameraHardware();
@@ -159,18 +159,12 @@ public class MecanumDrive extends OpMode {
         robot.rightRear.setVelocity(m4 * robot.driveVelocity);
     }
 
-    public void WorldDrive(double x, double y, double r, Orientation gyro) {
-        directionMultiplier = gyro.thirdAngle / 180;
-        if (directionMultiplier != 0) {
-            m1 = directionMultiplier;
-            m2 = directionMultiplier * y - x;
-            m3 = directionMultiplier;
-            m4 = directionMultiplier * y + x;
-        }
-        m1 = Range.clip(m1 + r * steeringMultiplier, -1, 1);
-        m2 = Range.clip(m2 - r * steeringMultiplier, -1, 1);
-        m3 = Range.clip(m3 + r * steeringMultiplier, -1, 1);
-        m4 = Range.clip(m4 - r * steeringMultiplier, -1, 1);
+    public void WorldDrive(double x, double y, double z, Orientation gyro) {
+        g = gyro.thirdAngle / 90;
+        m1 = Range.clip((y + x - g) + z * steeringMultiplier, -1, 1);
+        m2 = Range.clip((y - x + g) - z * steeringMultiplier, -1, 1);
+        m3 = Range.clip((y - x + g) + z * steeringMultiplier, -1, 1);
+        m4 = Range.clip((y + x - g) - z * steeringMultiplier, -1, 1);
         robot.leftFront.setVelocity(m1 * robot.driveVelocity);
         robot.rightFront.setVelocity(m2 * robot.driveVelocity);
         robot.leftRear.setVelocity(m3 * robot.driveVelocity);
