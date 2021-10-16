@@ -16,6 +16,7 @@ public class GyroHardware {
     public BNO055IMU.Parameters parameters = null;
     public Temperature temp;
     public Orientation angles;
+    public Orientation angles2;
     HardwareMap hwMap = null;
 
     public void init(HardwareMap ahwMap) {
@@ -39,8 +40,16 @@ public class GyroHardware {
 
     public Orientation getOrientation() {
         if (gyro.isGyroCalibrated()) {
-            angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+            angles = gyro.getAngularOrientation(AxesReference.INTRINSIC.reverse(), AxesOrder.XYZ, AngleUnit.DEGREES);
             return angles;
+        }
+        return null;
+    }
+
+    public Orientation getOrientation2() {
+        if (gyro.isGyroCalibrated()) {
+            angles2 = gyro.getAngularOrientation(AxesReference.EXTRINSIC.reverse(), AxesOrder.XYZ, AngleUnit.DEGREES);
+            return angles2;
         }
         return null;
     }
