@@ -70,6 +70,7 @@ public class MecanumDrive extends OpMode {
     public AndroidSoundPool audio;
     public double steeringMultiplier = 1;
     public double steeringAdjusted = 0;
+    public double driveModeAdjusted = 0;
     public double m1, m2, m3, m4, g;
     // Declare OpMode members.
     RobotHardware robot = new RobotHardware();
@@ -124,7 +125,7 @@ public class MecanumDrive extends OpMode {
         } else if (Status == 1) {
             telemetry.addData("Status", "WARNING! Low Voltage");
         } else if (mutantGamepad) {
-            telemetry.addData("Status", "Running, Mutant Gamepad Enabled");
+            telemetry.addData("Status", "Running, World Drive Enabled");
         } else {
             telemetry.addData("Status", "Running");
         }
@@ -210,8 +211,9 @@ public class MecanumDrive extends OpMode {
     public void loop() {
         telemetry.update();
         Telemetries();
-        if (gamepad1.a) {
-            camera.getPosition(camera.getObjects().get(1));
+        if (gamepad1.a && driveModeAdjusted < runtime.milliseconds()) {
+            worldDrive = true;
+            driveModeAdjusted = runtime.milliseconds() + 100;
         } else if (worldDrive) {
             WorldDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, gyro.gyro.getAngularOrientation());
         } else {
@@ -221,7 +223,7 @@ public class MecanumDrive extends OpMode {
         if (gamepad1.back && steeringAdjusted < runtime.milliseconds()) {
             steeringMultiplier -= 0.1;
             steeringMultiplier = Range.clip(steeringMultiplier, 0, 2);
-            steeringAdjusted = runtime.milliseconds() + 1;
+            steeringAdjusted = runtime.milliseconds() + 100;
         } else if (gamepad1.start && steeringAdjusted < runtime.milliseconds()) {
             steeringMultiplier += 0.1;
             steeringMultiplier = Range.clip(steeringMultiplier, 0, 2);
