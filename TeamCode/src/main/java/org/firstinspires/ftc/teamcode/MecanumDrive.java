@@ -211,6 +211,7 @@ public class MecanumDrive extends OpMode {
     public void loop() {
         telemetry.update();
         Telemetries();
+        if(gamepad1.b) gyro.gyro.initialize(gyro.parameters);
         if (gamepad1.a && driveModeAdjusted < runtime.milliseconds()) {
             worldDrive = true;
             driveModeAdjusted = runtime.milliseconds() + 100;
