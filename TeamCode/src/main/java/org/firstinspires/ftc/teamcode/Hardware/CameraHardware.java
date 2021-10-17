@@ -1,60 +1,65 @@
 package org.firstinspires.ftc.teamcode.Hardware;
 
+import android.annotation.SuppressLint;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CameraHardware {
-    public static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
-    public static final String[] LABELS = {
+    /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
+     * the following 4 detectable objects
+     *  0: Ball,
+     *  1: Cube,
+     *  2: Duck,
+     *  3: Marker (duck location tape marker)
+     *
+     *  Two additional model assets are available which only contain a subset of the objects:
+     *  FreightFrenzy_BC.tflite  0: Ball,  1: Cube
+     *  FreightFrenzy_DM.tflite  0: Duck,  1: Marker
+     */
+    private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
+    private static final String[] LABELS = {
             "Ball",
             "Cube",
             "Duck",
             "Marker"
     };
 
-    /*
-     * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
-     * 'parameters.vuforiaLicenseKey' is initialized is for illustration only, and will not function.
-     * A Vuforia 'Development' license key, can be obtained free of charge from the Vuforia developer
-     * web site at https://developer.vuforia.com/license-manager.
-     *
-     * Vuforia license keys are always 380 characters long, and look as if they contain mostly
-     * random data. As an example, here is a example of a fragment of a valid key:
-     *      ... yIgIzTqZ4mWjk9wd3cZO9T1axEqzuhxoGlfOOI2dRzKS4T0hQ8kT ...
-     * Once you've obtained a license key, copy the string from the Vuforia web site
-     * and paste it in to your code on the next line, between the double quotes.
-     */
-    public static final String VUFORIA_KEY =
-            "AdImucn/////AAABmS8HHciHwUqGnUCvWpNXwjWCuQC7is1XkgwGqfbHrFJZ2aUjFR69v8HR+Jqn8Ckdsi3Y2oak9H0dwlRxirfntkWVXpSag+5fuJwvx1rd4PqIpJeiZeaJJp1apcv3crUJt6Ka7o7dqHit1VLQr4ynYG5qng0Ft1TiGIrncgnZFF5IVcvcF4DPKXjF8hLIeHzB2/gylS5pKREbj+HtQUo84tr4t5tAeBVS/Q01xJJDLF3DlTX3RXbLkaMd3QVOtO6zjCNkNG8Qj6KJRv4HHT06Q+mGVCJ1hbvM/P4V4TQVsWomxi3+f4Hf6cnWSqLOSTdLag/rIYWhjZRGuzQ5d61GQgrnFevubyQmaywN1v3RyJci";
+    private static final String VUFORIA_KEY = "AdImucn/////AAABmS8HHciHwUqGnUCvWpNXwjWCuQC7is1XkgwGqfbHrFJZ2aUjFR69v8HR+Jqn8Ckdsi3Y2oak9H0dwlRxirfntkWVXpSag+5fuJwvx1rd4PqIpJeiZeaJJp1apcv3crUJt6Ka7o7dqHit1VLQr4ynYG5qng0Ft1TiGIrncgnZFF5IVcvcF4DPKXjF8hLIeHzB2/gylS5pKREbj+HtQUo84tr4t5tAeBVS/Q01xJJDLF3DlTX3RXbLkaMd3QVOtO6zjCNkNG8Qj6KJRv4HHT06Q+mGVCJ1hbvM/P4V4TQVsWomxi3+f4Hf6cnWSqLOSTdLag/rIYWhjZRGuzQ5d61GQgrnFevubyQmaywN1v3RyJci";
+
     /**
-     * vuforia is the variable we will use to store our instance of the Vuforia
+     * {link #vuforia} is the variable we will use to store our instance of the Vuforia
      * localization engine.
      */
-    public VuforiaLocalizer vuforia;
+    private VuforiaLocalizer vuforia;
+
     /**
-     * tfod is the variable we will use to store our instance of the TensorFlow Object
+     * {link #tfod} is the variable we will use to store our instance of the TensorFlow Object
      * Detection engine.
      */
     public TFObjectDetector tfod;
-    public List<String> objects;
-    public List<Float> position;
-    public Position position2 = null;
+    public int ObjectsDetected;
+    public String ObjectName;
+    public List<Integer> CamLeft = new ArrayList<Integer>();
+    public List<Integer> CamTop = new ArrayList<Integer>();
+    public List<Integer> CamRight = new ArrayList<Integer>();
+    public List<Integer> CamBottom = new ArrayList<Integer>();
+    public int ObjectNum;
     HardwareMap hwMap = null;
 
-    public void init(HardwareMap ahwMap, float confidence, double magnification) {
+    public void init(HardwareMap ahwMap, double magnification) {
         // Save reference to Hardware map
         hwMap = ahwMap;
         initVuforia();
-        initTfod(confidence);
+        initTfod();
         if (tfod != null) {
             tfod.activate();
 
@@ -69,7 +74,7 @@ public class CameraHardware {
         }
     }
 
-    public void initVuforia() {
+    private void initVuforia() {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          */
@@ -87,55 +92,38 @@ public class CameraHardware {
     /**
      * Initialize the TensorFlow Object Detection engine.
      */
-    public void initTfod(float confidence) {
+    private void initTfod() {
         int tfodMonitorViewId = hwMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hwMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = confidence;
+        tfodParameters.minResultConfidence = 0.8f;
         tfodParameters.isModelTensorFlow2 = true;
         tfodParameters.inputSize = 320;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
     }
 
-    public List<String> getObjects() {
+    @SuppressLint("DefaultLocale")
+    public void findObject() {
         if (tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since
             // the last time that call was made.
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
             if (updatedRecognitions != null) {
-                objects.clear();
+                ObjectsDetected = updatedRecognitions.size();
+                // step through the list of recognitions and display boundary info.
+                int i = 0;
+                ObjectNum = 0;
                 for (Recognition recognition : updatedRecognitions) {
-                    objects.add(recognition.getLabel());
-                }
-            }
-            return objects;
-        }
-        return null;
-    }
-
-    public Position getPosition(String object) {
-        position.clear();
-        position2 = null;
-        if (tfod != null) {
-            // getUpdatedRecognitions() will return null if no new information is available since
-            // the last time that call was made.
-            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-            if (updatedRecognitions != null) {
-                for (Recognition recognition : updatedRecognitions) {
-                    if (recognition.getLabel().equals(object)) {
-                        position.add(recognition.getRight());
-                        position.add(recognition.getBottom());
-                        position2.x = recognition.getRight();
-                        position2.y = recognition.getBottom();
-                        //position2.z = recognition.estimateAngleToObject(AngleUnit.DEGREES);
-                        position2.unit = DistanceUnit.INCH;
-                        //        position2.acquisitionTime = getRuntime();
-                        return position2;
-                    }
+                    ObjectName = recognition.getLabel();
+                    CamLeft.add(Math.round(recognition.getLeft()));
+                    CamTop.add(Math.round(recognition.getTop()));
+                    CamRight.add(Math.round(recognition.getLeft()));
+                    CamBottom.add(Math.round(recognition.getTop()));
+                    i++;
+                    ObjectNum = i;
                 }
             }
         }
-        return null;
     }
 }

@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -64,7 +65,7 @@ import org.firstinspires.ftc.teamcode.Hardware.RobotHardware;
 public class MecanumDrive extends OpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     public double Status = 5;
-    public boolean mutantGamepad = false;
+    //public boolean mutantGamepad = false;
     public boolean worldDrive = false;
     public String detectedColor;
     public AndroidSoundPool audio;
@@ -119,21 +120,30 @@ public class MecanumDrive extends OpMode {
         }
     }
 
+    @SuppressLint("DefaultLocale")
     public void Telemetries() {
         if (Status == 2) {
             telemetry.addData("Status", "Danger! Really Low Voltage");
         } else if (Status == 1) {
             telemetry.addData("Status", "WARNING! Low Voltage");
-        } else if (mutantGamepad) {
+        } else if (worldDrive) {
             telemetry.addData("Status", "Running, World Drive Enabled");
         } else {
             telemetry.addData("Status", "Running");
         }
-        if (camera.getObjects() != null) {
-            telemetry.addData("Detected Object", camera.getObjects().get(1));
-            telemetry.addData("Object Position", "X (%.01f) Y (%.01f)", camera.getPosition(camera.getObjects().get(1)).x, camera.getPosition(camera.getObjects().get(1)).y);
-        }
 
+        camera.findObject();
+        if(camera.CamLeft != null) {
+            /*for (int j = 0; j < camera.CamLeft.size(); j++) {
+                int i = camera.ObjectNum;
+                telemetry.addData("# Object Detected", camera.ObjectsDetected);
+                telemetry.addData(String.format("label (%d)", i), camera.ObjectName);
+                telemetry.addData(String.format("  left,top (%d)", i), "%.01f , %.01f",
+                        camera.CamLeft.get(i), camera.CamTop.get(i));
+                telemetry.addData(String.format("  right,bottom (%d)", i), "%.01f , %.01f",
+                        camera.CamRight.get(i), camera.CamBottom.get(i));
+            }*/
+        }
 
         if (gyro.gyro.isGyroCalibrated()) {
             telemetry.addData("Intrinsic Orientation", "%.0f°", gyro.getOrientation().thirdAngle);
@@ -154,8 +164,8 @@ public class MecanumDrive extends OpMode {
         m2 = Range.clip(y - x - z * steeringMultiplier, -1, 1);
         m3 = Range.clip(y - x + z * steeringMultiplier, -1, 1);
         m4 = Range.clip(y + x - z * steeringMultiplier, -1, 1);
-        robot.leftFront.setVelocity(m1 * robot.driveVelocity);
-        robot.rightFront.setVelocity(m2 * robot.driveVelocity);
+        robot.leftFront.setVelocity(m1/6 * robot.driveVelocity);
+        robot.rightFront.setVelocity(m2/6 * robot.driveVelocity);
         robot.leftRear.setVelocity(m3 * robot.driveVelocity);
         robot.rightRear.setVelocity(m4 * robot.driveVelocity);
     }
@@ -178,9 +188,9 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void init() {
-        //   telemetry.addData("Status", "Initializing");
+        telemetry.addData("Status", "Initializing");
         robot.init(hardwareMap, 2);
-        //camera.init(hardwareMap, 0.5f, 2.5);
+        //camera.init(hardwareMap, 1);
         gyro.init(hardwareMap);
         audio = new AndroidSoundPool();
 
@@ -214,7 +224,7 @@ public class MecanumDrive extends OpMode {
         if(gamepad1.b) gyro.gyro.initialize(gyro.parameters);
         if (gamepad1.a && driveModeAdjusted < runtime.milliseconds()) {
             worldDrive = true;
-            driveModeAdjusted = runtime.milliseconds() + 100;
+            driveModeAdjusted = runtime.milliseconds() + 500;
         } else if (worldDrive) {
             WorldDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, gyro.gyro.getAngularOrientation());
         } else {
@@ -259,7 +269,7 @@ public class MecanumDrive extends OpMode {
         robot.rightRear.setPower(0);
         robot.leftFront.setPower(0);
         robot.rightFront.setPower(0);
-        camera.tfod.shutdown();
+        if(camera.tfod != null)         camera.tfod.shutdown();
         telemetry.addData("Status", "Stopped");
         //robot.greenLight.enableLight(false);
 

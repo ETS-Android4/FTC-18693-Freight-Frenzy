@@ -5,6 +5,7 @@ import static android.os.SystemClock.sleep;
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -82,28 +83,32 @@ public class RobotHardware {
         leftRear = hwMap.get(DcMotorEx.class, "Motor_0");
         leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
         leftRear.setPower(0);
-        leftRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        leftRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightRear = hwMap.get(DcMotorEx.class, "Motor_1");
         rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
         rightRear.setPower(0);
-        rightRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        rightRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         double Back_Motors_F = 32767 / maxDriveVelocity, Back_Motors_P = 0.1 * Back_Motors_F, Back_Motors_I = 0.01 * Back_Motors_P;
         leftRear.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
         rightRear.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
 
         if (wheelType == 2) {
             leftFront = hwMap.get(DcMotorEx.class, "Motor_2");
-            leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
+            leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
             leftFront.setPower(0);
-            leftFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
             leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            leftFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+            leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             rightFront = hwMap.get(DcMotorEx.class, "Motor_3");
-            rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
+            rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
             rightFront.setPower(0);
-            rightFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
             rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            rightFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+            rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             double Front_Motors_F = 32767 / maxDriveVelocity, Front_Motors_P = 0.1 * Front_Motors_F, Front_Motors_I = 0.01 * Front_Motors_P;
             leftFront.setVelocityPIDFCoefficients(Front_Motors_P, Front_Motors_I, 0, Front_Motors_F);
             rightFront.setVelocityPIDFCoefficients(Front_Motors_P, Front_Motors_I, 0, Front_Motors_F);
