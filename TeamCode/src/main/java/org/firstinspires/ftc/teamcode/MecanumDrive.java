@@ -164,8 +164,8 @@ public class MecanumDrive extends OpMode {
         m2 = Range.clip(y - x - z * steeringMultiplier, -1, 1);
         m3 = Range.clip(y - x + z * steeringMultiplier, -1, 1);
         m4 = Range.clip(y + x - z * steeringMultiplier, -1, 1);
-        robot.leftFront.setVelocity(m1/6 * robot.driveVelocity);
-        robot.rightFront.setVelocity(m2/6 * robot.driveVelocity);
+        robot.leftFront.setVelocity(m1 * robot.driveVelocity);
+        robot.rightFront.setVelocity(m2 * robot.driveVelocity);
         robot.leftRear.setVelocity(m3 * robot.driveVelocity);
         robot.rightRear.setVelocity(m4 * robot.driveVelocity);
     }

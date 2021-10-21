@@ -81,13 +81,13 @@ public class RobotHardware {
         hwMap = ahwMap;
         // Define and Initialize Motors
         leftRear = hwMap.get(DcMotorEx.class, "Motor_0");
-        leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftRear.setDirection(DcMotorSimple.Direction.FORWARD);
         leftRear.setPower(0);
         leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         leftRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightRear = hwMap.get(DcMotorEx.class, "Motor_1");
-        rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightRear.setDirection(DcMotorSimple.Direction.FORWARD);
         rightRear.setPower(0);
         rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         rightRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
