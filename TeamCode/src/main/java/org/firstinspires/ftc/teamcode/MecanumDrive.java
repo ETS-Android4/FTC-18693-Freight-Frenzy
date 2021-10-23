@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import static android.os.SystemClock.sleep;
+
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 
@@ -133,7 +135,7 @@ public class MecanumDrive extends OpMode {
         }
 
         camera.findObject();
-        if(camera.CamLeft != null) {
+        if (camera.CamLeft != null) {
             /*for (int j = 0; j < camera.CamLeft.size(); j++) {
                 int i = camera.ObjectNum;
                 telemetry.addData("# Object Detected", camera.ObjectsDetected);
@@ -158,12 +160,25 @@ public class MecanumDrive extends OpMode {
         telemetry.addData("Temperature", "%.0f", gyro.getTemp());
     }
 
+    public double maxDrive;
+    public double minDrive;
+
     public void Drive(double x, double y, double z) {
+        if (gamepad1.left_bumper) {
+            maxDrive = 0.5;
+            minDrive = -0.5;
+        } else if (gamepad1.right_bumper) {
+            maxDrive = 1;
+            minDrive = -1;
+        } else {
+            maxDrive = 0.75;
+            minDrive = -0.75;
+        }
         //   r *= steeringMultiplier;
-        m1 = Range.clip(y + x + z * steeringMultiplier, -1, 1);
-        m2 = Range.clip(y - x - z * steeringMultiplier, -1, 1);
-        m3 = Range.clip(y - x + z * steeringMultiplier, -1, 1);
-        m4 = Range.clip(y + x - z * steeringMultiplier, -1, 1);
+        m1 = Range.clip(y + x + z * steeringMultiplier, minDrive, maxDrive);
+        m2 = Range.clip(y - x - z * steeringMultiplier, minDrive, maxDrive);
+        m3 = Range.clip(y - x + z * steeringMultiplier, minDrive, maxDrive);
+        m4 = Range.clip(y + x - z * steeringMultiplier, minDrive, maxDrive);
         robot.leftFront.setVelocity(m1 * robot.driveVelocity);
         robot.rightFront.setVelocity(m2 * robot.driveVelocity);
         robot.leftRear.setVelocity(m3 * robot.driveVelocity);
@@ -202,8 +217,16 @@ public class MecanumDrive extends OpMode {
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
      */
+    int lei = 0;
     @Override
     public void init_loop() {
+        if(lei >15) lei = 0;
+        robot.lights[lei].enable(true);
+        if (lei < 1) robot.lights[15].enable(false);
+        else robot.lights[lei - 1].enable(false);
+        //robot.light2.enableLight((int)runtime.seconds() % 2 == 1);
+        lei++;
+        sleep(200);
     }
 
     /*
@@ -211,6 +234,7 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void start() {
+        // robot.light2.enable(false);
         runtime.reset();
     }
 
@@ -219,11 +243,19 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void loop() {
+        for (int i = 0; i < 16; i++) {
+            robot.lights[i].enable(true);
+            if (i < 1) robot.lights[15].enable(false);
+            else robot.lights[i - 1].enable(false);
+           // while(!robot.lights[1].isLightOn())
+        }
+        //robot.light1.enableLight((int)runtime.seconds() % 2 == 1);
+        //robot.light1.enableLight(true);
         telemetry.update();
         Telemetries();
-        if(gamepad1.b) gyro.gyro.initialize(gyro.parameters);
+        if (gamepad1.b) gyro.gyro.initialize(gyro.parameters);
         if (gamepad1.a && driveModeAdjusted < runtime.milliseconds()) {
-            worldDrive = true;
+            //worldDrive = true;
             driveModeAdjusted = runtime.milliseconds() + 500;
         } else if (worldDrive) {
             WorldDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, gyro.gyro.getAngularOrientation());
@@ -269,7 +301,7 @@ public class MecanumDrive extends OpMode {
         robot.rightRear.setPower(0);
         robot.leftFront.setPower(0);
         robot.rightFront.setPower(0);
-        if(camera.tfod != null)         camera.tfod.shutdown();
+        if (camera.tfod != null) camera.tfod.shutdown();
         telemetry.addData("Status", "Stopped");
         //robot.greenLight.enableLight(false);
 

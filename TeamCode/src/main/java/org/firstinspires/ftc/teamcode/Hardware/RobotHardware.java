@@ -12,6 +12,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
+import java.util.List;
+
 
 /**
  * This is NOT an opmode.
@@ -35,13 +37,25 @@ public class RobotHardware {
     public DcMotorEx rightRear = null;
     public DcMotorEx leftFront = null;
     public DcMotorEx rightFront = null;
-
-    public LED light1 = null;
-    public LED light2 = null;
-    public LED light3 = null;
-    public LED light4 = null;
-
-
+/*
+    public LED leftLeftFrontRed = null;
+    public LED leftLeftFrontGreen = null;
+    public LED leftRightFrontRed = null;
+    public LED leftRightFrontGreen = null;
+    public LED rightLeftFrontRed = null;
+    public LED rightLeftFrontGreen = null;
+    public LED rightRightFrontRed = null;
+    public LED rightRightFrontGreen = null;
+    public LED leftLeftRearRed = null;
+    public LED leftLeftRearGreen = null;
+    public LED leftRightRearRed = null;
+    public LED leftRightRearGreen = null;
+    public LED rightLeftRearRed = null;
+    public LED rightLeftRearreen = null;
+    public LED rightRightRearRed = null;
+    public LED rightRightRearGreen = null;
+*/
+    public LED[] lights = new LED[16];
     public ColorSensor color = null;
     public Rev2mDistanceSensor distanceLeft = null;
     public Rev2mDistanceSensor distanceRight = null;
@@ -85,13 +99,13 @@ public class RobotHardware {
         leftRear.setPower(0);
         leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         leftRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightRear = hwMap.get(DcMotorEx.class, "Motor_1");
         rightRear.setDirection(DcMotorSimple.Direction.FORWARD);
         rightRear.setPower(0);
         rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         rightRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         double Back_Motors_F = 32767 / maxDriveVelocity, Back_Motors_P = 0.1 * Back_Motors_F, Back_Motors_I = 0.01 * Back_Motors_P;
         leftRear.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
         rightRear.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
@@ -102,13 +116,13 @@ public class RobotHardware {
             leftFront.setPower(0);
             leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             leftFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-            leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             rightFront = hwMap.get(DcMotorEx.class, "Motor_3");
             rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
             rightFront.setPower(0);
             rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             rightFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-            rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             double Front_Motors_F = 32767 / maxDriveVelocity, Front_Motors_P = 0.1 * Front_Motors_F, Front_Motors_I = 0.01 * Front_Motors_P;
             leftFront.setVelocityPIDFCoefficients(Front_Motors_P, Front_Motors_I, 0, Front_Motors_F);
             rightFront.setVelocityPIDFCoefficients(Front_Motors_P, Front_Motors_I, 0, Front_Motors_F);
@@ -118,10 +132,9 @@ public class RobotHardware {
         // touchBottom = hwMap.get(TouchSensor.class, "Touch_0");
         // touchTop = hwMap.get(TouchSensor.class, "Touch_1");
         // Define and initialize ALL installed lights.
-        light1 = hwMap.get(LED.class, "Light_0");
-        light2 = hwMap.get(LED.class, "Light_1");
-        light3 = hwMap.get(LED.class, "Light_2");
-        light4 = hwMap.get(LED.class, "Light_3");
+        for (int i = 0; i < 16; i++) {
+            lights[i] = hwMap.get(LED.class, "Light_"+ i);
+        }
 
 
         // Define and initialize ALL installed distance/light sensors.
@@ -132,15 +145,6 @@ public class RobotHardware {
         // Define and initialize ALL internal sensors.
         voltageSensor = hwMap.get(VoltageSensor.class, "Control Hub");
         if (driveTickPerInch != 0 || driveTickPerMillimeter != 0) {
-            light1.enable(true);
-            light2.enable(true);
-            light3.enable(true);
-            light4.enable(true);
-            sleep(50);
-            light1.enable(false);
-            light2.enable(false);
-            light3.enable(false);
-            light4.enable(false);
 
         }
     }
