@@ -227,10 +227,10 @@ public class MecanumDrive extends OpMode {
         sleep(200);
 
      */
-        telemetry.addData("Status", (!robot.initialized || !gyro.initialized || !camera.initialized) ? "Initializing" : "Initialized");
-        telemetry.addData("Hardware", robot.initialized ? "Initialized" : "Initializing");
-        telemetry.addData("Camera", camera.initialized ? "Initialized" : "Initializing");
-        telemetry.addData("Gyro", gyro.initialized ? "Initialized" : "Initializing");
+        telemetry.addData("Status", (robot.initialized && gyro.initialized && camera.initialized) ? "Initialized" : "Initializing...");
+        telemetry.addData("Hardware", robot.initialized ? "Initialized" : "Initializing...");
+        telemetry.addData("Camera", camera.initialized ? "Initialized" : "Initializing...");
+        telemetry.addData("Gyro", gyro.initialized ? "Initialized" : "Initializing...");
     }
 
     /*
