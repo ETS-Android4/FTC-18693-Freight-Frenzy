@@ -63,7 +63,7 @@ public class RobotHardware {
 
     public VoltageSensor voltageSensor = null;
 
-
+    public boolean initialized = false;
     public double driveTPR = 288;
     public double driveRPS = 2.1;
     public final double maxDriveVelocity = driveTPR * driveRPS;
@@ -147,5 +147,6 @@ public class RobotHardware {
         if (driveTickPerInch != 0 || driveTickPerMillimeter != 0) {
 
         }
+        initialized = true;
     }
 }

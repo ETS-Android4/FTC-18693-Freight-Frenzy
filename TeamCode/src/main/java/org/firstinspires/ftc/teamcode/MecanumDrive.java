@@ -29,8 +29,6 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import static android.os.SystemClock.sleep;
-
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 
@@ -75,10 +73,22 @@ public class MecanumDrive extends OpMode {
     public double steeringAdjusted = 0;
     public double driveModeAdjusted = 0;
     public double m1, m2, m3, m4, g;
+    public double maxDrive;
+    public double minDrive;
     // Declare OpMode members.
+    boolean opModeIsActive = false;
     RobotHardware robot = new RobotHardware();
     CameraHardware camera = new CameraHardware();
     GyroHardware gyro = new GyroHardware();
+    Thread initialization = new Thread(() -> {
+        robot.init(hardwareMap, 2);
+        //camera.init(hardwareMap, 1);
+        gyro.init(hardwareMap);
+    });
+    /*
+     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
+     */
+    int lei = 0;
 
     public String detectColor() {
         int colorHSV;
@@ -160,9 +170,6 @@ public class MecanumDrive extends OpMode {
         telemetry.addData("Temperature", "%.0f", gyro.getTemp());
     }
 
-    public double maxDrive;
-    public double minDrive;
-
     public void Drive(double x, double y, double z) {
         if (gamepad1.left_bumper) {
             maxDrive = 0.5;
@@ -197,36 +204,33 @@ public class MecanumDrive extends OpMode {
         robot.rightRear.setVelocity(m4 * robot.driveVelocity);
     }
 
-
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-        telemetry.addData("Status", "Initializing");
-        robot.init(hardwareMap, 2);
-        //camera.init(hardwareMap, 1);
-        gyro.init(hardwareMap);
+        //initialization.setPriority(9);
+        initialization.start();
         audio = new AndroidSoundPool();
-
-        telemetry.addData("Status", "Initialized");
 
 
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
-     */
-    int lei = 0;
     @Override
     public void init_loop() {
-        if(lei >15) lei = 0;
+    /*    if(lei >15) lei = 0;
         robot.lights[lei].enable(true);
         if (lei < 1) robot.lights[15].enable(false);
         else robot.lights[lei - 1].enable(false);
         //robot.light2.enableLight((int)runtime.seconds() % 2 == 1);
         lei++;
         sleep(200);
+
+     */
+        telemetry.addData("Status", (!robot.initialized || !gyro.initialized || !camera.initialized) ? "Initializing" : "Initialized");
+        telemetry.addData("Hardware", robot.initialized ? "Initialized" : "Initializing");
+        telemetry.addData("Camera", camera.initialized ? "Initialized" : "Initializing");
+        telemetry.addData("Gyro", gyro.initialized ? "Initialized" : "Initializing");
     }
 
     /*
@@ -234,6 +238,7 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void start() {
+        opModeIsActive = true;
         // robot.light2.enable(false);
         runtime.reset();
     }
@@ -247,7 +252,7 @@ public class MecanumDrive extends OpMode {
             robot.lights[i].enable(true);
             if (i < 1) robot.lights[15].enable(false);
             else robot.lights[i - 1].enable(false);
-           // while(!robot.lights[1].isLightOn())
+            // while(!robot.lights[1].isLightOn())
         }
         //robot.light1.enableLight((int)runtime.seconds() % 2 == 1);
         //robot.light1.enableLight(true);
@@ -295,6 +300,7 @@ public class MecanumDrive extends OpMode {
     @Override
     //Stop Code. Runs Once
     public void stop() {
+        opModeIsActive = false;
         telemetry.addData("Status", "Stopping...");
         audio.close();
         robot.leftRear.setPower(0);

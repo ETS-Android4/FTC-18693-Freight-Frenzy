@@ -25,6 +25,7 @@ public class CameraHardware {
      *  FreightFrenzy_BC.tflite  0: Ball,  1: Cube
      *  FreightFrenzy_DM.tflite  0: Duck,  1: Marker
      */
+    public boolean initialized = false;
     private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
     private static final String[] LABELS = {
             "Ball",
@@ -72,6 +73,7 @@ public class CameraHardware {
             tfod.setZoom(magnification, 16.0 / 9.0);
 
         }
+        initialized = true;
     }
 
     private void initVuforia() {

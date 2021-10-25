@@ -17,6 +17,7 @@ public class GyroHardware {
     public Temperature temp;
     public Orientation angles;
     public Orientation angles2;
+    public boolean initialized = false;
     HardwareMap hwMap = null;
 
     public void init(HardwareMap ahwMap) {
@@ -35,7 +36,7 @@ public class GyroHardware {
         while (!gyro.isGyroCalibrated()) {
             sleep(50);
         }
-
+        initialized = true;
     }
 
     public Orientation getOrientation() {
