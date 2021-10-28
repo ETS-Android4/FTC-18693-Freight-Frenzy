@@ -37,6 +37,7 @@ public class RobotHardware {
     public DcMotorEx rightRear = null;
     public DcMotorEx leftFront = null;
     public DcMotorEx rightFront = null;
+    public DcMotorEx arm = null;
 /*
     public LED leftLeftFrontRed = null;
     public LED leftLeftFrontGreen = null;
@@ -93,6 +94,8 @@ public class RobotHardware {
     public void init(HardwareMap ahwMap, int wheelType) {
         // Save reference to Hardware map
         hwMap = ahwMap;
+        arm = hwMap.get(DcMotorEx.class, "Motor_4");
+        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // Define and Initialize Motors
         leftRear = hwMap.get(DcMotorEx.class, "Motor_0");
         leftRear.setDirection(DcMotorSimple.Direction.FORWARD);

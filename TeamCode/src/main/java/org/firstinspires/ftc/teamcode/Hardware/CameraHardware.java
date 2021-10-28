@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -49,10 +50,16 @@ public class CameraHardware {
     public TFObjectDetector tfod;
     public int ObjectsDetected;
     public String ObjectName;
-    public List<Integer> CamLeft = new ArrayList<Integer>();
-    public List<Integer> CamTop = new ArrayList<Integer>();
-    public List<Integer> CamRight = new ArrayList<Integer>();
-    public List<Integer> CamBottom = new ArrayList<Integer>();
+    /*public List<Integer> CamLeft = new ArrayList<>();
+    public List<Integer> CamTop = new ArrayList<>();
+    public List<Integer> CamRight = new ArrayList<>();
+    public List<Integer> CamBottom = new ArrayList<>();
+    */
+    public int[] CamLeft = new int[20];
+    public int[] CamTop = new int[20];
+    public int[] CamRight = new int[20];
+    public int[] CamBottom = new int[20];
+
     public int ObjectNum;
     HardwareMap hwMap = null;
 
@@ -81,7 +88,6 @@ public class CameraHardware {
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          */
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraName = hwMap.get(WebcamName.class, "Webcam");
 
@@ -118,10 +124,10 @@ public class CameraHardware {
                 ObjectNum = 0;
                 for (Recognition recognition : updatedRecognitions) {
                     ObjectName = recognition.getLabel();
-                    CamLeft.add(Math.round(recognition.getLeft()));
-                    CamTop.add(Math.round(recognition.getTop()));
-                    CamRight.add(Math.round(recognition.getLeft()));
-                    CamBottom.add(Math.round(recognition.getTop()));
+                    CamLeft[ObjectNum] = ((int)recognition.getLeft());
+                    CamTop[ObjectNum] = ((int)recognition.getTop());
+                    CamRight[ObjectNum] = ((int)recognition.getLeft());
+                    CamBottom[ObjectNum] = ((int)recognition.getTop());
                     i++;
                     ObjectNum = i;
                 }

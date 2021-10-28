@@ -41,9 +41,12 @@ import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.android.AndroidSoundPool;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.Hardware.CameraHardware;
 import org.firstinspires.ftc.teamcode.Hardware.GyroHardware;
 import org.firstinspires.ftc.teamcode.Hardware.RobotHardware;
+
+import java.util.List;
 
 
 /**
@@ -82,8 +85,14 @@ public class MecanumDrive extends OpMode {
     GyroHardware gyro = new GyroHardware();
     Thread initialization = new Thread(() -> {
         robot.init(hardwareMap, 2);
-        //camera.init(hardwareMap, 1);
+        camera.init(hardwareMap, 1);
         gyro.init(hardwareMap);
+    });
+    Thread user1 = new Thread(() -> {
+
+    });
+    Thread user2 = new Thread(() -> {
+
     });
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
@@ -134,7 +143,15 @@ public class MecanumDrive extends OpMode {
 
     @SuppressLint("DefaultLocale")
     public void Telemetries() {
-        if (Status == 2) {
+        if (!robot.initialized || !gyro.initialized || !camera.initialized) {
+            telemetry.addData("Status", "Initializing...");
+            if (!robot.initialized)
+                telemetry.addData("Hardware", "Initializing...");
+            if (!camera.initialized)
+                telemetry.addData("Camera", "Initializing...");
+            if (!gyro.initialized)
+                telemetry.addData("Gyro", "Initializing...");
+        } else if (Status == 2) {
             telemetry.addData("Status", "Danger! Really Low Voltage");
         } else if (Status == 1) {
             telemetry.addData("Status", "WARNING! Low Voltage");
@@ -144,30 +161,50 @@ public class MecanumDrive extends OpMode {
             telemetry.addData("Status", "Running");
         }
 
-        camera.findObject();
-        if (camera.CamLeft != null) {
-            /*for (int j = 0; j < camera.CamLeft.size(); j++) {
+        /*if (camera.initialized) {
+            camera.findObject();
+            for (int j = 0; j < camera.CamLeft.length; j++) {
                 int i = camera.ObjectNum;
                 telemetry.addData("# Object Detected", camera.ObjectsDetected);
                 telemetry.addData(String.format("label (%d)", i), camera.ObjectName);
-                telemetry.addData(String.format("  left,top (%d)", i), "%.01f , %.01f",
-                        camera.CamLeft.get(i), camera.CamTop.get(i));
-                telemetry.addData(String.format("  right,bottom (%d)", i), "%.01f , %.01f",
-                        camera.CamRight.get(i), camera.CamBottom.get(i));
-            }*/
+                telemetry.addData(String.format("  left,top (%d)", i), "%d , %d",
+                        camera.CamLeft[i], camera.CamTop[i]);
+                telemetry.addData(String.format("  right,bottom (%d)", i), "%d , %d",
+                        camera.CamRight[i], camera.CamBottom[i]);
+            }
         }
-
-        if (gyro.gyro.isGyroCalibrated()) {
+        */
+        if (gyro.initialized) {
             telemetry.addData("Intrinsic Orientation", "%.0f°", gyro.getOrientation().thirdAngle);
             telemetry.addData("Extrinsic Orientation", "%.0f°", gyro.getOrientation2().thirdAngle);
+            telemetry.addData("Temperature", "%.0f°", gyro.getTemp() * 1.8 + 32);
         }
+        // 1,500 = up, 0 = down
+        telemetry.addData("Arm Position", robot.arm.getCurrentPosition());
         telemetry.addData("Steering Sensitivity", "%.0f%%", steeringMultiplier * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Distance", "left %.2f, right %.2f", robot.distanceLeft.getDistance(DistanceUnit.METER), robot.distanceRight.getDistance(DistanceUnit.METER));
         telemetry.addData("Color Detected", detectColor());
 
-        telemetry.addData("Temperature", "%.0f", gyro.getTemp());
+        if (camera.initialized) {
+            // getUpdatedRecognitions() will return null if no new information is available since
+            // the last time that call was made.
+            List<Recognition> updatedRecognitions = camera.tfod.getUpdatedRecognitions();
+            if (updatedRecognitions != null) {
+                telemetry.addData("# Object Detected", updatedRecognitions.size());
+                // step through the list of recognitions and display boundary info.
+                int i = 0;
+                for (Recognition recognition : updatedRecognitions) {
+                    telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                    telemetry.addData(String.format("  left,top (%d)", i), "%.01f , %.01f",
+                            recognition.getLeft(), recognition.getTop());
+                    telemetry.addData(String.format("  right,bottom (%d)", i), "%.01f , %.01f",
+                            recognition.getRight(), recognition.getBottom());
+                    i++;
+                }
+            }
+        }
     }
 
     public void Drive(double x, double y, double z) {
@@ -227,7 +264,7 @@ public class MecanumDrive extends OpMode {
         sleep(200);
 
      */
-        telemetry.addData("Status", (robot.initialized && gyro.initialized && camera.initialized) ? "Initialized" : "Initializing...");
+        telemetry.addData("Status", (robot.initialized && gyro.initialized && camera.initialized) ? "Initialized, Ready For Start" : "Initializing...");
         telemetry.addData("Hardware", robot.initialized ? "Initialized" : "Initializing...");
         telemetry.addData("Camera", camera.initialized ? "Initialized" : "Initializing...");
         telemetry.addData("Gyro", gyro.initialized ? "Initialized" : "Initializing...");
@@ -248,7 +285,7 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void loop() {
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < robot.lights.length; i++) {
             robot.lights[i].enable(true);
             if (i < 1) robot.lights[15].enable(false);
             else robot.lights[i - 1].enable(false);
