@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.Hardware;
 
 
-import static android.os.SystemClock.sleep;
+import android.graphics.Color;
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import java.util.List;
+import org.firstinspires.ftc.robotcore.external.JavaUtil;
 
 
 /**
@@ -38,24 +38,24 @@ public class RobotHardware {
     public DcMotorEx leftFront = null;
     public DcMotorEx rightFront = null;
     public DcMotorEx arm = null;
-/*
-    public LED leftLeftFrontRed = null;
-    public LED leftLeftFrontGreen = null;
-    public LED leftRightFrontRed = null;
-    public LED leftRightFrontGreen = null;
-    public LED rightLeftFrontRed = null;
-    public LED rightLeftFrontGreen = null;
-    public LED rightRightFrontRed = null;
-    public LED rightRightFrontGreen = null;
-    public LED leftLeftRearRed = null;
-    public LED leftLeftRearGreen = null;
-    public LED leftRightRearRed = null;
-    public LED leftRightRearGreen = null;
-    public LED rightLeftRearRed = null;
-    public LED rightLeftRearreen = null;
-    public LED rightRightRearRed = null;
-    public LED rightRightRearGreen = null;
-*/
+    /*
+        public LED leftLeftFrontRed = null;
+        public LED leftLeftFrontGreen = null;
+        public LED leftRightFrontRed = null;
+        public LED leftRightFrontGreen = null;
+        public LED rightLeftFrontRed = null;
+        public LED rightLeftFrontGreen = null;
+        public LED rightRightFrontRed = null;
+        public LED rightRightFrontGreen = null;
+        public LED leftLeftRearRed = null;
+        public LED leftLeftRearGreen = null;
+        public LED leftRightRearRed = null;
+        public LED leftRightRearGreen = null;
+        public LED rightLeftRearRed = null;
+        public LED rightLeftRearreen = null;
+        public LED rightRightRearRed = null;
+        public LED rightRightRearGreen = null;
+    */
     public LED[] lights = new LED[16];
     public ColorSensor color = null;
     public Rev2mDistanceSensor distanceLeft = null;
@@ -136,7 +136,7 @@ public class RobotHardware {
         // touchTop = hwMap.get(TouchSensor.class, "Touch_1");
         // Define and initialize ALL installed lights.
         for (int i = 0; i < 16; i++) {
-            lights[i] = hwMap.get(LED.class, "Light_"+ i);
+            lights[i] = hwMap.get(LED.class, "Light_" + i);
         }
 
 
@@ -151,5 +151,58 @@ public class RobotHardware {
 
         }
         initialized = true;
+    }
+
+    public void setLights(Boolean enable) {
+        for (int i = 0; i < lights.length; i++) {
+            lights[i].enable(enable);
+        }
+    }
+
+    public void setGreenLights(Boolean enable) {
+        for (int i = 1; i < lights.length; i += 2) {
+            lights[i].enable(enable);
+        }
+    }
+
+    public void setRedLights(Boolean enable) {
+        for (int i = 0; i < lights.length; i += 2) {
+            lights[i].enable(enable);
+        }
+    }
+
+    public String detectColor() {
+        int colorHSV;
+        float hue;
+        //float sat;
+        //float val;
+        // Convert RGB values to HSV color model.
+        // See https://en.wikipedia.org/wiki/HSL_and_HSV for details on HSV color model.
+        colorHSV = Color.argb(color.alpha(), color.red(), color.green(), color.blue());
+        // Get hue.
+        hue = JavaUtil.colorToHue(colorHSV);
+        //telemetry.addData("Hue", hue);
+        // Get saturation.
+        //sat = JavaUtil.colorToSaturation(colorHSV);
+        //telemetry.addData("Saturation", sat);
+        // Get value.
+        //val = JavaUtil.colorToValue(colorHSV);
+        //telemetry.addData("Value", val);
+        // Use hue to determine if it's red, green, blue, etc..
+        if (hue < 30) {
+            return "Red";
+        } else if (hue < 60) {
+            return "Orange";
+        } else if (hue < 90) {
+            return "Yellow";
+        } else if (hue < 150) {
+            return "Green";
+        } else if (hue < 225) {
+            return "Blue";
+        } else if (hue < 350) {
+            return "Purple";
+        } else {
+            return "Not Detected";
+        }
     }
 }
