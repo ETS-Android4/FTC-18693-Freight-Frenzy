@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import static android.os.SystemClock.sleep;
+
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 
@@ -85,8 +87,11 @@ public class MecanumDrive extends OpMode {
     GyroHardware gyro = new GyroHardware();
     Thread initialization = new Thread(() -> {
         robot.init(hardwareMap, 2);
+        telemetry.speak("Hardware Online");
         camera.init(hardwareMap, 1);
+        telemetry.speak("Camera Online");
         gyro.init(hardwareMap);
+        telemetry.speak("Gyro Online");
     });
     Thread user1 = new Thread(() -> {
 
@@ -276,6 +281,12 @@ public class MecanumDrive extends OpMode {
     @Override
     public void start() {
         opModeIsActive = true;
+        while(!robot.initialized){
+            telemetry.addData("Status", "Initializing...");
+            telemetry.addData("Hardware", robot.initialized ? "Initialized" : "Initializing...");
+            telemetry.addData("Camera", camera.initialized ? "Initialized" : "Initializing...");
+            telemetry.addData("Gyro", gyro.initialized ? "Initialized" : "Initializing...");
+        }
         // robot.light2.enable(false);
         runtime.reset();
     }
