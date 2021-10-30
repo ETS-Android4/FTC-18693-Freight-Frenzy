@@ -39,7 +39,6 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.android.AndroidSoundPool;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.Hardware.CameraHardware;
 import org.firstinspires.ftc.teamcode.Hardware.GyroHardware;
@@ -71,11 +70,8 @@ public class AutonomousCode extends OpMode {
     public double Status = 5;
     //public boolean mutantGamepad = false;
     public boolean worldDrive = false;
-    public String detectedColor;
     public AndroidSoundPool audio;
     public double steeringMultiplier = 1;
-    public double steeringAdjusted = 0;
-    public double driveModeAdjusted = 0;
     public double m1, m2, m3, m4, g;
     public double maxDrive;
     public double minDrive;
@@ -97,7 +93,7 @@ public class AutonomousCode extends OpMode {
     });
     Thread MainPrgm = new Thread(() -> {
         while (!Done) {
-            Drive(1, 0, 0, 100);
+            Drive(0, 1, 0, 100);
         }
     });
     Thread lights = new Thread(() -> {
@@ -166,38 +162,6 @@ public class AutonomousCode extends OpMode {
         }
     }
 
-    public void Move(double In, boolean Forward, boolean MoveOverride) {
-        while (opModeIsActive) {
-            int Counter = 0;
-            telemetry.addData("Move Waiting", Counter);
-            Telemetries();
-            Counter++;
-            if (Forward) {
-                robot.leftRear.setDirection(DcMotorEx.Direction.REVERSE);
-                robot.rightRear.setDirection(DcMotorEx.Direction.FORWARD);
-            } else {
-                robot.leftRear.setDirection(DcMotorEx.Direction.FORWARD);
-                robot.rightRear.setDirection(DcMotorEx.Direction.REVERSE);
-            }
-            if (MoveOverride || !robot.rightRear.isBusy()) {
-                robot.leftRear.setPower(0);
-                robot.rightRear.setPower(0);
-                robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.leftRear.setTargetPosition((int) Math.round(In/robot.driveTickPerInch));
-                robot.rightRear.setTargetPosition((int) Math.round(In/robot.driveTickPerInch));
-                robot.leftRear.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                robot.rightRear.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                // set F to 54.1
-                robot.leftRear.setVelocityPIDFCoefficients(0.0075, 0.000075, 0.005, 54.1);
-                robot.rightRear.setVelocityPIDFCoefficients(0.0075, 0.000075, 0.005, 54.1);
-                robot.leftRear.setPower(1);
-                robot.rightRear.setPower(1);
-                while (robot.rightRear.isBusy()) {Telemetries();}
-            }
-        }
-    }
-
     public void Drive(double x, double y, double z, int targetPos) {
         if (gamepad1.left_bumper) {
             maxDrive = 0.5;
@@ -218,7 +182,7 @@ public class AutonomousCode extends OpMode {
         robot.rightFront.setVelocity(m2 * robot.driveVelocity);
         robot.leftRear.setVelocity(m3 * robot.driveVelocity);
         robot.rightRear.setVelocity(m4 * robot.driveVelocity);
-        if(y == 0) {
+        if (x == 0) {
             if (robot.leftFront.getCurrentPosition() == targetPos && robot.rightRear.getCurrentPosition() == targetPos && robot.leftRear.getCurrentPosition() == targetPos && robot.rightFront.getCurrentPosition() == targetPos) {
                 Done = true;
                 robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -227,6 +191,7 @@ public class AutonomousCode extends OpMode {
                 robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             }
         }
+
     }
 
     /*
