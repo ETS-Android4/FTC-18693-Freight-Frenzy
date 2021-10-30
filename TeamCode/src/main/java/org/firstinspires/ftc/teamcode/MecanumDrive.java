@@ -89,7 +89,12 @@ public class MecanumDrive extends OpMode {
         robot.setGreenLights(true);
         telemetry.speak("Hardware Online");
         camera.init(hardwareMap, 1);
-        telemetry.speak("Camera Online");
+        if (camera.initialized != null) {
+            telemetry.speak("Camera Online");
+        }else{
+            sleep(500);
+            telemetry.speak("Camera Offline");
+        }
         gyro.init(hardwareMap);
         telemetry.speak("Gyroscope Online");
     });
@@ -142,7 +147,7 @@ public class MecanumDrive extends OpMode {
 
     @SuppressLint("DefaultLocale")
     public void Telemetries() {
-        if (!robot.initialized || !gyro.initialized || !camera.initialized) {
+        /*if (!robot.initialized || !gyro.initialized || !camera.initialized) {
             telemetry.addData("Status", "Initializing...");
             if (!robot.initialized)
                 telemetry.addData("Hardware", (robot.initialized == null) ? "Uninitialized" : "Initializing...");
@@ -150,7 +155,7 @@ public class MecanumDrive extends OpMode {
                 telemetry.addData("Camera", (camera.initialized == null) ? "Uninitialized" : "Initializing...");
             if (!gyro.initialized)
                 telemetry.addData("Gyro", (gyro.initialized == null) ? "Uninitialized" : "Initializing...");
-        } else if (Status == 2) {
+        } else */if (Status == 2) {
             telemetry.addData("Status", "Danger! Really Low Voltage");
         } else if (Status == 1) {
             telemetry.addData("Status", "WARNING! Low Voltage");
@@ -159,7 +164,7 @@ public class MecanumDrive extends OpMode {
         } else {
             telemetry.addData("Status", "Running");
         }
-        if (gyro.initialized) {
+        if (gyro.initialized != null && gyro.initialized) {
             telemetry.addData("Intrinsic Orientation", "%.0f°", gyro.getOrientation().thirdAngle);
             telemetry.addData("Extrinsic Orientation", "%.0f°", gyro.getOrientation2().thirdAngle);
             telemetry.addData("Temperature", "%.0f°", gyro.getTemp() * 1.8 + 32);
@@ -171,7 +176,7 @@ public class MecanumDrive extends OpMode {
         telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Distance", "left %.2f, right %.2f", robot.distanceLeft.getDistance(DistanceUnit.METER), robot.distanceRight.getDistance(DistanceUnit.METER));
         //telemetry.addData("Color Detected", robot.detectColor());
-        if (camera.initialized) {
+        if (camera.initialized != null && camera.initialized) {
             // getUpdatedRecognitions() will return null if no new information is available since
             // the last time that call was made.
             List<Recognition> updatedRecognitions = camera.tfod.getUpdatedRecognitions();
@@ -339,7 +344,7 @@ public class MecanumDrive extends OpMode {
         robot.rightRear.setPower(0);
         robot.leftFront.setPower(0);
         robot.rightFront.setPower(0);
-        if (camera.initialized) camera.tfod.shutdown();
+        if (camera.initialized != null && camera.initialized) camera.tfod.shutdown();
         telemetry.addData("Status", "Stopped");
         //robot.greenLight.enableLight(false);
 

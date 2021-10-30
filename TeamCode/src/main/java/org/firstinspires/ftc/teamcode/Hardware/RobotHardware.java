@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LED;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
@@ -38,6 +39,7 @@ public class RobotHardware {
     public DcMotorEx leftFront = null;
     public DcMotorEx rightFront = null;
     public DcMotorEx arm = null;
+    public Servo claw = null;
     /*
         public LED leftLeftFrontRed = null;
         public LED leftLeftFrontGreen = null;
@@ -95,16 +97,17 @@ public class RobotHardware {
         initialized = false;
         // Save reference to Hardware map
         hwMap = ahwMap;
-        //arm = hwMap.get(DcMotorEx.class, "Motor_4");
-        //arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        claw = hwMap.get(Servo.class, "Servo_0");
+        arm = hwMap.get(DcMotorEx.class, "Motor_6");
+        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // Define and Initialize Motors
-        leftRear = hwMap.get(DcMotorEx.class, "Motor_0");
+        leftRear = hwMap.get(DcMotorEx.class, "Motor_4");
         leftRear.setDirection(DcMotorSimple.Direction.FORWARD);
         leftRear.setPower(0);
         leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         leftRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightRear = hwMap.get(DcMotorEx.class, "Motor_1");
+        rightRear = hwMap.get(DcMotorEx.class, "Motor_0");
         rightRear.setDirection(DcMotorSimple.Direction.FORWARD);
         rightRear.setPower(0);
         rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -115,13 +118,13 @@ public class RobotHardware {
         rightRear.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
 
         if (wheelType == 2) {
-            leftFront = hwMap.get(DcMotorEx.class, "Motor_2");
+            leftFront = hwMap.get(DcMotorEx.class, "Motor_5");
             leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
             leftFront.setPower(0);
             leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             leftFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
             leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            rightFront = hwMap.get(DcMotorEx.class, "Motor_3");
+            rightFront = hwMap.get(DcMotorEx.class, "Motor_1");
             rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
             rightFront.setPower(0);
             rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);

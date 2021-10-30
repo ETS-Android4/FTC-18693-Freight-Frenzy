@@ -67,7 +67,7 @@ public class CameraHardware {
         // Save reference to Hardware map
         initialized = false;
         hwMap = ahwMap;
-        if(hwMap.tryGet(WebcamName.class, "Webcam") != null) {
+        if(hwMap.get(WebcamName.class, "Webcam").isAttached()) {
             initVuforia();
             initTfod();
             if (tfod != null) {
@@ -80,10 +80,9 @@ public class CameraHardware {
                 // should be set to the value of the images used to create the TensorFlow Object Detection model
                 // (typically 16/9).
                 tfod.setZoom(magnification, 16.0 / 9.0);
-
+                initialized = true;
             }
-            initialized = true;
-        } else {
+        }else{
             initialized = null;
         }
     }
