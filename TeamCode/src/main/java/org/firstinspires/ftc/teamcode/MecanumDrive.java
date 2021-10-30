@@ -78,6 +78,8 @@ public class MecanumDrive extends OpMode {
     public double m1, m2, m3, m4, g;
     public double maxDrive;
     public double minDrive;
+    boolean positionUpdated = false;
+    double lastPosition = 0;
     // Declare OpMode members.
     boolean opModeIsActive = false;
     RobotHardware robot = new RobotHardware();
@@ -91,7 +93,7 @@ public class MecanumDrive extends OpMode {
         camera.init(hardwareMap, 1);
         if (camera.initialized != null) {
             telemetry.speak("Camera Online");
-        }else{
+        } else {
             sleep(500);
             telemetry.speak("Camera Offline");
         }
@@ -123,22 +125,25 @@ public class MecanumDrive extends OpMode {
     });
     Thread user2 = new Thread(() -> {
         while (opModeIsActive) {
-            if ((robot.arm.getCurrentPosition() < 1500) && (-gamepad2.left_stick_y > 0))
-                robot.arm.setVelocity(-gamepad2.left_stick_y * 3000);
-            if ((robot.arm.getCurrentPosition() > 0) && (-gamepad2.left_stick_y < 0))
-                robot.arm.setVelocity(-gamepad2.left_stick_y * 3000);
-            if (gamepad2.left_stick_y == 0) robot.arm.setVelocity(0);
+            if (gamepad2.left_stick_y == 0) {
+                robot.arm.setVelocity(robot.arm.getVelocity()<0 ? -robot.arm.getVelocity() : 0);
+            } else {
+                robot.arm.setVelocity(-gamepad2.left_stick_y * robot.armVelocity);
+            }
         }
     });
     Thread lights = new Thread(() -> {
         robot.setLights(false);
         while (opModeIsActive) {
-            for (int i = 0; i < robot.lights.length; i++) {
+            /*for (int i = 0; i < robot.lights.length; i++) {
                 if (!opModeIsActive) break;
                 if (i < 1) robot.lights[robot.lights.length - 1].enable(false);
                 robot.lights[i].enable(true);
                 sleep(50);
             }
+             */
+            robot.setGreenLights((int)runtime.seconds() %2 == 0);
+            robot.setRedLights(!((int)runtime.seconds() %2 == 0));
         }
     });
     /*
@@ -155,7 +160,8 @@ public class MecanumDrive extends OpMode {
                 telemetry.addData("Camera", (camera.initialized == null) ? "Uninitialized" : "Initializing...");
             if (!gyro.initialized)
                 telemetry.addData("Gyro", (gyro.initialized == null) ? "Uninitialized" : "Initializing...");
-        } else */if (Status == 2) {
+        } else */
+        if (Status == 2) {
             telemetry.addData("Status", "Danger! Really Low Voltage");
         } else if (Status == 1) {
             telemetry.addData("Status", "WARNING! Low Voltage");
@@ -274,7 +280,7 @@ public class MecanumDrive extends OpMode {
         opModeIsActive = true;
         if (robot.initialized == null) robot.initialized = false;
         while (!robot.initialized) {
-                        if (robot.initialized != null) {
+            if (robot.initialized != null) {
                 telemetry.addData("Hardware", robot.initialized ? "Initialized" : "Initializing...");
             } else
                 telemetry.addData("Hardware", "Uninitialized");

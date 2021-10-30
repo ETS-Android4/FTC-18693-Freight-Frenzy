@@ -77,6 +77,10 @@ public class RobotHardware {
     public final double driveTickPerMillimeter = driveTPR / circumferenceMM;
     public double circumferenceIN = 11;
     public final double driveTickPerInch = driveTPR / circumferenceIN;
+    public double armTPR = 337;
+    public double armRTPS = 2;
+    public final double maxArmVelocity = armTPR*armRTPS;
+    public double armVelocity = maxArmVelocity;
     /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
      * the following 4 detectable objects
      *  0: Ball,
