@@ -123,10 +123,10 @@ public class MecanumDrive extends OpMode {
     });
     Thread user2 = new Thread(() -> {
         while (opModeIsActive) {
-            if ((robot.arm.getCurrentPosition() < 1500) && (gamepad2.left_stick_y > 0))
-                robot.arm.setVelocity(gamepad2.left_stick_y * 3000);
-            if ((robot.arm.getCurrentPosition() > 0) && (gamepad2.left_stick_y < 0))
-                robot.arm.setVelocity(gamepad2.left_stick_y * 3000);
+            if ((robot.arm.getCurrentPosition() < 1500) && (-gamepad2.left_stick_y > 0))
+                robot.arm.setVelocity(-gamepad2.left_stick_y * 3000);
+            if ((robot.arm.getCurrentPosition() > 0) && (-gamepad2.left_stick_y < 0))
+                robot.arm.setVelocity(-gamepad2.left_stick_y * 3000);
             if (gamepad2.left_stick_y == 0) robot.arm.setVelocity(0);
         }
     });
@@ -137,7 +137,7 @@ public class MecanumDrive extends OpMode {
                 if (!opModeIsActive) break;
                 if (i < 1) robot.lights[robot.lights.length - 1].enable(false);
                 robot.lights[i].enable(true);
-                sleep(200);
+                sleep(50);
             }
         }
     });

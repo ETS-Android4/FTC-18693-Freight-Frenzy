@@ -99,7 +99,7 @@ public class RobotHardware {
         hwMap = ahwMap;
         claw = hwMap.get(Servo.class, "Servo_0");
         arm = hwMap.get(DcMotorEx.class, "Motor_6");
-        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // Define and Initialize Motors
         leftRear = hwMap.get(DcMotorEx.class, "Motor_4");
         leftRear.setDirection(DcMotorSimple.Direction.FORWARD);
