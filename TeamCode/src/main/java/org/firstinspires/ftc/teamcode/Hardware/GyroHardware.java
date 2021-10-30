@@ -17,10 +17,11 @@ public class GyroHardware {
     public Temperature temp;
     public Orientation angles;
     public Orientation angles2;
-    public boolean initialized = false;
+    public Boolean initialized = null;
     HardwareMap hwMap = null;
 
     public void init(HardwareMap ahwMap) {
+        initialized = false;
         hwMap = ahwMap;
         gyro = hwMap.get(BNO055IMU.class, "imu");
         parameters = new BNO055IMU.Parameters();

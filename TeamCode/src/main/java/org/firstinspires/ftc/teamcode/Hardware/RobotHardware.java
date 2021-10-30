@@ -64,7 +64,7 @@ public class RobotHardware {
 
     public VoltageSensor voltageSensor = null;
 
-    public boolean initialized = false;
+    public Boolean initialized = null;
     public double driveTPR = 288;
     public double driveRPS = 2.1;
     public final double maxDriveVelocity = driveTPR * driveRPS;
@@ -92,10 +92,11 @@ public class RobotHardware {
 
     /* Initialize standard Hardware interfaces */
     public void init(HardwareMap ahwMap, int wheelType) {
+        initialized = false;
         // Save reference to Hardware map
         hwMap = ahwMap;
-        arm = hwMap.get(DcMotorEx.class, "Motor_4");
-        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //arm = hwMap.get(DcMotorEx.class, "Motor_4");
+        //arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // Define and Initialize Motors
         leftRear = hwMap.get(DcMotorEx.class, "Motor_0");
         leftRear.setDirection(DcMotorSimple.Direction.FORWARD);

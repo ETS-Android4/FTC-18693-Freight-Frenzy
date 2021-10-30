@@ -84,15 +84,14 @@ public class MecanumDrive extends OpMode {
     CameraHardware camera = new CameraHardware();
     GyroHardware gyro = new GyroHardware();
     Thread initialization = new Thread(() -> {
-        robot.setRedLights(true);
         robot.init(hardwareMap, 2);
-        telemetry.speak("Hardware Online");
         robot.setLights(false);
         robot.setGreenLights(true);
+        telemetry.speak("Hardware Online");
         camera.init(hardwareMap, 1);
         telemetry.speak("Camera Online");
         gyro.init(hardwareMap);
-        telemetry.speak("Gyro Online");
+        telemetry.speak("Gyroscope Online");
     });
     Thread user1 = new Thread(() -> {
         while (opModeIsActive) {
@@ -146,11 +145,11 @@ public class MecanumDrive extends OpMode {
         if (!robot.initialized || !gyro.initialized || !camera.initialized) {
             telemetry.addData("Status", "Initializing...");
             if (!robot.initialized)
-                telemetry.addData("Hardware", "Initializing...");
+                telemetry.addData("Hardware", (robot.initialized == null) ? "Uninitialized" : "Initializing...");
             if (!camera.initialized)
-                telemetry.addData("Camera", "Initializing...");
+                telemetry.addData("Camera", (camera.initialized == null) ? "Uninitialized" : "Initializing...");
             if (!gyro.initialized)
-                telemetry.addData("Gyro", "Initializing...");
+                telemetry.addData("Gyro", (gyro.initialized == null) ? "Uninitialized" : "Initializing...");
         } else if (Status == 2) {
             telemetry.addData("Status", "Danger! Really Low Voltage");
         } else if (Status == 1) {
@@ -165,7 +164,7 @@ public class MecanumDrive extends OpMode {
             telemetry.addData("Extrinsic Orientation", "%.0f°", gyro.getOrientation2().thirdAngle);
             telemetry.addData("Temperature", "%.0f°", gyro.getTemp() * 1.8 + 32);
         }
-        // 1,500 = up, 0 = down
+        // 1,500 = up, 0 = downG
         telemetry.addData("Arm Position", robot.arm.getCurrentPosition());
         telemetry.addData("Steering Sensitivity", "%.0f%%", steeringMultiplier * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
@@ -231,7 +230,6 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void init() {
-        robot.setLights(false);
         audio = new AndroidSoundPool();
         initialization.start();
 
@@ -240,10 +238,27 @@ public class MecanumDrive extends OpMode {
 
     @Override
     public void init_loop() {
-        telemetry.addData("Status", (robot.initialized && gyro.initialized && camera.initialized) ? "Initialized, Ready For Start" : "Initializing...");
-        telemetry.addData("Hardware", robot.initialized ? "Initialized" : "Initializing...");
-        telemetry.addData("Camera", camera.initialized ? "Initialized" : "Initializing...");
-        telemetry.addData("Gyro", gyro.initialized ? "Initialized" : "Initializing...");
+        if (robot.initialized != null && gyro.initialized != null && camera.initialized != null)
+            telemetry.addData("Status", (robot.initialized && gyro.initialized && camera.initialized) ? "Initialized, Ready For Start" : "Initializing...");
+        else telemetry.addData("Status", "Initializing...");
+
+        if (robot.initialized != null) {
+            telemetry.addData("Hardware", robot.initialized ? "Initialized" : "Initializing...");
+        } else
+            telemetry.addData("Hardware", "Uninitialized");
+
+        if (camera.initialized != null) {
+            telemetry.addData("Camera", camera.initialized ? "Initialized" : "Initializing...");
+        } else {
+            telemetry.addData("Camera", "Uninitialized");
+
+        }
+
+        if (gyro.initialized != null) {
+            telemetry.addData("Gyro", gyro.initialized ? "Initialized" : "Initializing...");
+        } else {
+            telemetry.addData("Gyro", "Uninitialized");
+        }
     }
 
     /*
@@ -252,11 +267,25 @@ public class MecanumDrive extends OpMode {
     @Override
     public void start() {
         opModeIsActive = true;
+        if (robot.initialized == null) robot.initialized = false;
         while (!robot.initialized) {
-            telemetry.addData("Status", "Initializing...");
-            telemetry.addData("Hardware", robot.initialized ? "Initialized" : "Initializing...");
-            telemetry.addData("Camera", camera.initialized ? "Initialized" : "Initializing...");
-            telemetry.addData("Gyro", gyro.initialized ? "Initialized" : "Initializing...");
+                        if (robot.initialized != null) {
+                telemetry.addData("Hardware", robot.initialized ? "Initialized" : "Initializing...");
+            } else
+                telemetry.addData("Hardware", "Uninitialized");
+
+            if (camera.initialized != null) {
+                telemetry.addData("Camera", camera.initialized ? "Initialized" : "Initializing...");
+            } else {
+                telemetry.addData("Camera", "Uninitialized");
+
+            }
+
+            if (gyro.initialized != null) {
+                telemetry.addData("Gyro", gyro.initialized ? "Initialized" : "Initializing...");
+            } else {
+                telemetry.addData("Gyro", "Uninitialized");
+            }
         }
         lights.start();
         user1.start();
