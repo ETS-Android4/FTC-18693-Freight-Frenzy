@@ -29,19 +29,25 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import static android.os.SystemClock.sleep;
+
 import android.annotation.SuppressLint;
-import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.android.AndroidSoundPool;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.teamcode.Hardware.CameraHardware;
+import org.firstinspires.ftc.teamcode.Hardware.GyroHardware;
+import org.firstinspires.ftc.teamcode.Hardware.RobotHardware;
 
 import java.util.List;
+
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -60,136 +66,199 @@ import java.util.List;
 @TeleOp(name = "Mecanum Drive")
 //@Disabled
 public class MecanumDrive extends OpMode {
+    private final ElapsedTime runtime = new ElapsedTime();
     public double Status = 5;
-    public boolean mutantGamepad = false;
+    //public boolean mutantGamepad = false;
+    public boolean worldDrive = false;
     public String detectedColor;
     public AndroidSoundPool audio;
+    public double steeringMultiplier = 1;
+    public double steeringAdjusted = 0;
+    public double driveModeAdjusted = 0;
+    public double m1, m2, m3, m4, g;
+    public double maxDrive;
+    public double minDrive;
     // Declare OpMode members.
+    boolean opModeIsActive = false;
     RobotHardware robot = new RobotHardware();
-    private final ElapsedTime runtime = new ElapsedTime();
+    CameraHardware camera = new CameraHardware();
+    GyroHardware gyro = new GyroHardware();
+    Thread initialization = new Thread(() -> {
+        robot.init(hardwareMap, 2);
+        robot.setLights(false);
+        robot.setGreenLights(true);
+        telemetry.speak("Hardware Online");
+        camera.init(hardwareMap, 1);
+        telemetry.speak("Camera Online");
+        gyro.init(hardwareMap);
+        telemetry.speak("Gyroscope Online");
+    });
+    Thread user1 = new Thread(() -> {
+        while (opModeIsActive) {
+            if (gamepad1.b) gyro.gyro.initialize(gyro.parameters);
+            if (gamepad1.a && driveModeAdjusted < runtime.milliseconds()) {
+                //worldDrive = true;
+                driveModeAdjusted = runtime.milliseconds() + 500;
+            } else if (worldDrive) {
+                WorldDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, gyro.gyro.getAngularOrientation());
+            } else {
+                Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+            }
 
-    public String detectColor() {
-        int colorHSV;
-        float hue;
-        //float sat;
-        //float val;
-        // Convert RGB values to HSV color model.
-        // See https://en.wikipedia.org/wiki/HSL_and_HSV for details on HSV color model.
-        colorHSV = Color.argb(robot.color.alpha(), robot.color.red(), robot.color.green(), robot.color.blue());
-        // Get hue.
-        hue = JavaUtil.colorToHue(colorHSV);
-        //telemetry.addData("Hue", hue);
-        // Get saturation.
-        //sat = JavaUtil.colorToSaturation(colorHSV);
-        //telemetry.addData("Saturation", sat);
-        // Get value.
-        //val = JavaUtil.colorToValue(colorHSV);
-        //telemetry.addData("Value", val);
-        // Use hue to determine if it's red, green, blue, etc..
-        if (hue < 30) {
-            detectedColor = "Red";
-            return "Red";
-        } else if (hue < 60) {
-            detectedColor = "Orange";
-            return "Orange";
-        } else if (hue < 90) {
-            detectedColor = "Yellow";
-            return "Yellow";
-        } else if (hue < 150) {
-            detectedColor = "Green";
-            return "Green";
-        } else if (hue < 225) {
-            detectedColor = "Blue";
-            return "Blue";
-        } else if (hue < 350) {
-            detectedColor = "Purple";
-            return "Purple";
-        } else {
-            detectedColor = "Not Detected";
-            return "Not Detected";
+            if (gamepad1.back && steeringAdjusted < runtime.milliseconds()) {
+                steeringMultiplier -= 0.1;
+                steeringMultiplier = Range.clip(steeringMultiplier, 0, 2);
+                steeringAdjusted = runtime.milliseconds() + 100;
+            } else if (gamepad1.start && steeringAdjusted < runtime.milliseconds()) {
+                steeringMultiplier += 0.1;
+                steeringMultiplier = Range.clip(steeringMultiplier, 0, 2);
+                steeringAdjusted = runtime.milliseconds() + 100;
+            }
         }
-    }
+    });
+    Thread user2 = new Thread(() -> {
+        while (opModeIsActive) {
+            if ((robot.arm.getCurrentPosition() < 1500) && (gamepad2.left_stick_y > 0))
+                robot.arm.setVelocity(gamepad2.left_stick_y * 3000);
+            if ((robot.arm.getCurrentPosition() > 0) && (gamepad2.left_stick_y < 0))
+                robot.arm.setVelocity(gamepad2.left_stick_y * 3000);
+            if (gamepad2.left_stick_y == 0) robot.arm.setVelocity(0);
+        }
+    });
+    Thread lights = new Thread(() -> {
+        robot.setLights(false);
+        while (opModeIsActive) {
+            for (int i = 0; i < robot.lights.length; i++) {
+                if (!opModeIsActive) break;
+                if (i < 1) robot.lights[robot.lights.length - 1].enable(false);
+                robot.lights[i].enable(true);
+                sleep(200);
+            }
+        }
+    });
+    /*
+     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
+     */
 
+    @SuppressLint("DefaultLocale")
     public void Telemetries() {
-        if (Status == 2) {
+        if (!robot.initialized || !gyro.initialized || !camera.initialized) {
+            telemetry.addData("Status", "Initializing...");
+            if (!robot.initialized)
+                telemetry.addData("Hardware", (robot.initialized == null) ? "Uninitialized" : "Initializing...");
+            if (!camera.initialized)
+                telemetry.addData("Camera", (camera.initialized == null) ? "Uninitialized" : "Initializing...");
+            if (!gyro.initialized)
+                telemetry.addData("Gyro", (gyro.initialized == null) ? "Uninitialized" : "Initializing...");
+        } else if (Status == 2) {
             telemetry.addData("Status", "Danger! Really Low Voltage");
         } else if (Status == 1) {
             telemetry.addData("Status", "WARNING! Low Voltage");
-        } else if (mutantGamepad) {
-            telemetry.addData("Status", "Running, Mutant Gamepad Enabled");
+        } else if (worldDrive) {
+            telemetry.addData("Status", "Running, World Drive Enabled");
         } else {
             telemetry.addData("Status", "Running");
         }
-        telemetry.addData("Back Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftBack.getVelocity() / robot.driveVelocity * 100, robot.rightBack.getVelocity() / robot.driveVelocity * 100);
+        if (gyro.initialized) {
+            telemetry.addData("Intrinsic Orientation", "%.0f°", gyro.getOrientation().thirdAngle);
+            telemetry.addData("Extrinsic Orientation", "%.0f°", gyro.getOrientation2().thirdAngle);
+            telemetry.addData("Temperature", "%.0f°", gyro.getTemp() * 1.8 + 32);
+        }
+        // 1,500 = up, 0 = downG
+        telemetry.addData("Arm Position", robot.arm.getCurrentPosition());
+        telemetry.addData("Steering Sensitivity", "%.0f%%", steeringMultiplier * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
-        //telemetry.addData("Ramp Power", "Bottom (%.2f%%), Middle (%.2f%%), Top (%.2f%%)", robot.rampBottom.getPower() / robot.servoPower * 100, robot.rampMiddle.getPower() / robot.servoPower * 100, robot.rampTop.getPower() / robot.servoPower * 100);
-        //telemetry.addData("Claw Power", "Arm (%.2f), Hand (%.2f)", robot.clawArm.getPower() * 100, robot.clawHand.getPower() * 100);
+        telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Distance", "left %.2f, right %.2f", robot.distanceLeft.getDistance(DistanceUnit.METER), robot.distanceRight.getDistance(DistanceUnit.METER));
-        telemetry.addData("Color Detected", detectColor());
-
-        //telemetry.addData("Temperature","%.2f", robot.gyro.getTemperature().toUnit(TempUnit.FAHRENHEIT));
-    }
-
-    public void mecanumDrive(double x, double y, double rotation)
-    {
-        double[] wheelSpeeds = new double[4];
-
-        wheelSpeeds[0] = x + y + rotation;
-        wheelSpeeds[1] = -x + y - rotation;
-        wheelSpeeds[2] = -x + y + rotation;
-        wheelSpeeds[3] = x + y - rotation;
-
-        normalize(wheelSpeeds);
-
-        robot.leftFront.setVelocity(wheelSpeeds[0]*robot.driveVelocity);
-        robot.rightFront.setVelocity(wheelSpeeds[1]*robot.driveVelocity);
-        robot.leftBack.setVelocity(wheelSpeeds[2]*robot.driveVelocity);
-        robot.rightBack.setVelocity(wheelSpeeds[3]*robot.driveVelocity);
-    }
-
-    private void normalize(double[] wheelSpeeds)
-    {
-        double maxMagnitude = Math.abs(wheelSpeeds[0]);
-
-        for (int i = 1; i < wheelSpeeds.length; i++)
-        {
-            double magnitude = Math.abs(wheelSpeeds[i]);
-
-            if (magnitude > maxMagnitude)
-            {
-                maxMagnitude = magnitude;
+        //telemetry.addData("Color Detected", robot.detectColor());
+        if (camera.initialized) {
+            // getUpdatedRecognitions() will return null if no new information is available since
+            // the last time that call was made.
+            List<Recognition> updatedRecognitions = camera.tfod.getUpdatedRecognitions();
+            if (updatedRecognitions != null) {
+                telemetry.addData("# Object Detected", updatedRecognitions.size());
+                // step through the list of recognitions and display boundary info.
+                int i = 0;
+                for (Recognition recognition : updatedRecognitions) {
+                    telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                    telemetry.addData(String.format("  left,top (%d)", i), "%.01f , %.01f",
+                            recognition.getLeft(), recognition.getTop());
+                    telemetry.addData(String.format("  right,bottom (%d)", i), "%.01f , %.01f",
+                            recognition.getRight(), recognition.getBottom());
+                    i++;
+                }
             }
         }
+    }
 
-        if (maxMagnitude > 1.0)
-        {
-            for (int i = 0; i < wheelSpeeds.length; i++)
-            {
-                wheelSpeeds[i] /= maxMagnitude;
-            }
+    public void Drive(double x, double y, double z) {
+        if (gamepad1.left_bumper) {
+            maxDrive = 0.5;
+            minDrive = -0.5;
+        } else if (gamepad1.right_bumper) {
+            maxDrive = 1;
+            minDrive = -1;
+        } else {
+            maxDrive = 0.75;
+            minDrive = -0.75;
         }
-    }   //normalize
+        //   r *= steeringMultiplier;
+        m1 = Range.clip(y + x + z * steeringMultiplier, minDrive, maxDrive);
+        m2 = Range.clip(y - x - z * steeringMultiplier, minDrive, maxDrive);
+        m3 = Range.clip(y - x + z * steeringMultiplier, minDrive, maxDrive);
+        m4 = Range.clip(y + x - z * steeringMultiplier, minDrive, maxDrive);
+        robot.leftFront.setVelocity(m1 * robot.driveVelocity);
+        robot.rightFront.setVelocity(m2 * robot.driveVelocity);
+        robot.leftRear.setVelocity(m3 * robot.driveVelocity);
+        robot.rightRear.setVelocity(m4 * robot.driveVelocity);
+    }
 
+    public void WorldDrive(double x, double y, double z, Orientation gyro) {
+        g = gyro.thirdAngle / 90;
+        m1 = Range.clip((y + x - g) + z * steeringMultiplier, -1, 1);
+        m2 = Range.clip((y - x + g) - z * steeringMultiplier, -1, 1);
+        m3 = Range.clip((y - x + g) + z * steeringMultiplier, -1, 1);
+        m4 = Range.clip((y + x - g) - z * steeringMultiplier, -1, 1);
+        robot.leftFront.setVelocity(m1 * robot.driveVelocity);
+        robot.rightFront.setVelocity(m2 * robot.driveVelocity);
+        robot.leftRear.setVelocity(m3 * robot.driveVelocity);
+        robot.rightRear.setVelocity(m4 * robot.driveVelocity);
+    }
 
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-        robot.init(hardwareMap, 2, false);
-        //audio = new AndroidSoundPool();
-        //audio.initialize(AndroidSoundPool);
-        telemetry.addData("Status", "Initialized");
+        audio = new AndroidSoundPool();
+        initialization.start();
 
-        // Tell the driver that initialization is complete.
-        telemetry.addData("Status", "Initialized");
+
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
-     */
     @Override
     public void init_loop() {
+        if (robot.initialized != null && gyro.initialized != null && camera.initialized != null)
+            telemetry.addData("Status", (robot.initialized && gyro.initialized && camera.initialized) ? "Initialized, Ready For Start" : "Initializing...");
+        else telemetry.addData("Status", "Initializing...");
+
+        if (robot.initialized != null) {
+            telemetry.addData("Hardware", robot.initialized ? "Initialized" : "Initializing...");
+        } else
+            telemetry.addData("Hardware", "Uninitialized");
+
+        if (camera.initialized != null) {
+            telemetry.addData("Camera", camera.initialized ? "Initialized" : "Initializing...");
+        } else {
+            telemetry.addData("Camera", "Uninitialized");
+
+        }
+
+        if (gyro.initialized != null) {
+            telemetry.addData("Gyro", gyro.initialized ? "Initialized" : "Initializing...");
+        } else {
+            telemetry.addData("Gyro", "Uninitialized");
+        }
     }
 
     /*
@@ -197,58 +266,62 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void start() {
+        opModeIsActive = true;
+        if (robot.initialized == null) robot.initialized = false;
+        while (!robot.initialized) {
+                        if (robot.initialized != null) {
+                telemetry.addData("Hardware", robot.initialized ? "Initialized" : "Initializing...");
+            } else
+                telemetry.addData("Hardware", "Uninitialized");
+
+            if (camera.initialized != null) {
+                telemetry.addData("Camera", camera.initialized ? "Initialized" : "Initializing...");
+            } else {
+                telemetry.addData("Camera", "Uninitialized");
+
+            }
+
+            if (gyro.initialized != null) {
+                telemetry.addData("Gyro", gyro.initialized ? "Initialized" : "Initializing...");
+            } else {
+                telemetry.addData("Gyro", "Uninitialized");
+            }
+        }
+        lights.start();
+        user1.start();
+        user2.start();
         runtime.reset();
-        robot.leftFront.setVelocity(1000000);
     }
 
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
      */
-    @SuppressLint("DefaultLocale")
     @Override
     public void loop() {
-        if (robot.tfod != null) {
-            // getUpdatedRecognitions() will return null if no new information is available since
-            // the last time that call was made.
-            List<Recognition> updatedRecognitions = robot.tfod.getUpdatedRecognitions();
-            if (updatedRecognitions != null) {
-                telemetry.addData("# Object Detected", updatedRecognitions.size());
-                // step through the list of recognitions and display boundary info.
-                int i = 0;
-                for (Recognition recognition : updatedRecognitions) {
-                    telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                    telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                            recognition.getLeft(), recognition.getTop());
-                    telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                            recognition.getRight(), recognition.getBottom());
-                    i++;
-                }
-            }
+        /*for (int i = 0; i < robot.lights.length; i++) {
+            robot.lights[i].enable(true);
+            if (i < 1) robot.lights[15].enable(false);
+            else robot.lights[i - 1].enable(false);
+            // while(!robot.lights[1].isLightOn())
         }
-        telemetry.update();
-        Telemetries();
-        mecanumDrive(-gamepad1.right_stick_y, -gamepad1.right_stick_y, -gamepad1.left_stick_x);
-       /* if(gamepad1.a){
-            robot.leftFront.setPower(1);
-            robot.rightFront.setPower(1);
-            robot.leftBack.setPower(1);
-            robot.rightBack.setPower(1);
 
-        }*/
+         */
+
+        Telemetries();
         if (robot.voltageSensor.getVoltage() < robot.reallyLowBattery && Status != 2) {
-           // if (Status != 1) audio.play("RawRes:ss_siren");
+            if (Status != 1) audio.play("RawRes:ss_siren");
             Status = 2;
             //robot.shootVelocity = robot.maxShootVelocity * 0.75;
             robot.driveVelocity = robot.maxDriveVelocity * 0.5;
         } else if (robot.voltageSensor.getVoltage() < robot.lowBattery && Status != 1) {
-            //if (Status != 2) audio.play("RawRes:ss_siren");
+            if (Status != 2) audio.play("RawRes:ss_siren");
             Status = 1;
             robot.driveVelocity = robot.maxDriveVelocity * 0.75;
         } else {
             Status = 0;
             //robot.shootVelocity = robot.maxShootVelocity;
             robot.driveVelocity = robot.maxDriveVelocity;
-           // audio.stop();
+            audio.stop();
         }
     }
 
@@ -258,14 +331,17 @@ public class MecanumDrive extends OpMode {
     @Override
     //Stop Code. Runs Once
     public void stop() {
+        opModeIsActive = false;
+        robot.setLights(false);
         telemetry.addData("Status", "Stopping...");
-       // audio.close();
-        robot.leftBack.setPower(0);
-        robot.rightBack.setPower(0);
+        audio.close();
+        robot.leftRear.setPower(0);
+        robot.rightRear.setPower(0);
         robot.leftFront.setPower(0);
         robot.rightFront.setPower(0);
+        if (camera.initialized) camera.tfod.shutdown();
         telemetry.addData("Status", "Stopped");
         //robot.greenLight.enableLight(false);
-        telemetry.update();
+
     }
 }
