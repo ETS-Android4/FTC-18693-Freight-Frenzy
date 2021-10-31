@@ -70,7 +70,6 @@ public class MecanumDrive extends OpMode {
     public double Status = 5;
     //public boolean mutantGamepad = false;
     public boolean worldDrive = false;
-    public String detectedColor;
     public AndroidSoundPool audio;
     public double steeringMultiplier = 1;
     public double steeringAdjusted = 0;
@@ -78,8 +77,8 @@ public class MecanumDrive extends OpMode {
     public double m1, m2, m3, m4, g;
     public double maxDrive;
     public double minDrive;
-    boolean positionUpdated = false;
-    double lastPosition = 0;
+    //boolean positionUpdated = false;
+    //double lastPosition = 0;
     // Declare OpMode members.
     boolean opModeIsActive = false;
     RobotHardware robot = new RobotHardware();
@@ -285,10 +284,7 @@ public class MecanumDrive extends OpMode {
         opModeIsActive = true;
         if (robot.initialized == null) robot.initialized = false;
         while (!robot.initialized) {
-            if (robot.initialized != null) {
-                telemetry.addData("Hardware", robot.initialized ? "Initialized" : "Initializing...");
-            } else
-                telemetry.addData("Hardware", "Uninitialized");
+            telemetry.addData("Hardware", "Initializing...");
 
             if (camera.initialized != null) {
                 telemetry.addData("Camera", camera.initialized ? "Initialized" : "Initializing...");

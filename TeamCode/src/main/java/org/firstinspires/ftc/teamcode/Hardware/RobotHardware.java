@@ -58,7 +58,8 @@ public class RobotHardware {
         public LED rightRightRearRed = null;
         public LED rightRightRearGreen = null;
     */
-    public LED[] lights = new LED[16];
+    public LED[] greenLights = new LED[8];
+    public LED[] redLights = new LED[8];
     public ColorSensor color = null;
     public Rev2mDistanceSensor distanceLeft = null;
     public Rev2mDistanceSensor distanceRight = null;
@@ -147,8 +148,11 @@ public class RobotHardware {
         // touchBottom = hwMap.get(TouchSensor.class, "Touch_0");
         // touchTop = hwMap.get(TouchSensor.class, "Touch_1");
         // Define and initialize ALL installed lights.
-        for (int i = 0; i < 16; i++) {
-            lights[i] = hwMap.get(LED.class, "Light_" + i);
+        for (int i = 0; i < greenLights.length; i += 2) {
+            greenLights[i] = hwMap.get(LED.class, "Light_" + i);
+        }
+        for (int i = 1; i < redLights.length; i += 2) {
+            redLights[i] = hwMap.get(LED.class, "Light_" + i);
         }
 
 
@@ -160,26 +164,27 @@ public class RobotHardware {
         // Define and initialize ALL internal sensors.
         voltageSensor = hwMap.get(VoltageSensor.class, "Control Hub");
         if (driveTickPerInch != 0 || driveTickPerMillimeter != 0) {
-
+            setLights(false);
         }
         initialized = true;
     }
 
     public void setLights(Boolean enable) {
-        for (int i = 0; i < lights.length; i++) {
-            lights[i].enable(enable);
+        for (int i = 0; i < redLights.length; i++) {
+            redLights[i].enable(enable);
+            greenLights[i].enable(enable);
         }
     }
 
     public void setGreenLights(Boolean enable) {
-        for (int i = 1; i < lights.length; i += 2) {
-            lights[i].enable(enable);
+        for (int i = 0; i < greenLights.length; i++) {
+            greenLights[i].enable(enable);
         }
     }
 
     public void setRedLights(Boolean enable) {
-        for (int i = 0; i < lights.length; i += 2) {
-            lights[i].enable(enable);
+        for (int i = 0; i < redLights.length; i++) {
+            redLights[i].enable(enable);
         }
     }
 
