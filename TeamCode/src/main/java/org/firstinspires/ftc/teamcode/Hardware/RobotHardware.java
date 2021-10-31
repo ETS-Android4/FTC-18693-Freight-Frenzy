@@ -77,9 +77,12 @@ public class RobotHardware {
     public final double driveTickPerMillimeter = driveTPR / circumferenceMM;
     public double circumferenceIN = 11;
     public final double driveTickPerInch = driveTPR / circumferenceIN;
-    public double armTPR = 337;
-    public double armRTPS = 2;
-    public final double maxArmVelocity = armTPR*armRTPS;
+    public double armTPR = 28;
+    public double armRTPS = 1;
+    public double armGearboxs = 5;
+    public double armRatio = Math.pow(5.23, armGearboxs);
+    public double armShaftTPR = armTPR * armRatio;
+    public final double maxArmVelocity = armShaftTPR * armRTPS;
     public double armVelocity = maxArmVelocity;
     /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
      * the following 4 detectable objects
@@ -102,6 +105,7 @@ public class RobotHardware {
         // Save reference to Hardware map
         hwMap = ahwMap;
         claw = hwMap.get(Servo.class, "Servo_0");
+        claw.scaleRange(0, 1);
         arm = hwMap.get(DcMotorEx.class, "Motor_6");
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // Define and Initialize Motors
