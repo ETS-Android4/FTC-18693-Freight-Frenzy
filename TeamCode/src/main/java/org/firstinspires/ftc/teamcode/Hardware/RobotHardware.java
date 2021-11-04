@@ -60,6 +60,7 @@ public class RobotHardware {
     */
     public LED[] greenLights = new LED[8];
     public LED[] redLights = new LED[8];
+    public LED[] lights = new LED[16];
     public ColorSensor color = null;
     public Rev2mDistanceSensor distanceLeft = null;
     public Rev2mDistanceSensor distanceRight = null;
@@ -78,12 +79,12 @@ public class RobotHardware {
     public final double driveTickPerMillimeter = driveTPR / circumferenceMM;
     public double circumferenceIN = 11;
     public final double driveTickPerInch = driveTPR / circumferenceIN;
-    public double armTPR = 28;
-    public double armRTPS = 1;
-    public double armGearboxs = 5;
-    public double armRatio = Math.pow(5.23, armGearboxs);
-    public double armShaftTPR = armTPR * armRatio;
-    public final double maxArmVelocity = armShaftTPR * armRTPS;
+
+    public double armMotorTPR = 28;
+    public double armRatio = Math.pow(5.23, 3);
+    public double armShaftTPR = armRatio*armMotorTPR;
+    public double armShaftRTPS = 1;
+    public final double maxArmVelocity = armShaftTPR * armShaftRTPS;
     public double armVelocity = maxArmVelocity;
     /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
      * the following 4 detectable objects
@@ -106,9 +107,12 @@ public class RobotHardware {
         // Save reference to Hardware map
         hwMap = ahwMap;
         claw = hwMap.get(Servo.class, "Servo_0");
-        claw.scaleRange(0, 1);
+        claw.scaleRange(0.35, 0.7);
         arm = hwMap.get(DcMotorEx.class, "Motor_6");
+        arm.setDirection(DcMotorSimple.Direction.REVERSE);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        arm.setPositionPIDFCoefficients(32767/maxArmVelocity*0.3);
+
         // Define and Initialize Motors
         leftRear = hwMap.get(DcMotorEx.class, "Motor_4");
         leftRear.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -122,7 +126,7 @@ public class RobotHardware {
         rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         rightRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        double Back_Motors_F = 32767 / maxDriveVelocity, Back_Motors_P = 0.1 * Back_Motors_F, Back_Motors_I = 0.01 * Back_Motors_P;
+        double Back_Motors_F = 32767 / maxDriveVelocity, Back_Motors_P = 0.1 * Back_Motors_F, Back_Motors_I = 0.1 * Back_Motors_P;
         leftRear.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
         rightRear.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
 
@@ -148,13 +152,16 @@ public class RobotHardware {
         // touchBottom = hwMap.get(TouchSensor.class, "Touch_0");
         // touchTop = hwMap.get(TouchSensor.class, "Touch_1");
         // Define and initialize ALL installed lights.
-        for (int i = 0; i < greenLights.length; i += 2) {
+       /* for (int i = 0; i < greenLights.length; i += 2) {
             greenLights[i] = hwMap.get(LED.class, "Light_" + i);
         }
         for (int i = 1; i < redLights.length; i += 2) {
             redLights[i] = hwMap.get(LED.class, "Light_" + i);
         }
-
+        */
+        for (int i = 0; i< lights.length; i++) {
+            lights[i] = hwMap.get(LED.class, "Light_" + i);
+        }
 
         // Define and initialize ALL installed distance/light sensors.
         color = hwMap.get(ColorSensor.class, "Color_0");
@@ -170,21 +177,20 @@ public class RobotHardware {
     }
 
     public void setLights(Boolean enable) {
-        for (int i = 0; i < redLights.length; i++) {
-            redLights[i].enable(enable);
-            greenLights[i].enable(enable);
+        for (int i = 0; i < lights.length; i++) {
+            lights[i].enable(enable);
         }
     }
 
     public void setGreenLights(Boolean enable) {
-        for (int i = 0; i < greenLights.length; i++) {
-            greenLights[i].enable(enable);
+        for (int i = 1; i < lights.length; i += 2) {
+            lights[i].enable(enable);
         }
     }
 
     public void setRedLights(Boolean enable) {
-        for (int i = 0; i < redLights.length; i++) {
-            redLights[i].enable(enable);
+        for (int i = 0; i < lights.length; i += 2) {
+            lights[i].enable(enable);
         }
     }
 

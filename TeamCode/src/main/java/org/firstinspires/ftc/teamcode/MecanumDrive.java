@@ -35,6 +35,7 @@ import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -77,8 +78,8 @@ public class MecanumDrive extends OpMode {
     public double m1, m2, m3, m4, g;
     public double maxDrive;
     public double minDrive;
-    //boolean positionUpdated = false;
-    //double lastPosition = 0;
+    public boolean positionSaved = false;
+    public double lastPosition = 0;
     // Declare OpMode members.
     boolean opModeIsActive = false;
     RobotHardware robot = new RobotHardware();
@@ -124,9 +125,15 @@ public class MecanumDrive extends OpMode {
     });
     Thread user2 = new Thread(() -> {
         while (opModeIsActive) {
-            if (gamepad2.left_stick_y == 0) {
-                robot.arm.setVelocity(robot.arm.getVelocity() < 0 ? -robot.arm.getVelocity() : 0);
+            if (gamepad2.a && !positionSaved) {
+                lastPosition = robot.arm.getCurrentPosition();
+                positionSaved = true;
+            } else if (gamepad2.a) {
+                robot.arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                robot.arm.setPower((lastPosition-robot.arm.getCurrentPosition())/100);
             } else {
+                positionSaved = false;
+                robot.arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.arm.setVelocity(-gamepad2.left_stick_y * robot.armVelocity);
             }
             if (gamepad2.right_bumper) {
@@ -181,6 +188,7 @@ public class MecanumDrive extends OpMode {
         }
         // 1,500 = up, 0 = downG
         telemetry.addData("Arm Position", robot.arm.getCurrentPosition());
+        telemetry.addData("Servo Position", robot.claw.getPosition());
         telemetry.addData("Steering Sensitivity", "%.0f%%", steeringMultiplier * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
