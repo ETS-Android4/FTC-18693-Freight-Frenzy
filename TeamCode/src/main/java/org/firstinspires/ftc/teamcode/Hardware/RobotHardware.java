@@ -86,11 +86,11 @@ public class RobotHardware {
     public double armMotorTPR = 28;
     public double armRatio = Math.pow(5.23, 3);
     public double armShaftTPR = armRatio*armMotorTPR;
-    public double armShaftRTPS = 1;
+    public double armShaftRTPS = 0.5;
     public final double maxArmVelocity = armShaftTPR * armShaftRTPS;
     public double armVelocity = maxArmVelocity;
-    public final double armMin = 50;
-    public final double armMax = 1500;
+    public final double armMin = 100;
+    public final double armMax = 1400;
     /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
      * the following 4 detectable objects
      *  0: Ball,
@@ -114,15 +114,17 @@ public class RobotHardware {
         hwMap = ahwMap;
         claw = hwMap.get(Servo.class, "Servo_0");
         claw.setDirection(Servo.Direction.REVERSE);
-        claw.scaleRange(0, 0.7);
-        //claw.setPosition(0);
+        claw.scaleRange(0, 0.6);
+        claw.setPosition(0);
         arm = hwMap.get(DcMotorEx.class, "Motor_6");
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         arm.setDirection(DcMotorSimple.Direction.REVERSE);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        double Arm_F = 32767 / maxDriveVelocity, Arm_P = 0.1 * Arm_F, Arm_I = 0.01 * Arm_P;
+        //arm.setVelocityPIDFCoefficients(Arm_P, Arm_I, 0, Arm_F);
         //arm.setPositionPIDFCoefficients(32767/maxArmVelocity*0.3);
-        spinner = hwMap.get(CRServo.class, "Servo_1");
+        //spinner = hwMap.get(CRServo.class, "Servo_1");
 
         // Define and Initialize Motors
         leftRear = hwMap.get(DcMotorEx.class, "Motor_4");

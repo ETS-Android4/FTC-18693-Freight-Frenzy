@@ -144,7 +144,7 @@ public class MecanumDrive extends OpMode {
             } else if (gamepad2.left_bumper) {
                 robot.claw.setPosition(0);
             }
-            robot.spinner.setPower(gamepad2.right_trigger > 0 ? gamepad2.right_trigger : gamepad2.left_trigger);
+            //robot.spinner.setPower(gamepad2.right_trigger > 0 ? gamepad2.right_trigger : gamepad2.left_trigger);
         }
     });
     Thread lights = new Thread(() -> {

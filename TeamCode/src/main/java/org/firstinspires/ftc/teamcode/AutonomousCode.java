@@ -176,16 +176,8 @@ public class AutonomousCode extends OpMode {
     }
 
     public void Drive(double x, double y, double z, int targetPos) {
-        if (gamepad1.left_bumper) {
-            maxDrive = 0.5;
-            minDrive = -0.5;
-        } else if (gamepad1.right_bumper) {
-            maxDrive = 1;
-            minDrive = -1;
-        } else {
-            maxDrive = 0.75;
-            minDrive = -0.75;
-        }
+        maxDrive = 0.75;
+        minDrive = -0.75;
         //   r *= steeringMultiplier;
         m1 = Range.clip(y + x + z * steeringMultiplier, minDrive, maxDrive);
         m2 = Range.clip(y - x - z * steeringMultiplier, minDrive, maxDrive);
