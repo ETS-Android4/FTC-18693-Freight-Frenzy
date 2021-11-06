@@ -72,7 +72,7 @@ public class AutonomousCode extends OpMode {
     public boolean worldDrive = false;
     public AndroidSoundPool audio;
     public double steeringMultiplier = 1;
-    public double m1, m2, m3, m4, g;
+    public double m1, m2, m3, m4;
     public double maxDrive;
     public double minDrive;
     public boolean Done;
@@ -87,13 +87,18 @@ public class AutonomousCode extends OpMode {
         robot.setGreenLights(true);
         telemetry.speak("Hardware Online");
         camera.init(hardwareMap, 1);
-        telemetry.speak("Camera Online");
+        if (camera.initialized != null) {
+            telemetry.speak("Camera Online");
+        } else {
+            sleep(500);
+            telemetry.speak("Camera Offline");
+        }
         gyro.init(hardwareMap);
         telemetry.speak("Gyroscope Online");
     });
     Thread MainPrgm = new Thread(() -> {
         while (!Done) {
-            Drive(0, 1, 0, 100);
+            Drive(0, 1, 0, 200);
         }
     });
     Thread lights = new Thread(() -> {
@@ -113,7 +118,7 @@ public class AutonomousCode extends OpMode {
 
     @SuppressLint("DefaultLocale")
     public void Telemetries() {
-        if (!robot.initialized || !gyro.initialized || !camera.initialized) {
+        /*if (!robot.initialized || !gyro.initialized || !camera.initialized) {
             telemetry.addData("Status", "Initializing...");
             if (!robot.initialized)
                 telemetry.addData("Hardware", (robot.initialized == null) ? "Uninitialized" : "Initializing...");
@@ -121,7 +126,8 @@ public class AutonomousCode extends OpMode {
                 telemetry.addData("Camera", (camera.initialized == null) ? "Uninitialized" : "Initializing...");
             if (!gyro.initialized)
                 telemetry.addData("Gyro", (gyro.initialized == null) ? "Uninitialized" : "Initializing...");
-        } else if (Status == 2) {
+        } else */
+        if (Status == 2) {
             telemetry.addData("Status", "Danger! Really Low Voltage");
         } else if (Status == 1) {
             telemetry.addData("Status", "WARNING! Low Voltage");
@@ -130,19 +136,20 @@ public class AutonomousCode extends OpMode {
         } else {
             telemetry.addData("Status", "Running");
         }
-        if (gyro.initialized) {
+        if (gyro.initialized != null && gyro.initialized) {
             telemetry.addData("Intrinsic Orientation", "%.0f°", gyro.getOrientation().thirdAngle);
             telemetry.addData("Extrinsic Orientation", "%.0f°", gyro.getOrientation2().thirdAngle);
             telemetry.addData("Temperature", "%.0f°", gyro.getTemp() * 1.8 + 32);
         }
         // 1,500 = up, 0 = downG
         telemetry.addData("Arm Position", robot.arm.getCurrentPosition());
+        telemetry.addData("Servo Position","%.2f", robot.claw.getPosition());
         telemetry.addData("Steering Sensitivity", "%.0f%%", steeringMultiplier * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Distance", "left %.2f, right %.2f", robot.distanceLeft.getDistance(DistanceUnit.METER), robot.distanceRight.getDistance(DistanceUnit.METER));
         //telemetry.addData("Color Detected", robot.detectColor());
-        if (camera.initialized) {
+        if (camera.initialized != null && camera.initialized) {
             // getUpdatedRecognitions() will return null if no new information is available since
             // the last time that call was made.
             List<Recognition> updatedRecognitions = camera.tfod.getUpdatedRecognitions();
@@ -238,10 +245,7 @@ public class AutonomousCode extends OpMode {
         opModeIsActive = true;
         if (robot.initialized == null) robot.initialized = false;
         while (!robot.initialized) {
-            if (robot.initialized != null) {
-                telemetry.addData("Hardware", robot.initialized ? "Initialized" : "Initializing...");
-            } else
-                telemetry.addData("Hardware", "Uninitialized");
+            telemetry.addData("Hardware", "Initializing...");
 
             if (camera.initialized != null) {
                 telemetry.addData("Camera", camera.initialized ? "Initialized" : "Initializing...");
@@ -266,15 +270,6 @@ public class AutonomousCode extends OpMode {
      */
     @Override
     public void loop() {
-        /*for (int i = 0; i < robot.lights.length; i++) {
-            robot.lights[i].enable(true);
-            if (i < 1) robot.lights[15].enable(false);
-            else robot.lights[i - 1].enable(false);
-            // while(!robot.lights[1].isLightOn())
-        }
-
-         */
-
         Telemetries();
         if (robot.voltageSensor.getVoltage() < robot.reallyLowBattery && Status != 2) {
             if (Status != 1) audio.play("RawRes:ss_siren");
