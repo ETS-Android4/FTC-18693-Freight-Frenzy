@@ -111,9 +111,9 @@ public class MecanumDrive extends OpMode {
             } else {
                 Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
             }
-
             if (gamepad1.back && steeringAdjusted < runtime.milliseconds()) {
                 steeringMultiplier -= 0.1;
+
                 steeringMultiplier = Range.clip(steeringMultiplier, 0, 2);
                 steeringAdjusted = runtime.milliseconds() + 100;
             } else if (gamepad1.start && steeringAdjusted < runtime.milliseconds()) {
