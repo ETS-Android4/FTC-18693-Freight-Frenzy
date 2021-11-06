@@ -93,8 +93,8 @@ public class AutonomousCode extends OpMode {
         telemetry.speak("Gyroscope Online");
     });
     Thread MainPrgm = new Thread(() -> {
-        Autodrive(0, 1, 0, 200);
-        Autodrive(1, 0, 0, 200);
+        Autodrive(0, 1, 0, 300);
+        Autodrive(1, 0, 0, 300);
     });
     Thread lights = new Thread(() -> {
         robot.setLights(false);
@@ -222,7 +222,7 @@ public class AutonomousCode extends OpMode {
                 robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             }
         }
-        if (y == 0 && z == 0 && x < 0) {
+        if (y == 0 && z == 0 && x > 0) {
             if (robot.leftFront.getCurrentPosition() >= targetPos && robot.rightRear.getCurrentPosition() >= targetPos && robot.leftRear.getCurrentPosition() <= -targetPos && robot.rightFront.getCurrentPosition() <= -targetPos) {
                 Done = true;
                 robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
