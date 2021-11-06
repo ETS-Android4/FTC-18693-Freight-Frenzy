@@ -125,23 +125,26 @@ public class MecanumDrive extends OpMode {
     });
     Thread user2 = new Thread(() -> {
         while (opModeIsActive) {
-            if(robot.arm.getCurrentPosition() < robot.armMin){
+            if (gamepad2.a) {
                 UnlockMotor(robot.arm, true);
-            } else if(robot.arm.getCurrentPosition() > robot.armMax){
-                LockMotor(robot.arm);
-            } else if (gamepad2.a){
-                UnlockMotor(robot.arm, true);
-            } else if(gamepad2.left_stick_y != 0){
-                LockMotor(robot.arm);
+            } else if (robot.arm.getCurrentPosition() < robot.armMin) {
+                if (-gamepad2.left_stick_y > 0) robot.arm.setVelocity(-gamepad2.left_stick_y*robot.armVelocity);
+                else UnlockMotor(robot.arm, true);
+            } else if (robot.arm.getCurrentPosition() > robot.armMax) {
+                if (-gamepad2.left_stick_y < 0) robot.arm.setVelocity(-gamepad2.left_stick_y*robot.armVelocity);
+                else LockMotor(robot.arm);
+            } else if (gamepad2.left_stick_y != 0) {
+                robot.arm.setVelocity(-gamepad2.left_stick_y*robot.armVelocity);
+                positionSaved = false;
             } else {
-                UnlockMotor(robot.arm, false);
-                robot.arm.setVelocity(-gamepad2.left_stick_y);
+                LockMotor(robot.arm);
             }
             if (gamepad2.right_bumper) {
                 robot.claw.setPosition(1);
             } else if (gamepad2.left_bumper) {
                 robot.claw.setPosition(0);
             }
+            robot.spinner.setPower(gamepad2.right_trigger > 0 ? gamepad2.right_trigger : gamepad2.left_trigger);
         }
     });
     Thread lights = new Thread(() -> {
@@ -154,26 +157,33 @@ public class MecanumDrive extends OpMode {
                 sleep(50);
             }
              */
-            robot.setGreenLights((int) runtime.seconds() % 2 == 0);
-            robot.setRedLights(!((int) runtime.seconds() % 2 == 0));
+            if(gamepad1.a){
+                robot.lights[(int)(Math.random()*robot.lights.length-1)].enable(Math.random()<=0.5);
+            } else {
+                robot.setGreenLights((int) runtime.seconds() % 2 == 0);
+                robot.setRedLights(!((int) runtime.seconds() % 2 == 0));
+            }
         }
     });
+
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
      */
-    public void LockMotor(DcMotor motor){
+    public void LockMotor(DcMotor motor) {
         robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        if(!positionSaved){
+        if (!positionSaved) {
             lastPosition = robot.arm.getCurrentPosition();
-            positionSaved = false;
+            positionSaved = true;
         }
         motor.setPower((lastPosition - robot.arm.getCurrentPosition()) / 100);
     }
-    public void UnlockMotor(DcMotor motor, boolean disable){
+
+    public void UnlockMotor(DcMotor motor, boolean disable) {
         if (disable) motor.setPower(0);
         positionSaved = false;
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
+
     @SuppressLint("DefaultLocale")
     public void Telemetries() {
         /*if (!robot.initialized || !gyro.initialized || !camera.initialized) {
@@ -201,7 +211,7 @@ public class MecanumDrive extends OpMode {
         }
         // 1,500 = up, 0 = downG
         telemetry.addData("Arm Position", robot.arm.getCurrentPosition());
-        telemetry.addData("Servo Position","%.2f", robot.claw.getPosition());
+        telemetry.addData("Servo Position", "%.2f", robot.claw.getPosition());
         telemetry.addData("Steering Sensitivity", "%.0f%%", steeringMultiplier * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
