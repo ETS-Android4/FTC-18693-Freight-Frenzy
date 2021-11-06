@@ -125,16 +125,17 @@ public class MecanumDrive extends OpMode {
     });
     Thread user2 = new Thread(() -> {
         while (opModeIsActive) {
-            if (gamepad2.a && !positionSaved) {
-                lastPosition = robot.arm.getCurrentPosition();
-                positionSaved = true;
-            } else if (gamepad2.a) {
-                robot.arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                robot.arm.setPower((lastPosition-robot.arm.getCurrentPosition())/100);
+            if(robot.arm.getCurrentPosition() < robot.armMin){
+                UnlockMotor(robot.arm, true);
+            } else if(robot.arm.getCurrentPosition() > robot.armMax){
+                LockMotor(robot.arm);
+            } else if (gamepad2.a){
+                UnlockMotor(robot.arm, true);
+            } else if(gamepad2.left_stick_y != 0){
+                LockMotor(robot.arm);
             } else {
-                positionSaved = false;
-                robot.arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.arm.setVelocity(-gamepad2.left_stick_y * robot.armVelocity);
+                UnlockMotor(robot.arm, false);
+                robot.arm.setVelocity(-gamepad2.left_stick_y);
             }
             if (gamepad2.right_bumper) {
                 robot.claw.setPosition(1);
@@ -160,7 +161,19 @@ public class MecanumDrive extends OpMode {
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
      */
-
+    public void LockMotor(DcMotor motor){
+        robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        if(!positionSaved){
+            lastPosition = robot.arm.getCurrentPosition();
+            positionSaved = false;
+        }
+        motor.setPower((lastPosition - robot.arm.getCurrentPosition()) / 100);
+    }
+    public void UnlockMotor(DcMotor motor, boolean disable){
+        if (disable) motor.setPower(0);
+        positionSaved = false;
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
     @SuppressLint("DefaultLocale")
     public void Telemetries() {
         /*if (!robot.initialized || !gyro.initialized || !camera.initialized) {
@@ -188,7 +201,7 @@ public class MecanumDrive extends OpMode {
         }
         // 1,500 = up, 0 = downG
         telemetry.addData("Arm Position", robot.arm.getCurrentPosition());
-        telemetry.addData("Servo Position", robot.claw.getPosition());
+        telemetry.addData("Servo Position","%.2f", robot.claw.getPosition());
         telemetry.addData("Steering Sensitivity", "%.0f%%", steeringMultiplier * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
@@ -329,19 +342,19 @@ public class MecanumDrive extends OpMode {
 
         Telemetries();
         if (robot.voltageSensor.getVoltage() < robot.reallyLowBattery && Status != 2) {
-            if (Status != 1) audio.play("RawRes:ss_siren");
+            //if (Status != 1) audio.play("RawRes:ss_siren");
             Status = 2;
             //robot.shootVelocity = robot.maxShootVelocity * 0.75;
             robot.driveVelocity = robot.maxDriveVelocity * 0.5;
         } else if (robot.voltageSensor.getVoltage() < robot.lowBattery && Status != 1) {
-            if (Status != 2) audio.play("RawRes:ss_siren");
+            //if (Status != 2) audio.play("RawRes:ss_siren");
             Status = 1;
             robot.driveVelocity = robot.maxDriveVelocity * 0.75;
         } else {
             Status = 0;
             //robot.shootVelocity = robot.maxShootVelocity;
             robot.driveVelocity = robot.maxDriveVelocity;
-            audio.stop();
+            //audio.stop();
         }
     }
 
