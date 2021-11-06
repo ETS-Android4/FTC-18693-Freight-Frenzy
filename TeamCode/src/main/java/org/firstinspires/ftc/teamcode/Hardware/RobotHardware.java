@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Hardware;
 
 
 import android.graphics.Color;
-import android.widget.Spinner;
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -190,8 +189,8 @@ public class RobotHardware {
     }
 
     public void setLights(Boolean enable) {
-        for (int i = 0; i < lights.length; i++) {
-            lights[i].enable(enable);
+        for (LED light : lights) {
+            light.enable(enable);
         }
     }
 
