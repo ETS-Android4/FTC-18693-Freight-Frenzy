@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.Hardware;
 
 
 import android.graphics.Color;
+import android.widget.Spinner;
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -40,6 +42,7 @@ public class RobotHardware {
     public DcMotorEx rightFront = null;
     public DcMotorEx arm = null;
     public Servo claw = null;
+    public CRServo spinner = null;
     /*
         public LED leftLeftFrontRed = null;
         public LED leftLeftFrontGreen = null;
@@ -107,16 +110,19 @@ public class RobotHardware {
     public void init(HardwareMap ahwMap, int wheelType) {
         initialized = false;
         // Save reference to Hardware map
+
         hwMap = ahwMap;
         claw = hwMap.get(Servo.class, "Servo_0");
         claw.setDirection(Servo.Direction.REVERSE);
-        claw.scaleRange(0.25, 1);
+        claw.scaleRange(0, 0.7);
         //claw.setPosition(0);
         arm = hwMap.get(DcMotorEx.class, "Motor_6");
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         arm.setDirection(DcMotorSimple.Direction.REVERSE);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //arm.setPositionPIDFCoefficients(32767/maxArmVelocity*0.3);
+        spinner = hwMap.get(CRServo.class, "Servo_1");
 
         // Define and Initialize Motors
         leftRear = hwMap.get(DcMotorEx.class, "Motor_4");
