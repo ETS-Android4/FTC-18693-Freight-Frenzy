@@ -92,19 +92,17 @@ public class AutonomousCode extends OpMode {
         gyro.init(hardwareMap);
         telemetry.speak("Gyroscope Online");
     });
-    Thread MainPrgm = new Thread(() -> {
-        Autodrive(0, 1, 0, 300);
-        Autodrive(1, 0, 0, 300);
-    });
     Thread lights = new Thread(() -> {
         robot.setLights(false);
         while (opModeIsActive) {
-            for (int i = 0; i < robot.lights.length; i++) {
+            /*for (int i = 0; i < robot.lights.length; i++) {
                 if (!opModeIsActive) break;
                 if (i < 1) robot.lights[robot.lights.length - 1].enable(false);
                 robot.lights[i].enable(true);
                 sleep(200);
-            }
+            }*/
+            robot.setGreenLights((int) runtime.milliseconds()/500 % 2 == 0);
+            robot.setRedLights(!((int) runtime.milliseconds()/500 % 2 == 0));
         }
     });
     /*
@@ -121,7 +119,7 @@ public class AutonomousCode extends OpMode {
                 telemetry.addData("Camera", (camera.initialized == null) ? "Uninitialized" : "Initializing...");
             if (!gyro.initialized)
                 telemetry.addData("Gyro", (gyro.initialized == null) ? "Uninitialized" : "Initializing...");
-        } else */
+        }*/
         if (Status == 2) {
             telemetry.addData("Status", "Danger! Really Low Voltage");
         } else if (Status == 1) {
@@ -132,8 +130,8 @@ public class AutonomousCode extends OpMode {
             telemetry.addData("Status", "Running");
         }
         if (gyro.initialized != null && gyro.initialized) {
-            telemetry.addData("Intrinsic Orientation", "%.0f°", gyro.getOrientation().thirdAngle);
-            telemetry.addData("Extrinsic Orientation", "%.0f°", gyro.getOrientation2().thirdAngle);
+            telemetry.addData("Intrinsic Orientation", "%.0f°", gyro.getOrientation().secondAngle);
+            telemetry.addData("Extrinsic Orientation", "%.0f°", gyro.getOrientation2().secondAngle);
             telemetry.addData("Temperature", "%.0f°", gyro.getTemp() * 1.8 + 32);
         }
         // 1,500 = up, 0 = downG
@@ -173,6 +171,21 @@ public class AutonomousCode extends OpMode {
         robot.leftRear.setVelocity(0);
         robot.rightFront.setVelocity(0);
         robot.rightRear.setVelocity(0);
+    }
+    public void Drived(double x, double y, double z) {
+
+            maxDrive = 0.75;
+            minDrive = -0.75;
+
+        //   r *= steeringMultiplier;
+        m1 = Range.clip(y + x + z * steeringMultiplier, minDrive, maxDrive);
+        m2 = Range.clip(y - x - z * steeringMultiplier, minDrive, maxDrive);
+        m3 = Range.clip(y - x + z * steeringMultiplier, minDrive, maxDrive);
+        m4 = Range.clip(y + x - z * steeringMultiplier, minDrive, maxDrive);
+        robot.leftFront.setVelocity(m1 * robot.driveVelocity);
+        robot.rightFront.setVelocity(m2 * robot.driveVelocity);
+        robot.leftRear.setVelocity(m3 * robot.driveVelocity);
+        robot.rightRear.setVelocity(m4 * robot.driveVelocity);
     }
 
     public void Drive(double x, double y, double z, int targetPos) {
@@ -285,8 +298,20 @@ public class AutonomousCode extends OpMode {
             }*/
         }
         lights.start();
-        MainPrgm.start();
         runtime.reset();
+        while (gyro.initialized == null || !gyro.initialized){
+            if (gyro.initialized != null) {
+                telemetry.addData("Gyro", gyro.initialized ? "Initialized" : "Initializing...");
+            } else {
+                telemetry.addData("Gyro", "Uninitialized");
+            }
+            while (gyro.getOrientation().secondAngle < 90){
+                Drived(0, 0, -1);
+            }
+            Drived(1,0,0);
+            runtime.reset();
+        }
+
     }
 
     /*
@@ -309,6 +334,11 @@ public class AutonomousCode extends OpMode {
             //robot.shootVelocity = robot.maxShootVelocity;
             robot.driveVelocity = robot.maxDriveVelocity;
             audio.stop();
+        }
+        if(robot.leftFront.getVelocity()< robot.driveVelocity/2 && runtime.seconds()>1){
+            requestOpModeStop();
+        }else {
+            Drived(1,0,0);
         }
     }
 
