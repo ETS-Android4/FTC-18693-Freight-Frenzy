@@ -102,8 +102,8 @@ public class MecanumDrive extends OpMode {
     });
     Thread user1 = new Thread(() -> {
         while (opModeIsActive) {
-            if (gamepad1.b) gyro.gyro.initialize(gyro.parameters);
-            if (gamepad1.a && driveModeAdjusted < runtime.milliseconds()) {
+            //if (gamepad1.b) gyro.gyro.initialize(gyro.parameters);
+            /*if (gamepad1.a && driveModeAdjusted < runtime.milliseconds()) {
                 //worldDrive = true;
                 driveModeAdjusted = runtime.milliseconds() + 500;
             } else if (worldDrive) {
@@ -111,9 +111,10 @@ public class MecanumDrive extends OpMode {
             } else {
                 Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
             }
+             */
+            Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
             if (gamepad1.back && steeringAdjusted < runtime.milliseconds()) {
                 steeringMultiplier -= 0.1;
-
                 steeringMultiplier = Range.clip(steeringMultiplier, 0, 2);
                 steeringAdjusted = runtime.milliseconds() + 100;
             } else if (gamepad1.start && steeringAdjusted < runtime.milliseconds()) {
@@ -130,7 +131,11 @@ public class MecanumDrive extends OpMode {
                 UnlockMotor(robot.arm, true);
             } else if (robot.arm.getCurrentPosition() < robot.armMin) {
                 if (-gamepad2.left_stick_y > 0) robot.arm.setVelocity(-gamepad2.left_stick_y*robot.armVelocity);
-                else UnlockMotor(robot.arm, true);
+                else if (-gamepad2.left_stick_y < 0){
+                    UnlockMotor(robot.arm, true);
+                } else {
+                    LockMotor(robot.arm);
+                }
             } else if (robot.arm.getCurrentPosition() > robot.armMax) {
                 if (-gamepad2.left_stick_y < 0) robot.arm.setVelocity(-gamepad2.left_stick_y*robot.armVelocity);
                 else LockMotor(robot.arm);
@@ -185,8 +190,8 @@ public class MecanumDrive extends OpMode {
         motor.setPower((lastPosition - robot.arm.getCurrentPosition()) / 100);
     }
 
-    public void UnlockMotor(DcMotor motor, boolean disable) {
-        if (disable) motor.setPower(0);
+    public void UnlockMotor(DcMotor motor, boolean powerOff) {
+        if (powerOff) motor.setPower(0);
         positionSaved = false;
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
@@ -283,7 +288,7 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void init() {
-        initialization.setPriority(9);
+        initialization.setPriority(7);
         audio = new AndroidSoundPool();
         initialization.start();
         user1.setPriority(10);
@@ -388,11 +393,12 @@ public class MecanumDrive extends OpMode {
         opModeIsActive = false;
         robot.setLights(false);
         telemetry.addData("Status", "Stopping...");
-        audio.close();
+        //audio.close();
         robot.leftRear.setPower(0);
         robot.rightRear.setPower(0);
         robot.leftFront.setPower(0);
         robot.rightFront.setPower(0);
+        UnlockMotor(robot.arm, true);
         if (camera.initialized != null && camera.initialized) camera.tfod.shutdown();
         telemetry.addData("Status", "Stopped");
         //robot.greenLight.enableLight(false);
