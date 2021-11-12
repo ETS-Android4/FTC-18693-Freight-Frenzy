@@ -88,7 +88,7 @@ public class RobotHardware {
     public double armShaftRTPS = 0.5;
     public final double maxArmVelocity = armShaftTPR * armShaftRTPS;
     public double armVelocity = maxArmVelocity;
-    public final double armMin = 100;
+    public final double armMin = 250;
     public final double armMax = 1400;
     /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
      * the following 4 detectable objects
