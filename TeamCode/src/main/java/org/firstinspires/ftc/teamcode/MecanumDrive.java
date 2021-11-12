@@ -93,10 +93,9 @@ public class MecanumDrive extends OpMode {
         camera.init(hardwareMap, 1);
         if (camera.initialized != null) {
             telemetry.speak("Camera Online");
-        } else {
-            sleep(500);
+        }/* else {
             telemetry.speak("Camera Offline");
-        }
+        }*/
         gyro.init(hardwareMap);
         telemetry.speak("Gyroscope Online");
     });
