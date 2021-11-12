@@ -216,8 +216,8 @@ public class MecanumDrive extends OpMode {
             telemetry.addData("Status", "Running");
         }
         if (gyro.initialized != null && gyro.initialized) {
-            telemetry.addData("Intrinsic Orientation", "%.0f°", gyro.getOrientation().thirdAngle);
-            telemetry.addData("Extrinsic Orientation", "%.0f°", gyro.getOrientation2().thirdAngle);
+            telemetry.addData("Intrinsic Orientation", "%.0f°", gyro.getOrientation().secondAngle);
+            telemetry.addData("Extrinsic Orientation", "%.0f°", gyro.getOrientation2().secondAngle);
             telemetry.addData("Temperature", "%.0f°", gyro.getTemp() * 1.8 + 32);
         }
         // 1,500 = up, 0 = downG
