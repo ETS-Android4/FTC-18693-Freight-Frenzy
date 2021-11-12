@@ -301,7 +301,7 @@ public class AutonomousCode extends OpMode {
         runtime.reset();
         while (gyro.initialized == null || !gyro.initialized){
             if (gyro.initialized != null) {
-                telemetry.addData("Gyro", gyro.initialized ? "Initialized" : "Initializing...");
+                telemetry.addData("Gyro", "Initializing...");
             } else {
                 telemetry.addData("Gyro", "Uninitialized");
             }
