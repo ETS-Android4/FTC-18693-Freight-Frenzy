@@ -123,6 +123,7 @@ public class MecanumDrive extends OpMode {
             }
         }
     });
+    boolean gamepad2AReleased = true;
     Thread user2 = new Thread(() -> {
         while (opModeIsActive) {
             if (gamepad2.a) {
@@ -138,6 +139,12 @@ public class MecanumDrive extends OpMode {
                 positionSaved = false;
             } else {
                 LockMotor(robot.arm);
+            }
+            if(gamepad2.b && gamepad2AReleased){
+                gamepad2AReleased = false;
+                robot.claw.setPosition(robot.claw.getPosition() == 0 ? 1 : 0);
+            } else if (!gamepad2AReleased && !gamepad2.a){
+                gamepad2AReleased = true;
             }
             if (gamepad2.right_bumper) {
                 robot.claw.setPosition(1);
@@ -276,8 +283,12 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void init() {
+        initialization.setPriority(9);
         audio = new AndroidSoundPool();
         initialization.start();
+        user1.setPriority(10);
+        user2.setPriority(8);
+        lights.setPriority(5);
 
 
     }
@@ -312,6 +323,7 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void start() {
+        runtime.reset();
         opModeIsActive = true;
         if (robot.initialized == null) robot.initialized = false;
         while (!robot.initialized) {
@@ -330,10 +342,9 @@ public class MecanumDrive extends OpMode {
                 telemetry.addData("Gyro", "Uninitialized");
             }
         }
-        lights.start();
         user1.start();
         user2.start();
-        runtime.reset();
+        lights.start();
     }
 
     /*
