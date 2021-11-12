@@ -41,6 +41,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.android.AndroidSoundPool;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Hardware.CameraHardware;
 import org.firstinspires.ftc.teamcode.Hardware.GyroHardware;
 import org.firstinspires.ftc.teamcode.Hardware.RobotHardware;
 
@@ -243,7 +244,7 @@ public class AutonomousCode extends OpMode {
      */
     @Override
     public void init() {
-        audio = new AndroidSoundPool();
+        //audio = new AndroidSoundPool();
         initialization.start();
 
 
@@ -321,19 +322,19 @@ public class AutonomousCode extends OpMode {
     public void loop() {
         Telemetries();
         if (robot.voltageSensor.getVoltage() < robot.reallyLowBattery && Status != 2) {
-            if (Status != 1) audio.play("RawRes:ss_siren");
+            //if (Status != 1) audio.play("RawRes:ss_siren");
             Status = 2;
             //robot.shootVelocity = robot.maxShootVelocity * 0.75;
             robot.driveVelocity = robot.maxDriveVelocity * 0.5;
         } else if (robot.voltageSensor.getVoltage() < robot.lowBattery && Status != 1) {
-            if (Status != 2) audio.play("RawRes:ss_siren");
+            //if (Status != 2) audio.play("RawRes:ss_siren");
             Status = 1;
             robot.driveVelocity = robot.maxDriveVelocity * 0.75;
         } else {
             Status = 0;
             //robot.shootVelocity = robot.maxShootVelocity;
             robot.driveVelocity = robot.maxDriveVelocity;
-            audio.stop();
+            //audio.stop();
         }
         if(robot.leftFront.getVelocity()< robot.driveVelocity/4 && runtime.seconds()>1){
             requestOpModeStop();
@@ -351,7 +352,7 @@ public class AutonomousCode extends OpMode {
         opModeIsActive = false;
         robot.setLights(false);
         telemetry.addData("Status", "Stopping...");
-        audio.close();
+        //audio.close();
         robot.leftRear.setPower(0);
         robot.rightRear.setPower(0);
         robot.leftFront.setPower(0);
