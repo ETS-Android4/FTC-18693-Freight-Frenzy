@@ -335,7 +335,7 @@ public class AutonomousCode extends OpMode {
             robot.driveVelocity = robot.maxDriveVelocity;
             audio.stop();
         }
-        if(robot.leftFront.getVelocity()< robot.driveVelocity/2 && runtime.seconds()>1){
+        if(robot.leftFront.getVelocity()< robot.driveVelocity/4 && runtime.seconds()>1){
             requestOpModeStop();
         }else {
             Drived(1,0,0);
