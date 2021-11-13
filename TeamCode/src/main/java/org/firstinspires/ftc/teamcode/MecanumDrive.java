@@ -123,6 +123,7 @@ public class MecanumDrive extends OpMode {
             }
         }
     });
+    double gamepad2ATime = 0;
     boolean gamepad2AReleased = true;
     Thread user2 = new Thread(() -> {
         while (opModeIsActive) {
@@ -144,10 +145,11 @@ public class MecanumDrive extends OpMode {
             } else {
                 LockMotor(robot.arm);
             }
-            if(gamepad2.b && gamepad2AReleased){
+            if(gamepad2.b && gamepad2AReleased && runtime.seconds()-gamepad2ATime>0.2){
                 gamepad2AReleased = false;
                 robot.claw.setPosition(robot.claw.getPosition() == 0 ? 1 : 0);
             } else if (!gamepad2AReleased && !gamepad2.a){
+                gamepad2ATime = runtime.seconds();
                 gamepad2AReleased = true;
             }
             if (gamepad2.right_bumper) {

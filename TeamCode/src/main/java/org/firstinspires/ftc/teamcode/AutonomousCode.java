@@ -137,7 +137,6 @@ public class AutonomousCode extends OpMode {
         }
         // 1,500 = up, 0 = downG
         telemetry.addData("Arm Position", robot.arm.getCurrentPosition());
-        telemetry.addData("Motor Position", "LeftRear (%.2f), RightRear (%.2f), LeftFront (%.2f), RightFront (%.2f)",robot.leftRear.getCurrentPosition(), robot.rightRear.getCurrentPosition(), robot.leftFront.getCurrentPosition(), robot.rightFront.getCurrentPosition());
         telemetry.addData("Servo Position", "%.2f", robot.claw.getPosition());
         telemetry.addData("Steering Sensitivity", "%.0f%%", steeringMultiplier * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
@@ -164,15 +163,6 @@ public class AutonomousCode extends OpMode {
         }*/
     }
 
-    public void Autodrive(double x, double y, double turn, int targetPos) {
-        while (!Done && opModeIsActive) {
-            Drive(x, y, turn, targetPos);
-        }
-        robot.leftFront.setVelocity(0);
-        robot.leftRear.setVelocity(0);
-        robot.rightFront.setVelocity(0);
-        robot.rightRear.setVelocity(0);
-    }
     public void Drived(double x, double y, double z) {
 
             maxDrive = 0.75;
@@ -189,55 +179,6 @@ public class AutonomousCode extends OpMode {
         robot.rightRear.setVelocity(m4 * robot.driveVelocity);
     }
 
-    public void Drive(double x, double y, double z, int targetPos) {
-        maxDrive = 0.75;
-        minDrive = -0.75;
-        //   r *= steeringMultiplier;
-        m1 = Range.clip(y + x + z * steeringMultiplier, minDrive, maxDrive);
-        m2 = Range.clip(y - x - z * steeringMultiplier, minDrive, maxDrive);
-        m3 = Range.clip(y - x + z * steeringMultiplier, minDrive, maxDrive);
-        m4 = Range.clip(y + x - z * steeringMultiplier, minDrive, maxDrive);
-        robot.leftFront.setVelocity(m1 * robot.driveVelocity);
-        robot.rightFront.setVelocity(m2 * robot.driveVelocity);
-        robot.leftRear.setVelocity(m3 * robot.driveVelocity);
-        robot.rightRear.setVelocity(m4 * robot.driveVelocity);
-        if (x == 0 && z == 0 && y > 0) {
-            if (robot.leftFront.getCurrentPosition() >= targetPos && robot.rightRear.getCurrentPosition() >= targetPos && robot.leftRear.getCurrentPosition() >= targetPos && robot.rightFront.getCurrentPosition() >= targetPos) {
-                Done = true;
-                robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-            }
-        }
-        if (y == 0 && z == 0 && x < 0) {
-            if (robot.leftFront.getCurrentPosition() <= -targetPos && robot.rightRear.getCurrentPosition() <= -targetPos && robot.leftRear.getCurrentPosition() >= targetPos && robot.rightFront.getCurrentPosition() >= targetPos) {
-                Done = true;
-                robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-            }
-        }
-        if (x == 0 && z == 0 && y < 0) {
-            if (robot.leftFront.getCurrentPosition() <= -targetPos && robot.rightRear.getCurrentPosition() <= -targetPos && robot.leftRear.getCurrentPosition() <= -targetPos && robot.rightFront.getCurrentPosition() <= -targetPos) {
-                Done = true;
-                robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-            }
-        }
-        if (y == 0 && z == 0 && x > 0) {
-            if (robot.leftFront.getCurrentPosition() >= targetPos && robot.rightRear.getCurrentPosition() >= targetPos && robot.leftRear.getCurrentPosition() <= -targetPos && robot.rightFront.getCurrentPosition() <= -targetPos) {
-                Done = true;
-                robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-            }
-        }
-    }
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -306,12 +247,8 @@ public class AutonomousCode extends OpMode {
             } else {
                 telemetry.addData("Gyro", "Uninitialized");
             }
-            while (gyro.getOrientation().secondAngle < 90){
-                Drived(0, 0, -1);
-            }
-            Drived(1,0,0);
-            runtime.reset();
-        }
+
+    }
 
     }
 
@@ -336,10 +273,13 @@ public class AutonomousCode extends OpMode {
             robot.driveVelocity = robot.maxDriveVelocity;
             //audio.stop();
         }
-        if(runtime.seconds()>5){
+        if (!(gyro.getOrientation().secondAngle>120)){
+                Drived(0, 0, 1);
+                runtime.reset();
+        }else if(runtime.seconds()>2){
             requestOpModeStop();
         }else {
-            Drived(1,0,0);
+            Drived(0,1,0);
         }
     }
 

@@ -42,7 +42,7 @@ public class GyroHardware {
 
     public Orientation getOrientation() {
         if (gyro.isGyroCalibrated()) {
-            angles = gyro.getAngularOrientation(AxesReference.INTRINSIC.reverse(), AxesOrder.XYZ, AngleUnit.DEGREES);
+            angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
             return angles;
         }
         return null;
@@ -50,7 +50,7 @@ public class GyroHardware {
 
     public Orientation getOrientation2() {
         if (gyro.isGyroCalibrated()) {
-            angles2 = gyro.getAngularOrientation(AxesReference.EXTRINSIC.reverse(), AxesOrder.XYZ, AngleUnit.DEGREES);
+            angles2 = gyro.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
             return angles2;
         }
         return null;
