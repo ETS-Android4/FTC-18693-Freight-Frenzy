@@ -71,22 +71,24 @@ public class RobotHardware {
     public VoltageSensor voltageSensor = null;
 
     public Boolean initialized = null;
-    public double driveTPR = 288;
-    public double driveRPS = 2.1;
-    public final double maxDriveVelocity = driveTPR * driveRPS;
+    public final double driveMotorTPR = 288;
+    public final double driveRatio = 90.0/30.0;
+    public final double driveWheelTPR = driveRatio*driveMotorTPR;
+    public final double driveWheelRPS = 6;
+    public final double maxDriveVelocity = driveWheelTPR * driveWheelRPS;
     public double driveVelocity = maxDriveVelocity;
     public double lowBattery = 10.5;
     public double reallyLowBattery = 9.5;
     public double circumferenceMM = 280;
-    public final double driveTickPerMillimeter = driveTPR / circumferenceMM;
+    public final double driveTickPerMillimeter = driveWheelTPR / circumferenceMM;
     public double circumferenceIN = 11;
-    public final double driveTickPerInch = driveTPR / circumferenceIN;
+    public final double driveTickPerInch = driveWheelTPR / circumferenceIN;
 
-    public double armMotorTPR = 28;
-    public double armRatio = Math.pow(5.23, 3);
-    public double armShaftTPR = armRatio*armMotorTPR;
-    public double armShaftRTPS = 0.5;
-    public final double maxArmVelocity = armShaftTPR * armShaftRTPS;
+    public final double armMotorTPR = 28;
+    public final double armRatio = Math.pow(5.23, 3);
+    public final double armShaftTPR = armRatio*armMotorTPR;
+    public final double armShaftRPS = 0.5;
+    public final double maxArmVelocity = armShaftTPR * armShaftRPS;
     public double armVelocity = maxArmVelocity;
     public final double armMin = 250;
     public final double armMax = 1400;
