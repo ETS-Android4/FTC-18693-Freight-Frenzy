@@ -161,7 +161,7 @@ public class AutonomousCodeBlue extends OpMode {
         }*/
     }
 
-    public void Drived(double x, double y, double z) {
+    public void Drive(double x, double y, double z) {
 
         maxDrive = 0.75;
         minDrive = -0.75;
@@ -246,10 +246,10 @@ public class AutonomousCodeBlue extends OpMode {
                 telemetry.addData("Gyro", "Uninitialized");
             }
         }
-        Drived(-1, 0, 0);
+        Drive(-1, 0, 0);
         sleep(450);
         runtime.reset();
-        Drived(0, -1, 0);
+        Drive(0, -1, 0);
 
     }
 
@@ -276,9 +276,9 @@ public class AutonomousCodeBlue extends OpMode {
         }
 
         if (runtime.seconds() > 3) {
-            Drived(1, 0, 0);
+            Drive(1, 0, 0);
             sleep(200);
-            Drived(0,0,0);
+            Drive(0,0,0);
             sleep(200);
             requestOpModeStop();}
     }
