@@ -35,13 +35,11 @@ import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.android.AndroidSoundPool;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Hardware.CameraHardware;
 import org.firstinspires.ftc.teamcode.Hardware.GyroHardware;
 import org.firstinspires.ftc.teamcode.Hardware.RobotHardware;
 
@@ -60,9 +58,9 @@ import org.firstinspires.ftc.teamcode.Hardware.RobotHardware;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name = "Autonomous Program", preselectTeleOp = "Mecanum Drive")
+@Autonomous(name = "Autonomous Program Blue", preselectTeleOp = "Mecanum Drive")
 //@Disabled
-public class AutonomousCode extends OpMode {
+public class AutonomousCodeBlue extends OpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     public double Status = 5;
     //public boolean mutantGamepad = false;
@@ -102,8 +100,8 @@ public class AutonomousCode extends OpMode {
                 robot.lights[i].enable(true);
                 sleep(200);
             }*/
-            robot.setGreenLights((int) runtime.milliseconds()/500 % 2 == 0);
-            robot.setRedLights(!((int) runtime.milliseconds()/500 % 2 == 0));
+            robot.setGreenLights((int) runtime.milliseconds() / 500 % 2 == 0);
+            robot.setRedLights(!((int) runtime.milliseconds() / 500 % 2 == 0));
         }
     });
     /*
@@ -165,8 +163,8 @@ public class AutonomousCode extends OpMode {
 
     public void Drived(double x, double y, double z) {
 
-            maxDrive = 0.75;
-            minDrive = -0.75;
+        maxDrive = 0.75;
+        minDrive = -0.75;
 
         //   r *= steeringMultiplier;
         m1 = Range.clip(y + x + z * steeringMultiplier, minDrive, maxDrive);
@@ -241,14 +239,17 @@ public class AutonomousCode extends OpMode {
         }
         lights.start();
         runtime.reset();
-        while (gyro.initialized == null || !gyro.initialized){
+        while (gyro.initialized == null || !gyro.initialized) {
             if (gyro.initialized != null) {
                 telemetry.addData("Gyro", "Initializing...");
             } else {
                 telemetry.addData("Gyro", "Uninitialized");
             }
-
-    }
+        }
+        Drived(-1, 0, 0);
+        sleep(450);
+        runtime.reset();
+        Drived(0, -1, 0);
 
     }
 
@@ -273,14 +274,13 @@ public class AutonomousCode extends OpMode {
             robot.driveVelocity = robot.maxDriveVelocity;
             //audio.stop();
         }
-        if (!(gyro.getOrientation().secondAngle>120)){
-                Drived(0, 0, 1);
-                runtime.reset();
-        }else if(runtime.seconds()>2){
-            requestOpModeStop();
-        }else {
-            Drived(0,1,0);
-        }
+
+        if (runtime.seconds() > 3) {
+            Drived(1, 0, 0);
+            sleep(200);
+            Drived(0,0,0);
+            sleep(200);
+            requestOpModeStop();}
     }
 
     /*

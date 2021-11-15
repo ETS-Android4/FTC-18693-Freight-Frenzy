@@ -114,7 +114,7 @@ public class RobotHardware {
         claw = hwMap.get(Servo.class, "Servo_0");
         //claw.setDirection(Servo.Direction.REVERSE);
         claw.scaleRange(0, 0.75);
-        claw.setPosition(1);
+        claw.setPosition(0);
         arm = hwMap.get(DcMotorEx.class, "Motor_6");
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
