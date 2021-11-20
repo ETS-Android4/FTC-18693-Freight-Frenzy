@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Hardware;
 
 
 import android.graphics.Color;
-import android.widget.Spinner;
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -72,25 +71,27 @@ public class RobotHardware {
     public VoltageSensor voltageSensor = null;
 
     public Boolean initialized = null;
-    public double driveTPR = 288;
-    public double driveRPS = 2.1;
-    public final double maxDriveVelocity = driveTPR * driveRPS;
+    public final double driveMotorTPR = 288;
+    public final double driveRatio = 90.0/30.0;
+    public final double driveWheelTPR = driveRatio*driveMotorTPR;
+    public final double driveWheelRPS = 6;
+    public final double maxDriveVelocity = driveWheelTPR * driveWheelRPS;
     public double driveVelocity = maxDriveVelocity;
     public double lowBattery = 10.5;
     public double reallyLowBattery = 9.5;
     public double circumferenceMM = 280;
-    public final double driveTickPerMillimeter = driveTPR / circumferenceMM;
+    public final double driveTickPerMillimeter = driveWheelTPR / circumferenceMM;
     public double circumferenceIN = 11;
-    public final double driveTickPerInch = driveTPR / circumferenceIN;
+    public final double driveTickPerInch = driveWheelTPR / circumferenceIN;
 
-    public double armMotorTPR = 28;
-    public double armRatio = Math.pow(5.23, 3);
-    public double armShaftTPR = armRatio*armMotorTPR;
-    public double armShaftRTPS = 1;
-    public final double maxArmVelocity = armShaftTPR * armShaftRTPS;
+    public final double armMotorTPR = 28;
+    public final double armRatio = Math.pow(5.23, 3);
+    public final double armShaftTPR = armRatio*armMotorTPR;
+    public final double armShaftRPS = 0.5;
+    public final double maxArmVelocity = armShaftTPR * armShaftRPS;
     public double armVelocity = maxArmVelocity;
-    public final double armMin = 50;
-    public final double armMax = 1500;
+    public final double armMin = 250;
+    public final double armMax = 1400;
     /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
      * the following 4 detectable objects
      *  0: Ball,
@@ -113,16 +114,18 @@ public class RobotHardware {
 
         hwMap = ahwMap;
         claw = hwMap.get(Servo.class, "Servo_0");
-        claw.setDirection(Servo.Direction.REVERSE);
-        claw.scaleRange(0, 0.7);
-        //claw.setPosition(0);
+        //claw.setDirection(Servo.Direction.REVERSE);
+        claw.scaleRange(0, 0.75);
+        claw.setPosition(0);
         arm = hwMap.get(DcMotorEx.class, "Motor_6");
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         arm.setDirection(DcMotorSimple.Direction.REVERSE);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        double Arm_F = 32767 / maxDriveVelocity, Arm_P = 0.1 * Arm_F, Arm_I = 0.01 * Arm_P;
+        //arm.setVelocityPIDFCoefficients(Arm_P, Arm_I, 0, Arm_F);
         //arm.setPositionPIDFCoefficients(32767/maxArmVelocity*0.3);
-        spinner = hwMap.get(CRServo.class, "Servo_1");
+        //spinner = hwMap.get(CRServo.class, "Servo_1");
 
         // Define and Initialize Motors
         leftRear = hwMap.get(DcMotorEx.class, "Motor_4");
@@ -188,8 +191,8 @@ public class RobotHardware {
     }
 
     public void setLights(Boolean enable) {
-        for (int i = 0; i < lights.length; i++) {
-            lights[i].enable(enable);
+        for (LED light : lights) {
+            light.enable(enable);
         }
     }
 

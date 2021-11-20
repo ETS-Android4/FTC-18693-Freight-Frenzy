@@ -35,7 +35,6 @@ import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -59,9 +58,9 @@ import org.firstinspires.ftc.teamcode.Hardware.RobotHardware;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name = "Autonomous Program", preselectTeleOp = "Mecanum Drive")
+@Autonomous(name = "Autonomous Program Blue", preselectTeleOp = "Mecanum Drive")
 //@Disabled
-public class AutonomousCode extends OpMode {
+public class AutonomousCodeBlue extends OpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     public double Status = 5;
     //public boolean mutantGamepad = false;
@@ -92,19 +91,17 @@ public class AutonomousCode extends OpMode {
         gyro.init(hardwareMap);
         telemetry.speak("Gyroscope Online");
     });
-    Thread MainPrgm = new Thread(() -> {
-        Autodrive(0, 1, 0, 300);
-        Autodrive(1, 0, 0, 300);
-    });
     Thread lights = new Thread(() -> {
         robot.setLights(false);
         while (opModeIsActive) {
-            for (int i = 0; i < robot.lights.length; i++) {
+            /*for (int i = 0; i < robot.lights.length; i++) {
                 if (!opModeIsActive) break;
                 if (i < 1) robot.lights[robot.lights.length - 1].enable(false);
                 robot.lights[i].enable(true);
                 sleep(200);
-            }
+            }*/
+            robot.setGreenLights((int) runtime.milliseconds() / 500 % 2 == 0);
+            robot.setRedLights(!((int) runtime.milliseconds() / 500 % 2 == 0));
         }
     });
     /*
@@ -121,7 +118,7 @@ public class AutonomousCode extends OpMode {
                 telemetry.addData("Camera", (camera.initialized == null) ? "Uninitialized" : "Initializing...");
             if (!gyro.initialized)
                 telemetry.addData("Gyro", (gyro.initialized == null) ? "Uninitialized" : "Initializing...");
-        } else */
+        }*/
         if (Status == 2) {
             telemetry.addData("Status", "Danger! Really Low Voltage");
         } else if (Status == 1) {
@@ -132,13 +129,12 @@ public class AutonomousCode extends OpMode {
             telemetry.addData("Status", "Running");
         }
         if (gyro.initialized != null && gyro.initialized) {
-            telemetry.addData("Intrinsic Orientation", "%.0f°", gyro.getOrientation().thirdAngle);
-            telemetry.addData("Extrinsic Orientation", "%.0f°", gyro.getOrientation2().thirdAngle);
+            telemetry.addData("Intrinsic Orientation", "%.0f°", gyro.getOrientation().secondAngle);
+            telemetry.addData("Extrinsic Orientation", "%.0f°", gyro.getOrientation2().secondAngle);
             telemetry.addData("Temperature", "%.0f°", gyro.getTemp() * 1.8 + 32);
         }
         // 1,500 = up, 0 = downG
         telemetry.addData("Arm Position", robot.arm.getCurrentPosition());
-        telemetry.addData("Motor Position", "LeftRear (%.2f), RightRear (%.2f), LeftFront (%.2f), RightFront (%.2f)",robot.leftRear.getCurrentPosition(), robot.rightRear.getCurrentPosition(), robot.leftFront.getCurrentPosition(), robot.rightFront.getCurrentPosition());
         telemetry.addData("Servo Position", "%.2f", robot.claw.getPosition());
         telemetry.addData("Steering Sensitivity", "%.0f%%", steeringMultiplier * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
@@ -165,27 +161,11 @@ public class AutonomousCode extends OpMode {
         }*/
     }
 
-    public void Autodrive(double x, double y, double turn, int targetPos) {
-        while (!Done && opModeIsActive) {
-            Drive(x, y, turn, targetPos);
-        }
-        robot.leftFront.setVelocity(0);
-        robot.leftRear.setVelocity(0);
-        robot.rightFront.setVelocity(0);
-        robot.rightRear.setVelocity(0);
-    }
+    public void Drive(double x, double y, double z) {
 
-    public void Drive(double x, double y, double z, int targetPos) {
-        if (gamepad1.left_bumper) {
-            maxDrive = 0.5;
-            minDrive = -0.5;
-        } else if (gamepad1.right_bumper) {
-            maxDrive = 1;
-            minDrive = -1;
-        } else {
-            maxDrive = 0.75;
-            minDrive = -0.75;
-        }
+        maxDrive = 0.75;
+        minDrive = -0.75;
+
         //   r *= steeringMultiplier;
         m1 = Range.clip(y + x + z * steeringMultiplier, minDrive, maxDrive);
         m2 = Range.clip(y - x - z * steeringMultiplier, minDrive, maxDrive);
@@ -195,50 +175,15 @@ public class AutonomousCode extends OpMode {
         robot.rightFront.setVelocity(m2 * robot.driveVelocity);
         robot.leftRear.setVelocity(m3 * robot.driveVelocity);
         robot.rightRear.setVelocity(m4 * robot.driveVelocity);
-        if (x == 0 && z == 0 && y > 0) {
-            if (robot.leftFront.getCurrentPosition() >= targetPos && robot.rightRear.getCurrentPosition() >= targetPos && robot.leftRear.getCurrentPosition() >= targetPos && robot.rightFront.getCurrentPosition() >= targetPos) {
-                Done = true;
-                robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-            }
-        }
-        if (y == 0 && z == 0 && x < 0) {
-            if (robot.leftFront.getCurrentPosition() <= -targetPos && robot.rightRear.getCurrentPosition() <= -targetPos && robot.leftRear.getCurrentPosition() >= targetPos && robot.rightFront.getCurrentPosition() >= targetPos) {
-                Done = true;
-                robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-            }
-        }
-        if (x == 0 && z == 0 && y < 0) {
-            if (robot.leftFront.getCurrentPosition() <= -targetPos && robot.rightRear.getCurrentPosition() <= -targetPos && robot.leftRear.getCurrentPosition() <= -targetPos && robot.rightFront.getCurrentPosition() <= -targetPos) {
-                Done = true;
-                robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-            }
-        }
-        if (y == 0 && z == 0 && x > 0) {
-            if (robot.leftFront.getCurrentPosition() >= targetPos && robot.rightRear.getCurrentPosition() >= targetPos && robot.leftRear.getCurrentPosition() <= -targetPos && robot.rightFront.getCurrentPosition() <= -targetPos) {
-                Done = true;
-                robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-            }
-        }
     }
+
 
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-        audio = new AndroidSoundPool();
+        //audio = new AndroidSoundPool();
         initialization.start();
 
 
@@ -293,8 +238,19 @@ public class AutonomousCode extends OpMode {
             }*/
         }
         lights.start();
-        MainPrgm.start();
         runtime.reset();
+        while (gyro.initialized == null || !gyro.initialized) {
+            if (gyro.initialized != null) {
+                telemetry.addData("Gyro", "Initializing...");
+            } else {
+                telemetry.addData("Gyro", "Uninitialized");
+            }
+        }
+        Drive(-1, 0, 0);
+        sleep(450);
+        runtime.reset();
+        Drive(0, -1, 0);
+
     }
 
     /*
@@ -304,20 +260,27 @@ public class AutonomousCode extends OpMode {
     public void loop() {
         Telemetries();
         if (robot.voltageSensor.getVoltage() < robot.reallyLowBattery && Status != 2) {
-            if (Status != 1) audio.play("RawRes:ss_siren");
+            //if (Status != 1) audio.play("RawRes:ss_siren");
             Status = 2;
             //robot.shootVelocity = robot.maxShootVelocity * 0.75;
             robot.driveVelocity = robot.maxDriveVelocity * 0.5;
         } else if (robot.voltageSensor.getVoltage() < robot.lowBattery && Status != 1) {
-            if (Status != 2) audio.play("RawRes:ss_siren");
+            //if (Status != 2) audio.play("RawRes:ss_siren");
             Status = 1;
             robot.driveVelocity = robot.maxDriveVelocity * 0.75;
         } else {
             Status = 0;
             //robot.shootVelocity = robot.maxShootVelocity;
             robot.driveVelocity = robot.maxDriveVelocity;
-            audio.stop();
+            //audio.stop();
         }
+
+        if (runtime.seconds() > 3) {
+            Drive(1, 0, 0);
+            sleep(200);
+            Drive(0,0,0);
+            sleep(200);
+            requestOpModeStop();}
     }
 
     /*
@@ -329,7 +292,7 @@ public class AutonomousCode extends OpMode {
         opModeIsActive = false;
         robot.setLights(false);
         telemetry.addData("Status", "Stopping...");
-        audio.close();
+        //audio.close();
         robot.leftRear.setPower(0);
         robot.rightRear.setPower(0);
         robot.leftFront.setPower(0);
