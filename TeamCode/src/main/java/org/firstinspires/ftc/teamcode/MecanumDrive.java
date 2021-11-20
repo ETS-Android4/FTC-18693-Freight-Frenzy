@@ -358,6 +358,12 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void loop() {
+        if(gamepad1.a){
+            robot.lights[(int)(Math.random()*robot.lights.length-1)].enable(Math.random()<=0.5);
+        } else {
+            robot.setGreenLights((int) runtime.seconds() % 2 == 0);
+            robot.setRedLights(!((int) runtime.seconds() % 2 == 0));
+        }
         Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
         /*for (int i = 0; i < robot.lights.length; i++) {
             robot.lights[i].enable(true);
