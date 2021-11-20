@@ -93,8 +93,8 @@ public class AutonomousCodeTest extends OpMode {
         telemetry.speak("Gyroscope Online");
     });
     Thread MainPrgm = new Thread(() -> {
-        Autodrive(0, 1, 0, 300);
-        Autodrive(1, 0, 0, 300);
+        Drive(0, 1, 0, 300);
+        Drive(1, 0, 0, 300);
     });
     Thread lights = new Thread(() -> {
         robot.setLights(false);
@@ -138,7 +138,7 @@ public class AutonomousCodeTest extends OpMode {
         }
         // 1,500 = up, 0 = downG
         telemetry.addData("Arm Position", robot.arm.getCurrentPosition());
-        telemetry.addData("Motor Position", "LeftRear (%.2f), RightRear (%.2f), LeftFront (%.2f), RightFront (%.2f)",robot.leftRear.getCurrentPosition(), robot.rightRear.getCurrentPosition(), robot.leftFront.getCurrentPosition(), robot.rightFront.getCurrentPosition());
+        //telemetry.addData("Motor Position", "LeftRear (%.2f), RightRear (%.2f), LeftFront (%.2f), RightFront (%.2f)",robot.leftRear.getCurrentPosition(), robot.rightRear.getCurrentPosition(), robot.leftFront.getCurrentPosition(), robot.rightFront.getCurrentPosition());
         telemetry.addData("Servo Position", "%.2f", robot.claw.getPosition());
         telemetry.addData("Steering Sensitivity", "%.0f%%", steeringMultiplier * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
@@ -165,70 +165,67 @@ public class AutonomousCodeTest extends OpMode {
         }*/
     }
 
-    public void Autodrive(double x, double y, double turn, int targetPos) {
-        while (!Done && opModeIsActive) {
-            Drive(x, y, turn, targetPos);
-        }
-        robot.leftFront.setVelocity(0);
-        robot.leftRear.setVelocity(0);
-        robot.rightFront.setVelocity(0);
-        robot.rightRear.setVelocity(0);
-    }
-
     public void Drive(double x, double y, double z, int targetPos) {
-        if (gamepad1.left_bumper) {
-            maxDrive = 0.5;
-            minDrive = -0.5;
-        } else if (gamepad1.right_bumper) {
-            maxDrive = 1;
-            minDrive = -1;
-        } else {
-            maxDrive = 0.75;
-            minDrive = -0.75;
-        }
-        //   r *= steeringMultiplier;
-        m1 = Range.clip(y + x + z * steeringMultiplier, minDrive, maxDrive);
-        m2 = Range.clip(y - x - z * steeringMultiplier, minDrive, maxDrive);
-        m3 = Range.clip(y - x + z * steeringMultiplier, minDrive, maxDrive);
-        m4 = Range.clip(y + x - z * steeringMultiplier, minDrive, maxDrive);
-        robot.leftFront.setVelocity(m1 * robot.driveVelocity);
-        robot.rightFront.setVelocity(m2 * robot.driveVelocity);
-        robot.leftRear.setVelocity(m3 * robot.driveVelocity);
-        robot.rightRear.setVelocity(m4 * robot.driveVelocity);
-        if (x == 0 && z == 0 && y > 0) {
-            if (robot.leftFront.getCurrentPosition() >= targetPos && robot.rightRear.getCurrentPosition() >= targetPos && robot.leftRear.getCurrentPosition() >= targetPos && robot.rightFront.getCurrentPosition() >= targetPos) {
-                Done = true;
-                robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        while (!Done) {
+            if (gamepad1.left_bumper) {
+                maxDrive = 0.5;
+                minDrive = -0.5;
+            } else if (gamepad1.right_bumper) {
+                maxDrive = 1;
+                minDrive = -1;
+            } else {
+                maxDrive = 0.75;
+                minDrive = -0.75;
             }
-        }
-        if (y == 0 && z == 0 && x < 0) {
-            if (robot.leftFront.getCurrentPosition() <= -targetPos && robot.rightRear.getCurrentPosition() <= -targetPos && robot.leftRear.getCurrentPosition() >= targetPos && robot.rightFront.getCurrentPosition() >= targetPos) {
-                Done = true;
-                robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            //   r *= steeringMultiplier;
+            m1 = Range.clip(y + x + z * steeringMultiplier, minDrive, maxDrive);
+            m2 = Range.clip(y - x - z * steeringMultiplier, minDrive, maxDrive);
+            m3 = Range.clip(y - x + z * steeringMultiplier, minDrive, maxDrive);
+            m4 = Range.clip(y + x - z * steeringMultiplier, minDrive, maxDrive);
+            robot.leftFront.setVelocity(m1 * robot.driveVelocity);
+            robot.rightFront.setVelocity(m2 * robot.driveVelocity);
+            robot.leftRear.setVelocity(m3 * robot.driveVelocity);
+            robot.rightRear.setVelocity(m4 * robot.driveVelocity);
+            if (x == 0 && z == 0 && y > 0) {
+                if (robot.leftFront.getCurrentPosition() >= targetPos && robot.rightRear.getCurrentPosition() >= targetPos && robot.leftRear.getCurrentPosition() >= targetPos && robot.rightFront.getCurrentPosition() >= targetPos) {
+                    Done = true;
+                    robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                    robot.rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                    robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                    robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                }
             }
-        }
-        if (x == 0 && z == 0 && y < 0) {
-            if (robot.leftFront.getCurrentPosition() <= -targetPos && robot.rightRear.getCurrentPosition() <= -targetPos && robot.leftRear.getCurrentPosition() <= -targetPos && robot.rightFront.getCurrentPosition() <= -targetPos) {
-                Done = true;
-                robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            if (y == 0 && z == 0 && x < 0) {
+                if (robot.leftFront.getCurrentPosition() <= -targetPos && robot.rightRear.getCurrentPosition() <= -targetPos && robot.leftRear.getCurrentPosition() >= targetPos && robot.rightFront.getCurrentPosition() >= targetPos) {
+                    Done = true;
+                    robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                    robot.rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                    robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                    robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                    robot.leftFront.setVelocity(0);
+                    robot.leftRear.setVelocity(0);
+                    robot.rightFront.setVelocity(0);
+                    robot.rightRear.setVelocity(0);
+
+                }
             }
-        }
-        if (y == 0 && z == 0 && x > 0) {
-            if (robot.leftFront.getCurrentPosition() >= targetPos && robot.rightRear.getCurrentPosition() >= targetPos && robot.leftRear.getCurrentPosition() <= -targetPos && robot.rightFront.getCurrentPosition() <= -targetPos) {
-                Done = true;
-                robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            if (x == 0 && z == 0 && y < 0) {
+                if (robot.leftFront.getCurrentPosition() <= -targetPos && robot.rightRear.getCurrentPosition() <= -targetPos && robot.leftRear.getCurrentPosition() <= -targetPos && robot.rightFront.getCurrentPosition() <= -targetPos) {
+                    Done = true;
+                    robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                    robot.rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                    robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                    robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                }
+            }
+            if (y == 0 && z == 0 && x > 0) {
+                if (robot.leftFront.getCurrentPosition() >= targetPos && robot.rightRear.getCurrentPosition() >= targetPos && robot.leftRear.getCurrentPosition() <= -targetPos && robot.rightFront.getCurrentPosition() <= -targetPos) {
+                    Done = true;
+                    robot.leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                    robot.rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                    robot.leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                    robot.rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                }
             }
         }
     }
