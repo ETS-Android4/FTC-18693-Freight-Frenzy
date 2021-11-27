@@ -393,7 +393,7 @@ public class MecanumDrive extends OpMode {
         if (gamepad2.left_bumper) {
             UnlockMotor(robot.arm, true);
         } else if (robot.arm.getCurrentPosition() < robot.armMin) {
-            if (-gamepad2.left_stick_y > 0) robot.arm.setVelocity(-gamepad2.left_stick_y*robot.armVelocity);
+            if (-gamepad2.left_stick_y >= 0) robot.arm.setVelocity(-gamepad2.left_stick_y*robot.armVelocity);
             else if (-gamepad2.left_stick_y < 0){
                 UnlockMotor(robot.arm, true);
             } else {
@@ -408,12 +408,16 @@ public class MecanumDrive extends OpMode {
         } else {
             LockMotor(robot.arm);
         }
-        if(gamepad2.right_bumper && gamepad2AReleased && runtime.seconds()-gamepad2ATime>0.2){
-            gamepad2AReleased = false;
-            robot.claw.setPosition(robot.claw.getPosition() == 0 ? 1 : 0);
-        } else if (!gamepad2AReleased && !gamepad2.a){
-            gamepad2ATime = runtime.seconds();
-            gamepad2AReleased = true;
+        if(gamepad2.right_trigger > 0){
+            robot.claw.setPosition(gamepad2.right_trigger);
+        } else {
+            if (gamepad2.right_bumper && gamepad2AReleased && runtime.seconds() - gamepad2ATime > 0.2) {
+                gamepad2AReleased = false;
+                robot.claw.setPosition(robot.claw.getPosition() == 0 ? 1 : 0);
+            } else if (!gamepad2AReleased && !gamepad2.a) {
+                gamepad2ATime = runtime.seconds();
+                gamepad2AReleased = true;
+            }
         }
     }
 

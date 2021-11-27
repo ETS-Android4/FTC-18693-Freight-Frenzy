@@ -84,11 +84,9 @@ public class RobotHardware {
     public double circumferenceIN = 11;
     public final double driveTickPerInch = driveWheelTPR / circumferenceIN;
 
-    public final double armMotorTPR = 28;
-    public final double armRatio = Math.pow(5.23, 3);
-    public final double armShaftTPR = armRatio*armMotorTPR;
-    public final double armShaftRPS = 0.5;
-    public final double maxArmVelocity = armShaftTPR * armShaftRPS;
+    public final double armTPR = 288;
+    public final double armRPS = 0.5;
+    public final double maxArmVelocity = armTPR * armRPS;
     public double armVelocity = maxArmVelocity;
     public final double armMin = 250;
     public final double armMax = 1400;
