@@ -188,7 +188,7 @@ public class MecanumDrive extends OpMode {
         }
         //motor.setPower((lastPosition - motor.getCurrentPosition()) / 100);
         //motor.setPower(lastPosition - motor.getCurrentPosition()/100.0);
-        motor.setPower(Range.clip(((lastPosition - robot.arm.getCurrentPosition())/100.0), -0.1, 0.1));
+        motor.setPower(Range.clip(((lastPosition - robot.arm.getCurrentPosition())/100.0), -0.5, 0.5));
     }
 
     public void UnlockMotor(DcMotor motor, boolean powerOff) {
@@ -252,14 +252,14 @@ public class MecanumDrive extends OpMode {
 
     public void Drive(double x, double y, double z) {
         if (gamepad1.left_bumper) {
-            maxDrive = 0.5;
-            minDrive = -0.5;
+            maxDrive = 0.25;
+            minDrive = -0.25;
         } else if (gamepad1.right_bumper) {
             maxDrive = 1;
             minDrive = -1;
         } else {
-            maxDrive = 0.75;
-            minDrive = -0.75;
+            maxDrive = 0.5;
+            minDrive = -0.5;
         }
         //   r *= steeringMultiplier;
         m1 = Range.clip(y + x + z * steeringMultiplier, minDrive, maxDrive);
@@ -392,13 +392,6 @@ public class MecanumDrive extends OpMode {
         }
         if (gamepad2.left_bumper) {
             UnlockMotor(robot.arm, true);
-        } else if (robot.arm.getCurrentPosition() < robot.armMin) {
-            if (-gamepad2.left_stick_y >= 0) robot.arm.setVelocity(-gamepad2.left_stick_y*robot.armVelocity);
-            else if (-gamepad2.left_stick_y < 0){
-                UnlockMotor(robot.arm, true);
-            } else {
-                LockMotor(robot.arm);
-            }
         } else if (robot.arm.getCurrentPosition() > robot.armMax) {
             if (-gamepad2.left_stick_y < 0) robot.arm.setVelocity(-gamepad2.left_stick_y*robot.armVelocity);
             else LockMotor(robot.arm);
@@ -410,15 +403,14 @@ public class MecanumDrive extends OpMode {
         }
         if(gamepad2.right_trigger > 0){
             robot.claw.setPosition(gamepad2.right_trigger);
-        } else {
-            if (gamepad2.right_bumper && gamepad2AReleased && runtime.seconds() - gamepad2ATime > 0.2) {
-                gamepad2AReleased = false;
-                robot.claw.setPosition(robot.claw.getPosition() == 0 ? 1 : 0);
-            } else if (!gamepad2AReleased && !gamepad2.a) {
-                gamepad2ATime = runtime.seconds();
-                gamepad2AReleased = true;
-            }
+        } else if (gamepad2.right_bumper && gamepad2AReleased && runtime.seconds() - gamepad2ATime > 0.2) {
+            gamepad2AReleased = false;
+            robot.claw.setPosition(robot.claw.getPosition() == 1 ? 0 : 1);
+        } else if (!gamepad2AReleased && !gamepad2.a) {
+            gamepad2ATime = runtime.seconds();
+            gamepad2AReleased = true;
         }
+        robot.spinner.setVelocity(-gamepad2.right_stick_y*robot.spinnerVelocity);
     }
 
     /*
