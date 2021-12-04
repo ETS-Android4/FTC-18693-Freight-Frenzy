@@ -41,7 +41,7 @@ public class RobotHardware {
     public DcMotorEx rightFront = null;
     public DcMotorEx arm = null;
     public Servo claw = null;
-    public CRServo spinner = null;
+    public DcMotorEx spinner = null;
     /*
         public LED leftLeftFrontRed = null;
         public LED leftLeftFrontGreen = null;
@@ -77,6 +77,7 @@ public class RobotHardware {
     public final double driveWheelRPS = 6;
     public final double maxDriveVelocity = driveWheelTPR * driveWheelRPS;
     public double driveVelocity = maxDriveVelocity;
+
     public double lowBattery = 10.5;
     public double reallyLowBattery = 9.5;
     public double circumferenceMM = 280;
@@ -85,11 +86,16 @@ public class RobotHardware {
     public final double driveTickPerInch = driveWheelTPR / circumferenceIN;
 
     public final double armTPR = 288;
-    public final double armRPS = 0.5;
+    public final double armRPS = 2;
     public final double maxArmVelocity = armTPR * armRPS;
     public double armVelocity = maxArmVelocity;
-    public final double armMin = 250;
-    public final double armMax = 1400;
+
+    public final double spinnerTPR = 288;
+    public final double spinnerRPS = 1;
+    public final double maxSpinnerVelocity = spinnerTPR * spinnerRPS;
+    public final double spinnerVelocity = maxSpinnerVelocity;
+
+    public final double armMax = 75;
     /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
      * the following 4 detectable objects
      *  0: Ball,
@@ -112,27 +118,27 @@ public class RobotHardware {
 
         hwMap = ahwMap;
         claw = hwMap.get(Servo.class, "Servo_0");
-        //claw.setDirection(Servo.Direction.REVERSE);
         claw.scaleRange(0, 0.75);
-        claw.setPosition(0);
-        arm = hwMap.get(DcMotorEx.class, "Motor_6");
+        claw.setDirection(Servo.Direction.REVERSE);
+        claw.setPosition(1);
+        arm = hwMap.get(DcMotorEx.class, "Motor_4");
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        arm.setDirection(DcMotorSimple.Direction.REVERSE);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         double Arm_F = 32767 / maxDriveVelocity, Arm_P = 0.1 * Arm_F, Arm_I = 0.01 * Arm_P;
         //arm.setVelocityPIDFCoefficients(Arm_P, Arm_I, 0, Arm_F);
         //arm.setPositionPIDFCoefficients(32767/maxArmVelocity*0.3);
-        //spinner = hwMap.get(CRServo.class, "Servo_1");
+        spinner = hwMap.get(DcMotorEx.class, "Motor_5");
+        //spinner.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Define and Initialize Motors
-        leftRear = hwMap.get(DcMotorEx.class, "Motor_4");
+        leftRear = hwMap.get(DcMotorEx.class, "Motor_0");
         leftRear.setDirection(DcMotorSimple.Direction.FORWARD);
         leftRear.setPower(0);
         leftRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         leftRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightRear = hwMap.get(DcMotorEx.class, "Motor_0");
+        rightRear = hwMap.get(DcMotorEx.class, "Motor_3");
         rightRear.setDirection(DcMotorSimple.Direction.FORWARD);
         rightRear.setPower(0);
         rightRear.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -143,13 +149,13 @@ public class RobotHardware {
         rightRear.setVelocityPIDFCoefficients(Back_Motors_P, Back_Motors_I, 0, Back_Motors_F);
 
         if (wheelType == 2) {
-            leftFront = hwMap.get(DcMotorEx.class, "Motor_5");
+            leftFront = hwMap.get(DcMotorEx.class, "Motor_1");
             leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
             leftFront.setPower(0);
             leftFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             leftFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
             leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            rightFront = hwMap.get(DcMotorEx.class, "Motor_1");
+            rightFront = hwMap.get(DcMotorEx.class, "Motor_2");
             rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
             rightFront.setPower(0);
             rightFront.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
