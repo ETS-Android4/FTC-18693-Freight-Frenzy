@@ -93,8 +93,8 @@ public class AutonomousCodeTest extends OpMode {
         telemetry.speak("Gyroscope Online");
     });
     Thread MainPrgm = new Thread(() -> {
-        Drive(0, 1, 0, 300);
-        Drive(1, 0, 0, 300);
+        Drive(0, 1, 0, 100);
+        Drive(1, 0, 0, 100);
     });
     Thread lights = new Thread(() -> {
         robot.setLights(false);
