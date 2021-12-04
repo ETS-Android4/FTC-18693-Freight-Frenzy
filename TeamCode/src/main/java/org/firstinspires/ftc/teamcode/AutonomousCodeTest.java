@@ -93,7 +93,7 @@ public class AutonomousCodeTest extends OpMode {
         telemetry.speak("Gyroscope Online");
     });
     Thread MainPrgm = new Thread(() -> {
-        Drive(0, 1, 0, 100);
+        Drive(0, 0.5, 0, 300);
         Drive(1, 0, 0, 100);
     });
     Thread lights = new Thread(() -> {
@@ -166,6 +166,7 @@ public class AutonomousCodeTest extends OpMode {
     }
 
     public void Drive(double x, double y, double z, int targetPos) {
+        telemetry.addData("xyz", "X, Y, Z, Pos", x, y, z, targetPos);
         while (!Done) {
             if (gamepad1.left_bumper) {
                 maxDrive = 0.5;
