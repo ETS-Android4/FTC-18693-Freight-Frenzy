@@ -36,6 +36,8 @@ import android.annotation.SuppressLint;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -80,6 +82,7 @@ public class MecanumDrive extends OpMode {
     public double minDrive;
     public boolean positionSaved = false;
     public double lastPosition = 0;
+    private boolean LEDOveride = false;
     // Declare OpMode members.
     boolean opModeIsActive = false;
     RobotHardware robot = new RobotHardware();
@@ -99,31 +102,31 @@ public class MecanumDrive extends OpMode {
         gyro.init(hardwareMap);
         telemetry.speak("Gyroscope Online");
     });
-  /*  Thread user1 = new Thread(() -> {
-        while (opModeIsActive) {
-            //if (gamepad1.b) gyro.gyro.initialize(gyro.parameters);
-            /*if (gamepad1.a && driveModeAdjusted < runtime.milliseconds()) {
-                //worldDrive = true;
-                driveModeAdjusted = runtime.milliseconds() + 500;
-            } else if (worldDrive) {
-                WorldDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, gyro.gyro.getAngularOrientation());
-            } else {
-                Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
-            }
+    /*  Thread user1 = new Thread(() -> {
+          while (opModeIsActive) {
+              //if (gamepad1.b) gyro.gyro.initialize(gyro.parameters);
+              /*if (gamepad1.a && driveModeAdjusted < runtime.milliseconds()) {
+                  //worldDrive = true;
+                  driveModeAdjusted = runtime.milliseconds() + 500;
+              } else if (worldDrive) {
+                  WorldDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, gyro.gyro.getAngularOrientation());
+              } else {
+                  Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+              }
 
-            //Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
-            if (gamepad1.back && steeringAdjusted < runtime.milliseconds()) {
-                steeringMultiplier -= 0.1;
-                steeringMultiplier = Range.clip(steeringMultiplier, 0, 2);
-                steeringAdjusted = runtime.milliseconds() + 100;
-            } else if (gamepad1.start && steeringAdjusted < runtime.milliseconds()) {
-                steeringMultiplier += 0.1;
-                steeringMultiplier = Range.clip(steeringMultiplier, 0, 2);
-                steeringAdjusted = runtime.milliseconds() + 100;
-            }
-        }
-    });
-*/
+              //Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+              if (gamepad1.back && steeringAdjusted < runtime.milliseconds()) {
+                  steeringMultiplier -= 0.1;
+                  steeringMultiplier = Range.clip(steeringMultiplier, 0, 2);
+                  steeringAdjusted = runtime.milliseconds() + 100;
+              } else if (gamepad1.start && steeringAdjusted < runtime.milliseconds()) {
+                  steeringMultiplier += 0.1;
+                  steeringMultiplier = Range.clip(steeringMultiplier, 0, 2);
+                  steeringAdjusted = runtime.milliseconds() + 100;
+              }
+          }
+      });
+  */
     double gamepad2ATime = 0;
     boolean gamepad2AReleased = true;
     /*Thread user2 = new Thread(() -> {
@@ -157,30 +160,11 @@ public class MecanumDrive extends OpMode {
         }
     });
      */
-    Thread lights = new Thread(() -> {
-        robot.setLights(false);
-        while (opModeIsActive) {
-            /*for (int i = 0; i < robot.lights.length; i++) {
-                if (!opModeIsActive) break;
-                if (i < 1) robot.lights[robot.lights.length - 1].enable(false);
-                robot.lights[i].enable(true);
-                sleep(50);
-            }
-             */
-            if(gamepad1.a){
-                robot.lights[(int)(Math.random()*robot.lights.length-1)].enable(Math.random()<=0.5);
-            } else {
-                robot.setGreenLights((int) runtime.seconds() % 2 == 0);
-                robot.setRedLights(!((int) runtime.seconds() % 2 == 0));
-            }
-            sleep(500);
-        }
-    });
 
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
      */
-    public void LockMotor(DcMotor motor) {
+    public void LockMotor(DcMotorEx motor) {
         robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         if (!positionSaved) {
             lastPosition = robot.arm.getCurrentPosition();
@@ -188,7 +172,7 @@ public class MecanumDrive extends OpMode {
         }
         //motor.setPower((lastPosition - motor.getCurrentPosition()) / 100);
         //motor.setPower(lastPosition - motor.getCurrentPosition()/100.0);
-        motor.setPower(Range.clip(((lastPosition - robot.arm.getCurrentPosition())/100.0), -0.5, 0.5));
+        motor.setVelocity(robot.armVelocity*Range.clip(((lastPosition - robot.arm.getCurrentPosition()) / 100.0), -1, 1));
     }
 
     public void UnlockMotor(DcMotor motor, boolean powerOff) {
@@ -254,12 +238,26 @@ public class MecanumDrive extends OpMode {
         if (gamepad1.left_bumper) {
             maxDrive = 0.25;
             minDrive = -0.25;
+            if (gamepad1.isRumbling())
+                gamepad1.stopRumble();
+            LEDOveride = true;
+            robot.setGreenLights(true);
+            robot.setRedLights(false);
         } else if (gamepad1.right_bumper) {
             maxDrive = 1;
             minDrive = -1;
+            if (!gamepad1.isRumbling())
+                gamepad1.rumble(Gamepad.RUMBLE_DURATION_CONTINUOUS);
+            LEDOveride = true;
+            robot.setRedLights(true);
+            robot.setGreenLights(false);
         } else {
             maxDrive = 0.5;
             minDrive = -0.5;
+            if (gamepad1.isRumbling())
+                gamepad1.stopRumble();
+            LEDOveride = false;
+
         }
         //   r *= steeringMultiplier;
         m1 = Range.clip(y + x + z * steeringMultiplier, minDrive, maxDrive);
@@ -294,7 +292,7 @@ public class MecanumDrive extends OpMode {
         initialization.start();
         //user1.setPriority(10);
         //user2.setPriority(8);
-        lights.setPriority(5);
+        //lights.setPriority(5);
 
 
     }
@@ -350,7 +348,6 @@ public class MecanumDrive extends OpMode {
         }
         //user1.start();
         //user2.start();
-        lights.start();
     }
 
     /*
@@ -358,12 +355,11 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void loop() {
-        if(gamepad1.a){
-            robot.lights[(int)(Math.random()*robot.lights.length-1)].enable(Math.random()<=0.5);
-        } else {
-            robot.setGreenLights((int) runtime.seconds() % 2 == 0);
-            robot.setRedLights(!((int) runtime.seconds() % 2 == 0));
-        }
+            if(!LEDOveride) {
+                robot.setGreenLights((int) (runtime.milliseconds()/500) % 2 == 0);
+                robot.setRedLights(!((int) (runtime.milliseconds()/500) % 2 == 0));
+            }
+
         Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
         /*for (int i = 0; i < robot.lights.length; i++) {
             robot.lights[i].enable(true);
@@ -393,15 +389,16 @@ public class MecanumDrive extends OpMode {
         if (gamepad2.left_bumper) {
             UnlockMotor(robot.arm, true);
         } else if (robot.arm.getCurrentPosition() > robot.armMax) {
-            if (-gamepad2.left_stick_y < 0) robot.arm.setVelocity(-gamepad2.left_stick_y*robot.armVelocity);
+            if (-gamepad2.left_stick_y < 0)
+                robot.arm.setVelocity(-gamepad2.left_stick_y * robot.armVelocity);
             else LockMotor(robot.arm);
         } else if (gamepad2.left_stick_y != 0) {
-            robot.arm.setVelocity(-gamepad2.left_stick_y*robot.armVelocity);
+            robot.arm.setVelocity(-gamepad2.left_stick_y * robot.armVelocity);
             positionSaved = false;
         } else {
             LockMotor(robot.arm);
         }
-        if(gamepad2.right_trigger > 0){
+        if (gamepad2.right_trigger > 0) {
             robot.claw.setPosition(gamepad2.right_trigger);
         } else if (gamepad2.right_bumper && gamepad2AReleased && runtime.seconds() - gamepad2ATime > 0.2) {
             gamepad2AReleased = false;
@@ -410,7 +407,7 @@ public class MecanumDrive extends OpMode {
             gamepad2ATime = runtime.seconds();
             gamepad2AReleased = true;
         }
-        robot.spinner.setVelocity(-gamepad2.right_stick_y*robot.spinnerVelocity);
+        robot.spinner.setVelocity(-gamepad2.right_stick_y * robot.spinnerVelocity);
     }
 
     /*
