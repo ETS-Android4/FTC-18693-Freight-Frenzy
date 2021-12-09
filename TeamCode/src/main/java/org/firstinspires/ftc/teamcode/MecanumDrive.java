@@ -285,10 +285,10 @@ public class MecanumDrive extends OpMode {
         m2 += g*m2;
         m3 += g*m3;
         m4 += g*m4;
-        m1 = m1 > 1 ? -1 + m1 : m1 < -1 ? 1 - m1 : m1;
-        m2 = m2 > 1 ? -1 + m2 : m2 < -1 ? 1 - m2 : m2;
-        m3 = m3 > 1 ? -1 + m3 : m3 < -1 ? 1 - m3 : m3;
-        m4 = m4 > 1 ? -1 + m4 : m4 < -1 ? 1 - m4 : m4;
+        m1 = m1 > 1 ? -1 + m1 : m1 < -1 ? 1 + m1 : m1;
+        m2 = m2 > 1 ? -1 + m2 : m2 < -1 ? 1 + m2 : m2;
+        m3 = m3 > 1 ? -1 + m3 : m3 < -1 ? 1 + m3 : m3;
+        m4 = m4 > 1 ? -1 + m4 : m4 < -1 ? 1 + m4 : m4;
         m1 = Range.clip(m1 + z * steeringMultiplier, -1, 1);
         m2 = Range.clip(m2- z * steeringMultiplier, -1, 1);
         m3 = Range.clip(m3 + z * steeringMultiplier, -1, 1);
