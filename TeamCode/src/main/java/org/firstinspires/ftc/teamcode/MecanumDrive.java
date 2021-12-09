@@ -452,6 +452,7 @@ public class MecanumDrive extends OpMode {
         UnlockMotor(robot.arm, true);
         if (camera.initialized != null && camera.initialized) camera.tfod.shutdown();
         telemetry.addData("Status", "Stopped");
+        robot.setLights(false);
         //robot.greenLight.enableLight(false);
 
     }
