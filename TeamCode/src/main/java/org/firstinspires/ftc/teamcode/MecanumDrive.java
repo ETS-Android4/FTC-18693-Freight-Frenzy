@@ -211,11 +211,13 @@ public class MecanumDrive extends OpMode {
         }
         // 1,500 = up, 0 = downG
         telemetry.addData("Arm Position", robot.arm.getCurrentPosition());
+        if (positionSaved) telemetry.addData("Arm Accuracy", lastPosition-robot.arm.getCurrentPosition());
+        telemetry.addData("Arm Power", robot.arm.getCurrentPower());
         telemetry.addData("Servo Position", "%.2f", robot.claw.getPosition());
-        telemetry.addData("Steering Sensitivity", "%.0f%%", steeringMultiplier * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
-        telemetry.addData("Distance", "left %.2f, right %.2f", robot.distanceLeft.getDistance(DistanceUnit.METER), robot.distanceRight.getDistance(DistanceUnit.METER));
+        telemetry.addData("Steering Sensitivity", "%.0f%%", steeringMultiplier * 100);
+        //telemetry.addData("Distance", "left %.2f, right %.2f", robot.distanceLeft.getDistance(DistanceUnit.METER), robot.distanceRight.getDistance(DistanceUnit.METER));
         //telemetry.addData("Color Detected", robot.detectColor());
         if (camera.initialized != null && camera.initialized) {
             // getUpdatedRecognitions() will return null if no new information is available since
