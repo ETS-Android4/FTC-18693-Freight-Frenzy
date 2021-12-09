@@ -277,23 +277,26 @@ public class MecanumDrive extends OpMode {
 
     public void WorldDrive(double x, double y, double z) {
         g = gyro.getOrientation().secondAngle / 90;
-        m1 = Range.clip(y + x + z * steeringMultiplier, -1, 1);
-        m2 = Range.clip(y - x - z * steeringMultiplier, -1, 1);
-        m3 = Range.clip(y - x + z * steeringMultiplier, -1, 1);
-        m4 = Range.clip(y + x - z * steeringMultiplier, -1, 1);
+        m1 = y + x;
+        m2 = y-x;
+        m3=y-x;
+        m4=y+x;
         m1 += g*m1;
-        m2 -= g*m2;
-        m3 -= g*m3;
+        m2 += g*m2;
+        m3 += g*m3;
         m4 += g*m4;
         m1 = m1 > 1 ? -1 + m1 : m1 < -1 ? 1 - m1 : m1;
         m2 = m2 > 1 ? -1 + m2 : m2 < -1 ? 1 - m2 : m2;
         m3 = m3 > 1 ? -1 + m3 : m3 < -1 ? 1 - m3 : m3;
         m4 = m4 > 1 ? -1 + m4 : m4 < -1 ? 1 - m4 : m4;
+        m1 = Range.clip(m1 + z * steeringMultiplier, -1, 1);
+        m2 = Range.clip(m2- z * steeringMultiplier, -1, 1);
+        m3 = Range.clip(m3 + z * steeringMultiplier, -1, 1);
+        m4 = Range.clip(m4 - z * steeringMultiplier, -1, 1);
         robot.leftFront.setVelocity(m1 * robot.driveVelocity);
         robot.rightFront.setVelocity(m2 * robot.driveVelocity);
         robot.leftRear.setVelocity(m3 * robot.driveVelocity);
         robot.rightRear.setVelocity(m4 * robot.driveVelocity);
-
     }
 
     /*
