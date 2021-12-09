@@ -84,6 +84,11 @@ public class MecanumDrive extends OpMode {
     public double lastPosition = 0;
     private boolean LEDOveride = false;
     // Declare OpMode members.
+    double gamepad2ATime = 0;
+    boolean gamepad2AReleased = true;
+    double gamepad1GuideTime = 0;
+    boolean gamepad1GuideReleased = true;
+
     boolean opModeIsActive = false;
     RobotHardware robot = new RobotHardware();
     CameraHardware camera = new CameraHardware();
@@ -127,8 +132,6 @@ public class MecanumDrive extends OpMode {
           }
       });
   */
-    double gamepad2ATime = 0;
-    boolean gamepad2AReleased = true;
     /*Thread user2 = new Thread(() -> {
         while (opModeIsActive) {
             if (gamepad2.left_bumper) {
@@ -270,16 +273,27 @@ public class MecanumDrive extends OpMode {
         robot.rightRear.setVelocity(m4 * robot.driveVelocity);
     }
 
-    public void WorldDrive(double x, double y, double z, Orientation gyro) {
-        g = gyro.thirdAngle / 90;
-        m1 = Range.clip((y + x - g) + z * steeringMultiplier, -1, 1);
-        m2 = Range.clip((y - x + g) - z * steeringMultiplier, -1, 1);
-        m3 = Range.clip((y - x + g) + z * steeringMultiplier, -1, 1);
-        m4 = Range.clip((y + x - g) - z * steeringMultiplier, -1, 1);
+    public void WorldDrive(double x, double y, double z) {
+        g = gyro.getOrientation().secondAngle / 90;
+        m1 = Range.clip(y + x + z * steeringMultiplier, -1, 1) - g;
+        m2 = Range.clip(y - x - z * steeringMultiplier, -1, 1) + g;
+        m3 = Range.clip(y - x + z * steeringMultiplier, -1, 1) - g;
+        m4 = Range.clip(y + x - z * steeringMultiplier, -1, 1) + g;
+        if (x != 0 || y != 0 || z != 0){
+        m1 = m1 > 1 ? -1 + m1 : m1 < -1 ? 1 - m1 : m1;
+        m2 = m2 > 1 ? -1 + m2 : m2 < -1 ? 1 - m2 : m2;
+        m3 = m3 > 1 ? -1 + m3 : m3 < -1 ? 1 - m3 : m3;
+        m4 = m4 > 1 ? -1 + m4 : m4 < -1 ? 1 - m4 : m4;
         robot.leftFront.setVelocity(m1 * robot.driveVelocity);
         robot.rightFront.setVelocity(m2 * robot.driveVelocity);
         robot.leftRear.setVelocity(m3 * robot.driveVelocity);
         robot.rightRear.setVelocity(m4 * robot.driveVelocity);
+        } else {
+        robot.leftFront.setVelocity(0);
+        robot.rightFront.setVelocity(0);
+        robot.leftRear.setVelocity(0);
+        robot.rightRear.setVelocity(0);
+        }
     }
 
     /*
@@ -359,8 +373,19 @@ public class MecanumDrive extends OpMode {
                 robot.setGreenLights((int) (runtime.milliseconds()/500) % 2 == 0);
                 robot.setRedLights(!((int) (runtime.milliseconds()/500) % 2 == 0));
             }
-
+        if (worldDrive){
+            WorldDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+        }else{
         Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+        }
+        
+        if(gamepad1.guide && gamepad1GuideReleased && runtime.seconds() - gamepad1GuideTime > 0.2){
+            worldDrive = !worldDrive;
+            gamepad1GuideReleased = false;
+        }else if (!gamepad1GuideReleased && !gamepad1.guide) {
+            gamepad1GuideTime = runtime.seconds();
+            gamepad1GuideReleased = true;
+        }
         /*for (int i = 0; i < robot.lights.length; i++) {
             robot.lights[i].enable(true);
             if (i < 1) robot.lights[15].enable(false);
