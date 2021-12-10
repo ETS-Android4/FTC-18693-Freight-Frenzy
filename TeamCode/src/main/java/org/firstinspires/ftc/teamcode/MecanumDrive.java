@@ -84,6 +84,11 @@ public class MecanumDrive extends OpMode {
     public double lastPosition = 0;
     private boolean LEDOveride = false;
     // Declare OpMode members.
+    double gamepad2ATime = 0;
+    boolean gamepad2AReleased = true;
+    double gamepad1GuideTime = 0;
+    boolean gamepad1GuideReleased = true;
+
     boolean opModeIsActive = false;
     RobotHardware robot = new RobotHardware();
     CameraHardware camera = new CameraHardware();
@@ -127,8 +132,6 @@ public class MecanumDrive extends OpMode {
           }
       });
   */
-    double gamepad2ATime = 0;
-    boolean gamepad2AReleased = true;
     /*Thread user2 = new Thread(() -> {
         while (opModeIsActive) {
             if (gamepad2.left_bumper) {
@@ -208,11 +211,13 @@ public class MecanumDrive extends OpMode {
         }
         // 1,500 = up, 0 = downG
         telemetry.addData("Arm Position", robot.arm.getCurrentPosition());
+        if (positionSaved) telemetry.addData("Arm Accuracy", lastPosition-robot.arm.getCurrentPosition());
+        telemetry.addData("Arm Power", robot.arm.getCurrentPower());
         telemetry.addData("Servo Position", "%.2f", robot.claw.getPosition());
-        telemetry.addData("Steering Sensitivity", "%.0f%%", steeringMultiplier * 100);
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
-        telemetry.addData("Distance", "left %.2f, right %.2f", robot.distanceLeft.getDistance(DistanceUnit.METER), robot.distanceRight.getDistance(DistanceUnit.METER));
+        telemetry.addData("Steering Sensitivity", "%.0f%%", steeringMultiplier * 100);
+        //telemetry.addData("Distance", "left %.2f, right %.2f", robot.distanceLeft.getDistance(DistanceUnit.METER), robot.distanceRight.getDistance(DistanceUnit.METER));
         //telemetry.addData("Color Detected", robot.detectColor());
         if (camera.initialized != null && camera.initialized) {
             // getUpdatedRecognitions() will return null if no new information is available since
@@ -270,12 +275,24 @@ public class MecanumDrive extends OpMode {
         robot.rightRear.setVelocity(m4 * robot.driveVelocity);
     }
 
-    public void WorldDrive(double x, double y, double z, Orientation gyro) {
-        g = gyro.thirdAngle / 90;
-        m1 = Range.clip((y + x - g) + z * steeringMultiplier, -1, 1);
-        m2 = Range.clip((y - x + g) - z * steeringMultiplier, -1, 1);
-        m3 = Range.clip((y - x + g) + z * steeringMultiplier, -1, 1);
-        m4 = Range.clip((y + x - g) - z * steeringMultiplier, -1, 1);
+    public void WorldDrive(double x, double y, double z) {
+        g = gyro.getOrientation().secondAngle / 90;
+        m1 = y + x;
+        m2 = y-x;
+        m3=y-x;
+        m4=y+x;
+        m1 += g*m1;
+        m2 += g*m2;
+        m3 += g*m3;
+        m4 += g*m4;
+        m1 = m1 > 1 ? -1 + m1 : m1 < -1 ? 1 + m1 : m1;
+        m2 = m2 > 1 ? -1 + m2 : m2 < -1 ? 1 + m2 : m2;
+        m3 = m3 > 1 ? -1 + m3 : m3 < -1 ? 1 + m3 : m3;
+        m4 = m4 > 1 ? -1 + m4 : m4 < -1 ? 1 + m4 : m4;
+        m1 = Range.clip(m1 + z * steeringMultiplier, -1, 1);
+        m2 = Range.clip(m2- z * steeringMultiplier, -1, 1);
+        m3 = Range.clip(m3 + z * steeringMultiplier, -1, 1);
+        m4 = Range.clip(m4 - z * steeringMultiplier, -1, 1);
         robot.leftFront.setVelocity(m1 * robot.driveVelocity);
         robot.rightFront.setVelocity(m2 * robot.driveVelocity);
         robot.leftRear.setVelocity(m3 * robot.driveVelocity);
@@ -359,8 +376,19 @@ public class MecanumDrive extends OpMode {
                 robot.setGreenLights((int) (runtime.milliseconds()/500) % 2 == 0);
                 robot.setRedLights(!((int) (runtime.milliseconds()/500) % 2 == 0));
             }
-
+        if (worldDrive){
+            WorldDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+        }else{
         Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+        }
+        
+        if(gamepad1.guide && gamepad1GuideReleased && runtime.seconds() - gamepad1GuideTime > 0.2){
+            worldDrive = !worldDrive;
+            gamepad1GuideReleased = false;
+        }else if (!gamepad1GuideReleased && !gamepad1.guide) {
+            gamepad1GuideTime = runtime.seconds();
+            gamepad1GuideReleased = true;
+        }
         /*for (int i = 0; i < robot.lights.length; i++) {
             robot.lights[i].enable(true);
             if (i < 1) robot.lights[15].enable(false);
@@ -427,6 +455,7 @@ public class MecanumDrive extends OpMode {
         UnlockMotor(robot.arm, true);
         if (camera.initialized != null && camera.initialized) camera.tfod.shutdown();
         telemetry.addData("Status", "Stopped");
+        robot.setLights(false);
         //robot.greenLight.enableLight(false);
 
     }
