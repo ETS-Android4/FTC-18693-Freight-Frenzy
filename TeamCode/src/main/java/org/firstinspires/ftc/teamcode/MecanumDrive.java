@@ -172,7 +172,7 @@ public class MecanumDrive extends OpMode {
         }
         //motor.setPower((lastPosition - motor.getCurrentPosition()) / 100);
         //motor.setPower(lastPosition - motor.getCurrentPosition()/100.0);
-        motor.setVelocity(robot.armVelocity*Range.clip(((lastPosition - robot.arm.getCurrentPosition()) / 100.0), -1, 1));
+        motor.setPower(Range.clip(((lastPosition - robot.arm.getCurrentPosition())/50), -0.5, 0.5));
     }
 
     public void UnlockMotor(DcMotor motor, boolean powerOff) {
@@ -390,10 +390,10 @@ public class MecanumDrive extends OpMode {
             UnlockMotor(robot.arm, true);
         } else if (robot.arm.getCurrentPosition() > robot.armMax) {
             if (-gamepad2.left_stick_y < 0)
-                robot.arm.setVelocity(-gamepad2.left_stick_y * robot.armVelocity);
+                robot.arm.setPower(-gamepad2.left_stick_y);
             else LockMotor(robot.arm);
         } else if (gamepad2.left_stick_y != 0) {
-            robot.arm.setVelocity(-gamepad2.left_stick_y * robot.armVelocity);
+            robot.arm.setPower(-gamepad2.left_stick_y);
             positionSaved = false;
         } else {
             LockMotor(robot.arm);
@@ -407,7 +407,7 @@ public class MecanumDrive extends OpMode {
             gamepad2ATime = runtime.seconds();
             gamepad2AReleased = true;
         }
-        robot.spinner.setVelocity(-gamepad2.right_stick_y * robot.spinnerVelocity);
+        robot.spinner.setPower(-gamepad2.right_stick_y);
     }
 
     /*

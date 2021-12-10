@@ -118,7 +118,7 @@ public class RobotHardware {
 
         hwMap = ahwMap;
         claw = hwMap.get(Servo.class, "Servo_0");
-        claw.scaleRange(0, 0.75);
+        claw.scaleRange(0, 0.65);
         claw.setDirection(Servo.Direction.REVERSE);
         claw.setPosition(1);
         arm = hwMap.get(DcMotorEx.class, "Motor_4");
