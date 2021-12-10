@@ -38,6 +38,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -168,14 +169,16 @@ public class MecanumDrive extends OpMode {
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
      */
     public void LockMotor(DcMotorEx motor) {
-        robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         if (!positionSaved) {
             lastPosition = robot.arm.getCurrentPosition();
             positionSaved = true;
         }
         //motor.setPower((lastPosition - motor.getCurrentPosition()) / 100);
         //motor.setPower(lastPosition - motor.getCurrentPosition()/100.0);
-        motor.setPower(Range.clip(((lastPosition - robot.arm.getCurrentPosition())/50), -0.5, 0.5));
+        //motor.setPower(0.2);
+        double correction = (lastPosition - motor.getCurrentPosition());
+        motor.setPower(Range.clip((correction == 0 ? -1 : correction) * 0.095, -0.15, 0.3));
     }
 
     public void UnlockMotor(DcMotor motor, boolean powerOff) {
@@ -205,14 +208,14 @@ public class MecanumDrive extends OpMode {
             telemetry.addData("Status", "Running");
         }
         if (gyro.initialized != null && gyro.initialized) {
-            telemetry.addData("Intrinsic Orientation", "%.0f°", gyro.getOrientation().secondAngle);
-            telemetry.addData("Extrinsic Orientation", "%.0f°", gyro.getOrientation2().secondAngle);
+            telemetry.addData("Orientation", "%.0f°", -gyro.getOrientation().secondAngle);
             telemetry.addData("Temperature", "%.0f°", gyro.getTemp() * 1.8 + 32);
         }
         // 1,500 = up, 0 = downG
         telemetry.addData("Arm Position", robot.arm.getCurrentPosition());
-        if (positionSaved) telemetry.addData("Arm Accuracy", lastPosition-robot.arm.getCurrentPosition());
-        telemetry.addData("Arm Power", robot.arm.getCurrentPower());
+        if (positionSaved)
+            telemetry.addData("Arm Accuracy", lastPosition - robot.arm.getCurrentPosition());
+        telemetry.addData("Arm Power", "%.3f", robot.arm.getPower());
         telemetry.addData("Servo Position", "%.2f", robot.claw.getPosition());
         telemetry.addData("Front Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftFront.getVelocity() / robot.driveVelocity * 100, robot.rightFront.getVelocity() / robot.driveVelocity * 100);
         telemetry.addData("Rear Velocity", "Left (%.2f%%), Right (%.2f%%)", robot.leftRear.getVelocity() / robot.driveVelocity * 100, robot.rightRear.getVelocity() / robot.driveVelocity * 100);
@@ -276,27 +279,14 @@ public class MecanumDrive extends OpMode {
     }
 
     public void WorldDrive(double x, double y, double z) {
-        g = gyro.getOrientation().secondAngle / 90;
-        m1 = y + x;
-        m2 = y-x;
-        m3=y-x;
-        m4=y+x;
-        m1 += g*m1;
-        m2 += g*m2;
-        m3 += g*m3;
-        m4 += g*m4;
-        m1 = m1 > 1 ? -1 + m1 : m1 < -1 ? 1 + m1 : m1;
-        m2 = m2 > 1 ? -1 + m2 : m2 < -1 ? 1 + m2 : m2;
-        m3 = m3 > 1 ? -1 + m3 : m3 < -1 ? 1 + m3 : m3;
-        m4 = m4 > 1 ? -1 + m4 : m4 < -1 ? 1 + m4 : m4;
-        m1 = Range.clip(m1 + z * steeringMultiplier, -1, 1);
-        m2 = Range.clip(m2- z * steeringMultiplier, -1, 1);
-        m3 = Range.clip(m3 + z * steeringMultiplier, -1, 1);
-        m4 = Range.clip(m4 - z * steeringMultiplier, -1, 1);
-        robot.leftFront.setVelocity(m1 * robot.driveVelocity);
-        robot.rightFront.setVelocity(m2 * robot.driveVelocity);
-        robot.leftRear.setVelocity(m3 * robot.driveVelocity);
-        robot.rightRear.setVelocity(m4 * robot.driveVelocity);
+        if (gyro.initialized != null && gyro.initialized)
+            g = -gyro.getOrientation().secondAngle / 45;
+        if (g > 2 || g < -2) {
+            g= g > 2 ? -g+4 : -g-4;
+            Drive((x + g * y)*-1, (y - g * x)*-1, z + 0);
+        } else {
+            Drive(x - g * y, y + g * x, z + 0);
+        }
     }
 
     /*
@@ -372,20 +362,21 @@ public class MecanumDrive extends OpMode {
      */
     @Override
     public void loop() {
-            if(!LEDOveride) {
-                robot.setGreenLights((int) (runtime.milliseconds()/500) % 2 == 0);
-                robot.setRedLights(!((int) (runtime.milliseconds()/500) % 2 == 0));
-            }
-        if (worldDrive){
-            WorldDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
-        }else{
-        Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+        if (!LEDOveride) {
+            robot.setGreenLights((int) (runtime.milliseconds() / 500) % 2 == 0);
+            robot.setRedLights(!((int) (runtime.milliseconds() / 500) % 2 == 0));
         }
-        
-        if(gamepad1.guide && gamepad1GuideReleased && runtime.seconds() - gamepad1GuideTime > 0.2){
+        if (worldDrive) {
+            WorldDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+        } else {
+            Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+        }
+
+        if (gamepad1.guide && gamepad1GuideReleased && runtime.seconds() - gamepad1GuideTime > 0.2) {
             worldDrive = !worldDrive;
+            if (worldDrive && gyro.initialized != null && gyro.initialized) gyro.init();
             gamepad1GuideReleased = false;
-        }else if (!gamepad1GuideReleased && !gamepad1.guide) {
+        } else if (!gamepad1GuideReleased && !gamepad1.guide) {
             gamepad1GuideTime = runtime.seconds();
             gamepad1GuideReleased = true;
         }
@@ -416,10 +407,17 @@ public class MecanumDrive extends OpMode {
         }
         if (gamepad2.left_bumper) {
             UnlockMotor(robot.arm, true);
+        } else if (gamepad2.left_stick_y != 0 && gamepad2.guide) {
+            robot.arm.setPower(-gamepad2.left_stick_y);
+            positionSaved = false;
         } else if (robot.arm.getCurrentPosition() > robot.armMax) {
             if (-gamepad2.left_stick_y < 0)
                 robot.arm.setPower(-gamepad2.left_stick_y);
             else LockMotor(robot.arm);
+        } else if (robot.arm.getCurrentPosition() < robot.armMin) {
+            if (-gamepad2.left_stick_y > 0)
+                robot.arm.setPower(-gamepad2.left_stick_y);
+            else UnlockMotor(robot.arm, true);
         } else if (gamepad2.left_stick_y != 0) {
             robot.arm.setPower(-gamepad2.left_stick_y);
             positionSaved = false;

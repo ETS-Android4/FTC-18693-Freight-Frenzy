@@ -32,6 +32,16 @@ public class GyroHardware {
         parameters.loggingEnabled = false;
         parameters.temperatureUnit = BNO055IMU.TempUnit.FARENHEIT;
         //parameters.gyroPowerMode        = BNO055IMU.GyroPowerMode.ADVANCED;
+
+        gyro.initialize(parameters);
+
+        while (!gyro.isGyroCalibrated()) {
+            sleep(50);
+        }
+        initialized = true;
+    }
+    public void init(){
+        initialized = false;
         gyro.initialize(parameters);
 
         while (!gyro.isGyroCalibrated()) {

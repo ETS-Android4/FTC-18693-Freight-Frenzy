@@ -72,8 +72,8 @@ public class RobotHardware {
 
     public Boolean initialized = null;
     public final double driveMotorTPR = 288;
-    public final double driveRatio = 90.0/30.0;
-    public final double driveWheelTPR = driveRatio*driveMotorTPR;
+    public final double driveRatio = 90.0 / 30.0;
+    public final double driveWheelTPR = driveRatio * driveMotorTPR;
     public final double driveWheelRPS = 6;
     public final double maxDriveVelocity = driveWheelTPR * driveWheelRPS;
     public double driveVelocity = maxDriveVelocity;
@@ -95,7 +95,8 @@ public class RobotHardware {
     public final double maxSpinnerVelocity = spinnerTPR * spinnerRPS;
     public final double spinnerVelocity = maxSpinnerVelocity;
 
-    public final double armMax = 75;
+    public final double armMax = 170;
+    public final double armMin = 5;
     /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
      * the following 4 detectable objects
      *  0: Ball,
@@ -177,7 +178,7 @@ public class RobotHardware {
             redLights[i] = hwMap.get(LED.class, "Light_" + i);
         }
         */
-        for (int i = 0; i< lights.length; i++) {
+        for (int i = 0; i < lights.length; i++) {
             lights[i] = hwMap.get(LED.class, "Light_" + i);
         }
 
