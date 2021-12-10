@@ -373,9 +373,16 @@ public class MecanumDrive extends OpMode {
         }
 
         if (gamepad1.guide && gamepad1GuideReleased && runtime.seconds() - gamepad1GuideTime > 0.2) {
+            if (worldDrive && gyro.initialized != null && gyro.initialized){
+            if (!gamepad1.isRumbling())
+                gamepad1.rumble(Gamepad.RUMBLE_DURATION_CONTINUOUS);
             worldDrive = !worldDrive;
-            if (worldDrive && gyro.initialized != null && gyro.initialized) gyro.init();
+            telemetry.speak("%s World Drive", worldDrive ? "Activating" : "Deactivating");
+            if (worldDrive) gyro.init();
             gamepad1GuideReleased = false;
+            if (gamepad1.isRumbling())
+                gamepad1.stopRumble();
+            }
         } else if (!gamepad1GuideReleased && !gamepad1.guide) {
             gamepad1GuideTime = runtime.seconds();
             gamepad1GuideReleased = true;
