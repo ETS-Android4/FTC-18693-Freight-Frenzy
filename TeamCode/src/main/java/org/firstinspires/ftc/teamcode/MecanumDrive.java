@@ -312,6 +312,7 @@ public class MecanumDrive extends OpMode {
         initialization.setPriority(7);
         initialization.start();
         audio.initialize(SoundPlayer.getInstance());
+        audio.preloadSound("1-screaming.mp3");
         //telemetry.setMsTransmissionInterval(5);
         //user1.setPriority(10);
         //user2.setPriority(8);
