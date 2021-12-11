@@ -36,16 +36,15 @@ public class GyroHardware {
         gyro.initialize(parameters);
 
         while (!gyro.isGyroCalibrated()) {
-            sleep(50);
+            sleep(5);
         }
         initialized = true;
     }
     public void init(){
         initialized = false;
         gyro.initialize(parameters);
-
         while (!gyro.isGyroCalibrated()) {
-            sleep(50);
+            sleep(5);
         }
         initialized = true;
     }

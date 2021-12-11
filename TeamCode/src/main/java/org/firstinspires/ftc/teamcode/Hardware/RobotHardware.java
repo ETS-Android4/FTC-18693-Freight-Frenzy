@@ -89,14 +89,15 @@ public class RobotHardware {
     public final double armRPS = 2;
     public final double maxArmVelocity = armTPR * armRPS;
     public double armVelocity = maxArmVelocity;
+    public final double armMax = 170;
+    public final double armMin = 30;
 
     public final double spinnerTPR = 288;
     public final double spinnerRPS = 1;
     public final double maxSpinnerVelocity = spinnerTPR * spinnerRPS;
     public final double spinnerVelocity = maxSpinnerVelocity;
 
-    public final double armMax = 170;
-    public final double armMin = 5;
+
     /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
      * the following 4 detectable objects
      *  0: Ball,
@@ -124,10 +125,10 @@ public class RobotHardware {
         claw.setPosition(1);
         arm = hwMap.get(DcMotorEx.class, "Motor_4");
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        arm.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        double Arm_F = 32767 / maxDriveVelocity, Arm_P = 0.1 * Arm_F, Arm_I = 0.01 * Arm_P;
-        //arm.setVelocityPIDFCoefficients(Arm_P, Arm_I, 0, Arm_F);
+        double Arm_F = 32767 / maxDriveVelocity, Arm_P = 0.1 * Arm_F, Arm_I = 0.1 * Arm_P;
+        arm.setVelocityPIDFCoefficients(Arm_P, Arm_I, 0, Arm_F);
         //arm.setPositionPIDFCoefficients(32767/maxArmVelocity*0.3);
         spinner = hwMap.get(DcMotorEx.class, "Motor_5");
         //spinner.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -195,21 +196,48 @@ public class RobotHardware {
         initialized = true;
     }
 
-    public void setLights(Boolean enable) {
+    public void setLights(boolean enable) {
         for (LED light : lights) {
             light.enable(enable);
         }
     }
+    public void setLights(boolean left, boolean right){
+        for (int i = 0; i < lights.length; i++){
+            if (i < lights.length/2){
+                lights[i].enable(left);
+            } else{
+                lights[i].enable(right);
+            }
+        }
+    }
 
-    public void setGreenLights(Boolean enable) {
+    public void setGreenLights(boolean enable) {
         for (int i = 1; i < lights.length; i += 2) {
             lights[i].enable(enable);
         }
     }
+    public void setGreenLights(boolean left, boolean right){
+        for (int i = 1; i < lights.length; i += 2){
+            if (i < lights.length/2){
+                lights[i].enable(left);
+            } else{
+                lights[i].enable(right);
+            }
+        }
+    }
 
-    public void setRedLights(Boolean enable) {
+    public void setRedLights(boolean enable) {
         for (int i = 0; i < lights.length; i += 2) {
             lights[i].enable(enable);
+        }
+    }
+    public void setRedLights(boolean left, boolean right){
+        for (int i = 0; i < lights.length; i += 2){
+            if (i < lights.length/2){
+                lights[i].enable(left);
+            } else{
+                lights[i].enable(right);
+            }
         }
     }
 
