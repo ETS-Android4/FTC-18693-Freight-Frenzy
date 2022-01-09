@@ -75,7 +75,7 @@ public class MecanumDrive extends OpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     public double Status = 5;
     //public boolean mutantGamepad = false;
-    public boolean worldDrive = false;
+    public boolean relativeDrive = false;
     public AndroidSoundPool audio = new AndroidSoundPool();
     public double steeringMultiplier = 1;
     public double steeringAdjusted = 0;
@@ -114,10 +114,10 @@ public class MecanumDrive extends OpMode {
           while (opModeIsActive) {
               //if (gamepad1.b) gyro.gyro.initialize(gyro.parameters);
               /*if (gamepad1.a && driveModeAdjusted < runtime.milliseconds()) {
-                  //worldDrive = true;
+                  //relativeDrive = true;
                   driveModeAdjusted = runtime.milliseconds() + 500;
-              } else if (worldDrive) {
-                  WorldDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, gyro.gyro.getAngularOrientation());
+              } else if (relativeDrive) {
+                  RelativeDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, gyro.gyro.getAngularOrientation());
               } else {
                   Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
               }
@@ -206,8 +206,8 @@ public class MecanumDrive extends OpMode {
             telemetry.addData("Status", "Danger! Really Low Voltage");
         } else if (Status == 1) {
             telemetry.addData("Status", "WARNING! Low Voltage");
-        } else if (worldDrive) {
-            telemetry.addData("Status", "Running, World Drive Enabled");
+        } else if (relativeDrive) {
+            telemetry.addData("Status", "Running, Relative Drive Enabled");
         } else {
             telemetry.addData("Status", "Running");
         }
@@ -291,11 +291,14 @@ public class MecanumDrive extends OpMode {
 
     double lastOrientation = 2;
 
-    public void WorldDrive(double x, double y, double z) {
+    public void RelativeDrive(double x, double y, double z) {
         g = -gyro.getOrientation().secondAngle / 45;
-        if ((lastOrientation > 160 || lastPosition < -160) && (gyro.getOrientation().secondAngle < 20 || gyro.getOrientation().secondAngle < -20))
+        if ((lastOrientation > 170 || lastPosition < -170) && (gyro.getOrientation().secondAngle < 10 || gyro.getOrientation().secondAngle < -10)){
             g = 4;
+            lastOrientation = 180;
+        }else{
         lastOrientation = -gyro.getOrientation().secondAngle;
+        }
         if (g > 2 || g < -2) {
             g = g > 2 ? -g + 4 : -g - 4;
             Drive((x + g * y) * -1, (y - g * x) * -1, z + 0);
@@ -398,15 +401,15 @@ public class MecanumDrive extends OpMode {
             }
             //robot.setGreenLights(Math.random() < 0.5, Math.random() < 0.5);
             //robot.setRedLights(Math.random() < 0.5, Math.random() < 0.5);
-        } else if (!LEDOveride && worldDrive) {
+        } else if (!LEDOveride && relativeDrive) {
             robot.setGreenLights((int) (runtime.milliseconds() / 500) % 2 == 0, !((int) (runtime.milliseconds() / 500) % 2 == 0));
             robot.setRedLights(!((int) (runtime.milliseconds() / 500) % 2 == 0), (int) (runtime.milliseconds() / 500) % 2 == 0);
         } else if (!LEDOveride) {
             robot.setGreenLights((int) (runtime.milliseconds() / 500) % 2 == 0);
             robot.setRedLights(!((int) (runtime.milliseconds() / 500) % 2 == 0));
         }
-        if (worldDrive) {
-            WorldDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+        if (relativeDrive) {
+            RelativeDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
         } else {
             Drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
         }
@@ -416,9 +419,9 @@ public class MecanumDrive extends OpMode {
             gamepad1.rumble(Gamepad.RUMBLE_DURATION_CONTINUOUS);
             robot.setGreenLights(false);
             robot.setRedLights(true);
-            worldDrive = !worldDrive;
-            telemetry.speak(String.format("%s World Drive", worldDrive ? "Activating" : "Deactivating"));
-            if (worldDrive) {
+            relativeDrive = !relativeDrive;
+            telemetry.speak(String.format("%s Relative Drive", relativeDrive ? "Activating" : "Deactivating"));
+            if (relativeDrive) {
                 Drive(0, 0, 0);
                 gyro.init();
             }
