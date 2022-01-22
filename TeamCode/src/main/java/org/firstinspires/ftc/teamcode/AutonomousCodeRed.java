@@ -44,6 +44,7 @@ import org.firstinspires.ftc.robotcore.external.android.AndroidSoundPool;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Hardware.CameraHardware;
 import org.firstinspires.ftc.teamcode.Hardware.GyroHardware;
+import org.firstinspires.ftc.teamcode.Hardware.LightHardware;
 import org.firstinspires.ftc.teamcode.Hardware.RobotHardware;
 
 
@@ -76,13 +77,18 @@ public class AutonomousCodeRed extends OpMode {
     public boolean Done;
     // Declare OpMode members.
     boolean opModeIsActive = false;
+    LightHardware lights = new LightHardware();
     RobotHardware robot = new RobotHardware();
     //CameraHardware camera = new CameraHardware();
     GyroHardware gyro = new GyroHardware();
     Thread initialization = new Thread(() -> {
+        lights.init(hardwareMap);
+        telemetry.speak("Lights Online");
+        lights.setRedLights(true);
+        lights.setGreenLights(false);
         robot.init(hardwareMap, 2);
-        robot.setLights(false);
-        robot.setGreenLights(true);
+        lights.setLights(false);
+        lights.setGreenLights(true);
         telemetry.speak("Hardware Online");
         //camera.init(hardwareMap, 1);
         /*if (camera.initialized != null) {
@@ -93,19 +99,6 @@ public class AutonomousCodeRed extends OpMode {
         }*/
         gyro.init(hardwareMap);
         telemetry.speak("Gyroscope Online");
-    });
-    Thread lights = new Thread(() -> {
-        robot.setLights(false);
-        while (opModeIsActive) {
-            /*for (int i = 0; i < robot.lights.length; i++) {
-                if (!opModeIsActive) break;
-                if (i < 1) robot.lights[robot.lights.length - 1].enable(false);
-                robot.lights[i].enable(true);
-                sleep(200);
-            }*/
-            robot.setGreenLights((int) runtime.milliseconds() / 500 % 2 == 0);
-            robot.setRedLights(!((int) runtime.milliseconds() / 500 % 2 == 0));
-        }
     });
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
@@ -240,7 +233,6 @@ public class AutonomousCodeRed extends OpMode {
                 telemetry.addData("Gyro", "Uninitialized");
             }*/
         }
-        lights.start();
         runtime.reset();
         while (gyro.initialized == null || !gyro.initialized) {
             if (gyro.initialized != null) {
@@ -249,6 +241,7 @@ public class AutonomousCodeRed extends OpMode {
                 telemetry.addData("Gyro", "Uninitialized");
             }
         }
+        lights.random(false, true);
         Drive(1, 0, 0);
         sleep(450);
         runtime.reset();
@@ -277,8 +270,10 @@ public class AutonomousCodeRed extends OpMode {
             robot.driveVelocity = robot.maxDriveVelocity;
             //audio.stop();
         }
-
+        lights.setGreenLights((int) runtime.milliseconds() / 500 % 2 == 0);
+        lights.setRedLights(!((int) runtime.milliseconds() / 500 % 2 == 0));
         if (runtime.seconds() > 3) {
+            lights.random(true, false);
             Drive(-1, 0, 0);
             sleep(200);
             Drive(0,0,0);
@@ -294,7 +289,7 @@ public class AutonomousCodeRed extends OpMode {
     //Stop Code. Runs Once
     public void stop() {
         opModeIsActive = false;
-        robot.setLights(false);
+        lights.setLights(false);
         telemetry.addData("Status", "Stopping...");
         //audio.close();
         robot.leftRear.setPower(0);

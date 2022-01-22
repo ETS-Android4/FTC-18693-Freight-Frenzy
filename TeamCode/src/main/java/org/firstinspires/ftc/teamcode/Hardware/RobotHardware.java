@@ -60,9 +60,7 @@ public class RobotHardware {
         public LED rightRightRearRed = null;
         public LED rightRightRearGreen = null;
     */
-    public LED[] greenLights = new LED[8];
-    public LED[] redLights = new LED[8];
-    public LED[] lights = new LED[16];
+    //public LED[] lights = new LED[16];
     public ColorSensor color = null;
     public Rev2mDistanceSensor distanceLeft = null;
     public Rev2mDistanceSensor distanceRight = null;
@@ -179,9 +177,10 @@ public class RobotHardware {
             redLights[i] = hwMap.get(LED.class, "Light_" + i);
         }
         */
-        for (int i = 0; i < lights.length; i++) {
+        /*for (int i = 0; i < lights.length; i++) {
             lights[i] = hwMap.get(LED.class, "Light_" + i);
         }
+         */
 
         // Define and initialize ALL installed distance/light sensors.
         color = hwMap.get(ColorSensor.class, "Color_0");
@@ -190,12 +189,9 @@ public class RobotHardware {
 
         // Define and initialize ALL internal sensors.
         voltageSensor = hwMap.get(VoltageSensor.class, "Control Hub");
-        if (driveTickPerInch != 0 || driveTickPerMillimeter != 0) {
-            setLights(false);
-        }
         initialized = true;
     }
-
+    /*
     public void setLights(boolean enable) {
         for (LED light : lights) {
             light.enable(enable);
@@ -240,7 +236,7 @@ public class RobotHardware {
             }
         }
     }
-
+*/
     public String detectColor() {
         int colorHSV;
         float hue;
